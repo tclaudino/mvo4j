@@ -1,23 +1,21 @@
-package br.com.scaleframework.vraptor;
+package br.com.cd.scaleframework.web.vraptor;
 
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 
-import org.springframework.web.bind.annotation.PathVariable;
+import org.slf4j.LoggerFactory;
 
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Resource;
 import br.com.caelum.vraptor.Result;
-import br.com.cd.scaleframework.context.Messenger;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanFactory;
+import br.com.cd.scaleframework.context.Application;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.controller.Controller;
-import br.com.cd.scaleframework.core.dynamic.WebCrudControllerBean;
-import br.com.cd.scaleframework.core.proxy.CrudControllerProxy;
-import br.com.cd.scaleframework.util.ParserUtils;
+import br.com.cd.scaleframework.controller.CrudController;
 import br.com.cd.scaleframework.util.StringUtils;
-import br.com.cd.scaleframework.web.context.WebApplicationContext;
 import br.com.cd.scaleframework.web.util.WebUtil;
 
 @Resource
@@ -34,17 +32,17 @@ public class DynamicController {
 	private String prefix;
 	private String sufix;
 
-	private WebApplicationContext applicationContext;
+	private DynamicBeanFactory beanFactory;
+	private Application application;
 	private Translator translator;
-	private Messenger messenger;
 
 	private Result result;
 
-	public DynamicController(WebApplicationContext applicationContext,
-			Translator translator, Messenger messenger, Result result) {
-		this.applicationContext = applicationContext;
+	public DynamicController(DynamicBeanFactory beanFactory,
+			Application application, Translator translator, Result result) {
+		this.beanFactory = beanFactory;
+		this.application = application;
 		this.translator = translator;
-		this.messenger = messenger;
 		this.result = result;
 	}
 
@@ -53,13 +51,13 @@ public class DynamicController {
 	@PostConstruct
 	public void setServletConfig() {
 
-		ServletContext servletContext = applicationContext.getServletContext();
-		prefix = WebUtil.getContextParameter(servletContext,
+		ServletContext servletContext = application.getServletContext();
+		prefix = WebUtil.getInitParameter(servletContext,
 				VIEW_PREFIX_PARAM_NAME, VIEW_PREFIX_DEFAULT_VALUE);
 		prefix = StringUtils.addBeginSlash(StringUtils.addEndSlash(prefix));
 
-		sufix = WebUtil.getContextParameter(servletContext,
-				VIEW_SUFIX_PARAM_NAME, VIEW_SUFIX_DEFAULT_VALUE);
+		sufix = WebUtil.getInitParameter(servletContext, VIEW_SUFIX_PARAM_NAME,
+				VIEW_SUFIX_DEFAULT_VALUE);
 
 		System.out.println("CrudController.initializing...\nprefix: " + prefix
 				+ ", sufix: " + sufix + ", contextPath: "
@@ -72,9 +70,9 @@ public class DynamicController {
 			this.attributesSetted = true;
 
 			result.include("translator", translator);
-			result.include("i18n", translator);
-			result.include("messenger", messenger);
-			result.include("msg", messenger);
+			result.include("i18n", application.translator);
+			result.include("application", application);
+			result.include("msg", application);
 		}
 
 	}
@@ -87,9 +85,8 @@ public class DynamicController {
 
 		System.out.println("CrudController.list, viewName : " + viewName);
 
-		if (applicationContext.containsBean(viewName)) {
-			Controller bean = applicationContext.getBean(viewName,
-					Controller.class);
+		if (beanFactory.containsBean(viewName)) {
+			Controller bean = beanFactory.getBean(viewName, Controller.class);
 
 			bean.setPageNumber(pageNumber);
 			bean.setPageSize(pageSize);
@@ -97,13 +94,8 @@ public class DynamicController {
 
 			System.out.println("bean: " + bean);
 
-			String sigletonName = CURRENT_BEAN_SINGLETON_NAME;
-			if (bean.getClass()
-					.isAnnotationPresent(WebCrudControllerBean.class)) {
-				sigletonName = bean.getClass()
-						.getAnnotation(WebCrudControllerBean.class).name();
-			}
-			result.include(sigletonName, bean);
+			result.include(bean.getName() + "Bean", bean);
+			result.include(CURRENT_BEAN_SINGLETON_NAME, bean);
 
 			result.forwardTo(prefix + viewName + "/list" + sufix);
 		}
@@ -118,30 +110,27 @@ public class DynamicController {
 
 		System.out.println("CrudController.edit, viewName : " + viewName);
 
-		if (applicationContext.containsBean(viewName)) {
-			CrudControllerProxy bean = (CrudControllerProxy) applicationContext
+		if (beanFactory.containsBean(viewName)) {
+			CrudController bean = (CrudController) beanFactory
 					.getBean(viewName);
 
-			Class entityClass = bean.newEntity().getClass();
+			bean.toEditMode();
+			if (entityId.getClass().isAssignableFrom(
+					bean.getControllerConfig().entityIdType())) {
+				bean.setCurrentEntity(entityId);
 
-			System.out.println("entityClass: " + entityClass);
+				System.out.println("bean: " + bean);
 
-			Serializable id = ParserUtils.parseObject(bean.getComponent()
-					.getComponentConfig().getEntityIdType(), entityId);
+				result.include(bean.getName() + "Bean", bean);
+				result.include(CURRENT_BEAN_SINGLETON_NAME, bean);
 
-			bean.toUpdateMode();
-			bean.setCurrentEntity(id);
+				result.forwardTo(prefix + viewName + "/edit" + sufix);
 
-			System.out.println("bean: " + bean);
-
-			String sigletonName = CURRENT_BEAN_SINGLETON_NAME;
-			if (bean.getClass()
-					.isAnnotationPresent(WebCrudControllerBean.class)) {
-				sigletonName = bean.getClass()
-						.getAnnotation(WebCrudControllerBean.class).name();
+				return;
+			} else {
+				LoggerFactory.getLogger(DynamicController.class).error(
+						"@TODO: insert message here");
 			}
-			result.include(sigletonName, bean);
-			result.forwardTo(prefix + viewName + "/edit" + sufix);
 		}
 
 		result.notFound();
