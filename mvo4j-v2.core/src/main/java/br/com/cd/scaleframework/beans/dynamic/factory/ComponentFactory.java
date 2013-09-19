@@ -1,13 +1,20 @@
 package br.com.cd.scaleframework.beans.dynamic.factory;
 
-public interface ComponentFactory {
+import br.com.cd.scaleframework.controller.dynamic.BeanConfig;
+import br.com.cd.scaleframework.core.DynamicBean;
+import br.com.cd.scaleframework.core.NoSuchBeanDefinitionException;
 
-	boolean isComponentCandidate(DynamicBean<?> beanConfig);
+public interface ComponentFactory<Config extends BeanConfig<?, ?>> {
 
-	Object getComponent(DynamicBean<?> beanConfig);
+	boolean isComponentCandidate(DynamicBeanManager<?> beanConfig);
 
-	String generateBeanName(DynamicBean<?> beanConfig);
+	String generateBeanName(DynamicBeanManager<Config> beanConfig);
 
-	Class<?> createComponentProxy(DynamicBean<?> beanConfig);
+	DynamicBean<?, ?> getDynamicBean(DynamicBeanManager<Config> beanConfig)
+			throws NoSuchBeanDefinitionException;
+
+	Class<DynamicBean<?, ?>> createComponentProxy(
+			DynamicBeanManager<Config> beanConfig)
+			throws NoSuchBeanDefinitionException;
 
 }

@@ -2,7 +2,7 @@ package br.com.cd.scaleframework.context;
 
 public interface CacheManager {
 
-	boolean add(String key, Object value, int seconds);
+	boolean add(String key, Object value, long seconds);
 
 	Object getObject(String key);
 
@@ -12,6 +12,6 @@ public interface CacheManager {
 
 	<T> java.util.List<T> getObjects(Class<T> clazz, String key);
 
-	int getCacheTime();
+	long getCacheManagerMaxSize();
 
 }

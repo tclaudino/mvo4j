@@ -12,9 +12,20 @@ import java.util.logging.Logger;
 
 import br.com.cd.scaleframework.context.CacheManager;
 
-public abstract class AbstractCacheManager implements CacheManager {
+public class DefaultCacheManager implements CacheManager {
 
 	private Map<String, Entry<Date, SoftReference<Object>>> caches = new LinkedHashMap<String, Map.Entry<Date, SoftReference<Object>>>();
+
+	private long cacheTime;
+
+	public DefaultCacheManager(long cacheManagerMaxSize) {
+		this.cacheTime = cacheManagerMaxSize;
+	}
+
+	@Override
+	public long getCacheManagerMaxSize() {
+		return cacheTime;
+	}
 
 	@Override
 	public Object getObject(String key) {
@@ -98,7 +109,7 @@ public abstract class AbstractCacheManager implements CacheManager {
 	}
 
 	@Override
-	public boolean add(String key, Object value, int seconds) {
+	public boolean add(String key, Object value, long seconds) {
 		if (key != null && !"".equals(key) && value != null) {
 			Date now = new Date();
 
@@ -159,7 +170,7 @@ public abstract class AbstractCacheManager implements CacheManager {
 	}
 
 	protected boolean removeEldestEntry() {
-		int maxTime = this.getCacheTime();
+		long maxTime = this.getCacheManagerMaxSize();
 		return (maxTime > -1 && caches.size() > maxTime);
 	}
 }

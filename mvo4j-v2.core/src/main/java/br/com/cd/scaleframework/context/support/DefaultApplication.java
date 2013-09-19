@@ -6,22 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletContext;
-
 import br.com.cd.scaleframework.context.Application;
 import br.com.cd.scaleframework.context.ApplicationMessage;
 import br.com.cd.scaleframework.context.ApplicationMessage.Severity;
-import br.com.cd.scaleframework.web.util.WebUtil;
 
-public abstract class AbstractApplication implements Application {
-
-	private ServletContext servletContext;
+public class DefaultApplication implements Application {
 
 	private List<ApplicationMessage> messages = new LinkedList<ApplicationMessage>();
-
-	public AbstractApplication(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
 
 	@Override
 	public ApplicationMessage.ThrowableMessage addErrorMessage(Exception ex,
@@ -239,34 +230,6 @@ public abstract class AbstractApplication implements Application {
 				msgs.add((ApplicationMessage.ThrowableMessage) msg);
 		}
 		return msgs;
-	}
-
-	@Override
-	public ServletContext getServletContext() {
-		return servletContext;
-	}
-
-	@Override
-	public String getParameter(String parameterName) {
-		return WebUtil.getInitParameter(servletContext, parameterName);
-	}
-
-	@Override
-	public String getParameter(String parameterName, String defaultValue) {
-		return WebUtil.getInitParameter(servletContext, parameterName,
-				defaultValue);
-	}
-
-	@Override
-	public <T> T getParameter(String parameterName, Class<T> resultType) {
-		return WebUtil.getInitParameter(servletContext, parameterName,
-				resultType);
-	}
-
-	@Override
-	public <T> T getParameter(String parameterName, T defaultValue) {
-		return WebUtil.getInitParameter(servletContext, parameterName,
-				defaultValue);
 	}
 
 }

@@ -1,20 +1,33 @@
 package br.com.cd.scaleframework.web.beans.dynamic;
 
-import br.com.cd.scaleframework.beans.dynamic.factory.ComponentFactory;
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBean;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanManager;
+import br.com.cd.scaleframework.beans.dynamic.factory.support.AbstractComponentFactory;
+import br.com.cd.scaleframework.beans.factory.ioc.ComponentFactoryContainer;
+import br.com.cd.scaleframework.core.DynamicBean;
+import br.com.cd.scaleframework.core.NoSuchBeanDefinitionException;
 import br.com.cd.scaleframework.web.controller.dynamic.WebControllerBeanConfig;
 
-public class WebControllerComponentFactory implements ComponentFactory {
+@SuppressWarnings("rawtypes")
+public class WebControllerComponentFactory extends
+		AbstractComponentFactory<WebControllerBeanConfig> {
 
-	@Override
-	public boolean isComponentCandidate(DynamicBean<?> beanConfig) {
-		return beanConfig.getBeanConfig().getClass()
-				.equals(WebControllerBeanConfig.class);
+	public WebControllerComponentFactory(ComponentFactoryContainer container) {
+		super(container, WebControllerBeanConfig.class);
 	}
 
 	@Override
-	public Object getComponent(DynamicBean<?> beanConfig) {
+	public String generateBeanName(
+			DynamicBeanManager<WebControllerBeanConfig> beanConfig) {
 
+		return WebControllerBeanConfig.BEAN_NAME_SUFFIX;
+	}
+
+	@Override
+	public Class<DynamicBean<?, ?>> createComponentProxy(
+			DynamicBeanManager<WebControllerBeanConfig> beanConfig)
+			throws NoSuchBeanDefinitionException {
+
+		// TODO Auto-generated method stub
 		return null;
 	}
 

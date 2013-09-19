@@ -1,5 +1,6 @@
 package br.com.cd.scaleframework.context;
 
+import java.util.List;
 import java.util.Locale;
 
 public interface Translator {
@@ -23,9 +24,11 @@ public interface Translator {
 
 	String getBundleName();
 
-	void setBundleName(String bundleName);
-
 	Locale getCurrentLocale();
 
 	void setCurrentLocale(Locale locale);
+
+	List<Locale> getSupportedLocales();
+
+	ApplicationKeys getKeys();
 }

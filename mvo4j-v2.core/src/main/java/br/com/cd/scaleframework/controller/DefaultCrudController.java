@@ -11,7 +11,6 @@ import br.com.cd.scaleframework.context.Application.MessageLevel;
 import br.com.cd.scaleframework.context.ApplicationKeys;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.controller.dynamic.CrudControllerBeanConfig;
-import br.com.cd.scaleframework.controller.support.DefaultFilterManager;
 import br.com.cd.scaleframework.core.orm.Service;
 
 public class DefaultCrudController<T, ID extends Serializable> extends
@@ -25,8 +24,6 @@ public class DefaultCrudController<T, ID extends Serializable> extends
 	private ViewMode viewMode = ViewMode.LIST;
 
 	private List<T> selectedEntityList = new ArrayList<T>();
-
-	private FilterManager filterManager = new DefaultFilterManager<T>(this);
 
 	public DefaultCrudController(Application application,
 			Translator translator, DataModelFactory modelFactory,
@@ -231,10 +228,5 @@ public class DefaultCrudController<T, ID extends Serializable> extends
 	@Override
 	public final void deleteSelecteds() {
 		delete(selectedEntityList);
-	}
-
-	@Override
-	public FilterManager getFilter() {
-		return filterManager;
 	}
 }

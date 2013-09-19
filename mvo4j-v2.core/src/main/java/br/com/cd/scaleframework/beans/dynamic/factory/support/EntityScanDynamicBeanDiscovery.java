@@ -3,22 +3,21 @@ package br.com.cd.scaleframework.beans.dynamic.factory.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBean;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanManager;
 import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanDiscovery;
-import br.com.cd.scaleframework.controller.dynamic.BeanConfig;
 
 public class EntityScanDynamicBeanDiscovery implements DynamicBeanDiscovery {
 
-	private String packageToScan;
+	private String[] packageToScan;
 
-	public EntityScanDynamicBeanDiscovery(String packageToScan) {
+	public EntityScanDynamicBeanDiscovery(String... packageToScan) {
 		this.packageToScan = packageToScan;
 	}
 
 	@Override
-	public Collection<DynamicBean<? extends BeanConfig<?, ?>>> getCandidates() {
+	public Collection<DynamicBeanManager<?>> getCandidates() {
 
-		Collection<DynamicBean<? extends BeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<? extends BeanConfig<?, ?>>>();
+		Collection<DynamicBeanManager<?>> beans = new ArrayList<DynamicBeanManager<?>>();
 
 		return beans;
 	}

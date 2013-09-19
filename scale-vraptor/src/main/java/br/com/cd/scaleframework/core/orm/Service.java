@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public interface Service<T, ID extends Serializable> {
+import br.com.cd.scaleframework.core.DynamicBean;
+
+public interface Service<T, ID extends Serializable> extends DynamicBean<T, ID> {
 
 	public interface ActionListener<T> {
 

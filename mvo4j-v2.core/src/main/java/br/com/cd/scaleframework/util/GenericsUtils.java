@@ -12,6 +12,63 @@ import java.util.Map;
 
 public class GenericsUtils {
 
+	public static Class<?> getTypeFor(Class<?> type, Class<?> genericType) {
+
+		Class<?> c = getTypeFor0(type, genericType);
+		if (c == null) {
+			// throw new
+			// ComponentRegistrationException("Class does not implements ComponentFactory "
+			// + type);
+		}
+		return c;
+	}
+
+	private static <T> Class<T> getTypeFor0(Class<?> type, Class<T> genericType) {
+		Type[] interfaces = type.getGenericInterfaces();
+		for (Type implemented : interfaces) {
+			if (implemented instanceof ParameterizedType) {
+				Type rawType = ((ParameterizedType) implemented).getRawType();
+				Type[] typeArguments = ((ParameterizedType) implemented)
+						.getActualTypeArguments();
+				if (genericType.equals(rawType)) {
+					return (Class<T>) typeArguments[0];
+				}
+			} else {
+				if (genericType.equals(implemented)) {
+					// implementing ComponentFactory WITHOUT declaring the
+					// parameterized type! (or bounded)
+					// throw new ComponentRegistrationException(
+					// "The class implementing ComponentFactory<T> must define the generic argument. Eg.: "
+					// +
+					// "public class MyFactory implements ComponentFactory<MyComponent> { ... }");
+				}
+			}
+		}
+
+		// maybe the superclass implements the interface:
+		{
+			Class<?> superClass = type.getSuperclass();
+			if (superClass != null) {
+				Class<T> c = getTypeFor0(superClass, genericType);
+				if (c != null) {
+					return c;
+				}
+			}
+		}
+
+		// maybe a interface extends it:
+		{
+			for (Class<?> clazz : type.getInterfaces()) {
+				Class<T> c = getTypeFor0(clazz, genericType);
+				if (c != null) {
+					return c;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	/*
 	 * Get the underlying class for a type, or null if the type is a variable
 	 * type.

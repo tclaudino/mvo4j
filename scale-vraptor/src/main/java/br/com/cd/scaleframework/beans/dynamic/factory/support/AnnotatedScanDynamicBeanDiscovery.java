@@ -3,7 +3,7 @@ package br.com.cd.scaleframework.beans.dynamic.factory.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBean;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanManager;
 import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanDiscovery;
 import br.com.cd.scaleframework.controller.dynamic.BeanConfig;
 import br.com.cd.scaleframework.controller.dynamic.ControllerBeanConfig;
@@ -21,9 +21,9 @@ public class AnnotatedScanDynamicBeanDiscovery implements DynamicBeanDiscovery {
 	}
 
 	@Override
-	public Collection<DynamicBean<? extends BeanConfig<?, ?>>> getCandidates() {
+	public Collection<DynamicBeanManager<? extends BeanConfig<?, ?>>> getCandidates() {
 
-		Collection<DynamicBean<? extends BeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<? extends BeanConfig<?, ?>>>();
+		Collection<DynamicBeanManager<? extends BeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<? extends BeanConfig<?, ?>>>();
 
 		beans.addAll(this.getServiceCandidates());
 		beans.addAll(this.getControllerCandidates());
@@ -33,37 +33,37 @@ public class AnnotatedScanDynamicBeanDiscovery implements DynamicBeanDiscovery {
 		return beans;
 	}
 
-	private Collection<DynamicBean<ServiceBeanConfig<?, ?>>> getServiceCandidates() {
+	private Collection<DynamicBeanManager<ServiceBeanConfig<?, ?>>> getServiceCandidates() {
 
-		Collection<DynamicBean<ServiceBeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<ServiceBeanConfig<?, ?>>>();
-
-		return beans;
-	}
-
-	private Collection<DynamicBean<ControllerBeanConfig<?, ?>>> getControllerCandidates() {
-
-		Collection<DynamicBean<ControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<ControllerBeanConfig<?, ?>>>();
+		Collection<DynamicBeanManager<ServiceBeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<ServiceBeanConfig<?, ?>>>();
 
 		return beans;
 	}
 
-	private Collection<DynamicBean<CrudControllerBeanConfig<?, ?>>> getCrudControllerCandidates() {
+	private Collection<DynamicBeanManager<ControllerBeanConfig<?, ?>>> getControllerCandidates() {
 
-		Collection<DynamicBean<CrudControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<CrudControllerBeanConfig<?, ?>>>();
-
-		return beans;
-	}
-
-	private Collection<DynamicBean<WebControllerBeanConfig<?, ?>>> getWebControllerCandidates() {
-
-		Collection<DynamicBean<WebControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<WebControllerBeanConfig<?, ?>>>();
+		Collection<DynamicBeanManager<ControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<ControllerBeanConfig<?, ?>>>();
 
 		return beans;
 	}
 
-	private Collection<DynamicBean<WebCrudControllerBeanConfig<?, ?>>> getWebCrudControllerCandidates() {
+	private Collection<DynamicBeanManager<CrudControllerBeanConfig<?, ?>>> getCrudControllerCandidates() {
 
-		Collection<DynamicBean<WebCrudControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<WebCrudControllerBeanConfig<?, ?>>>();
+		Collection<DynamicBeanManager<CrudControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<CrudControllerBeanConfig<?, ?>>>();
+
+		return beans;
+	}
+
+	private Collection<DynamicBeanManager<WebControllerBeanConfig<?, ?>>> getWebControllerCandidates() {
+
+		Collection<DynamicBeanManager<WebControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<WebControllerBeanConfig<?, ?>>>();
+
+		return beans;
+	}
+
+	private Collection<DynamicBeanManager<WebCrudControllerBeanConfig<?, ?>>> getWebCrudControllerCandidates() {
+
+		Collection<DynamicBeanManager<WebCrudControllerBeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<WebCrudControllerBeanConfig<?, ?>>>();
 
 		return beans;
 	}

@@ -8,9 +8,14 @@ import br.com.cd.scaleframework.controller.dynamic.PropertyMap;
 public class ServiceBeanConfig<T, ID extends Serializable> extends
 		BeanConfig<T, ID> {
 
-	public ServiceBeanConfig(PropertyMap adaptee, Class<T> entityType,
-			Class<ID> entityIdType) {
-		super(adaptee, entityType, entityIdType);
+	public static final String BEAN_NAME_SUFFIX = "Service";
+	public static final String ENTITY_MANAGER_FACTORY_QUALIFIER = "entityManagerFactoryQualifier";
+
+	public ServiceBeanConfig(PropertyMap adaptee) {
+		super(adaptee);
 	}
 
+	public String entityManagerFactoryQualifier() {
+		return this.get(ENTITY_MANAGER_FACTORY_QUALIFIER);
+	}
 }

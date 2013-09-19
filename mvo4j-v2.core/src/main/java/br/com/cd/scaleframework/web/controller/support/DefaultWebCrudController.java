@@ -15,16 +15,20 @@ import br.com.cd.scaleframework.web.controller.dynamic.WebCrudControllerBeanConf
 public class DefaultWebCrudController<T, ID extends Serializable> extends
 		DefaultCrudController<T, ID> implements WebCrudController<T, ID> {
 
+	private WebCrudControllerBeanConfig<T, ID> _config;
+
 	public DefaultWebCrudController(Application application,
 			Translator translator, DataModelFactory modelFactory,
 			Service<T, ID> service, WebCrudControllerBeanConfig<T, ID> config) {
 		super(application, translator, modelFactory, service, config);
+
+		this._config = config;
 	}
 
 	@Override
 	public final String getViewsFolder() {
-		String view = translateIfNecessary(this.config.path(),
-				this.config.path());
+		String view = translateIfNecessary(this._config.path(),
+				this._config.path());
 
 		view = StringUtils.removeBeginSlash(StringUtils.removeEndSlash(view));
 		view = ParserUtils.assertNotEquals(view, "/", "");
@@ -34,8 +38,8 @@ public class DefaultWebCrudController<T, ID extends Serializable> extends
 
 	@Override
 	public final String getListView() {
-		String view = translateIfNecessary(this.config.listViewName(),
-				this.config.listViewName());
+		String view = translateIfNecessary(this._config.listViewName(),
+				this._config.listViewName());
 
 		view = StringUtils.addBeginSlash(StringUtils.removeEndSlash(view));
 		view = ParserUtils.assertNotEquals(view, "/", "");
@@ -46,8 +50,8 @@ public class DefaultWebCrudController<T, ID extends Serializable> extends
 
 	@Override
 	public final String getEditView() {
-		String view = translateIfNecessary(this.config.editViewName(),
-				this.config.editViewName());
+		String view = translateIfNecessary(this._config.editViewName(),
+				this._config.editViewName());
 
 		view = StringUtils.addBeginSlash(StringUtils.removeEndSlash(view));
 		view = ParserUtils.assertNotEquals(view, "/", "");
@@ -58,8 +62,8 @@ public class DefaultWebCrudController<T, ID extends Serializable> extends
 
 	@Override
 	public final String getCreateView() {
-		String view = translateIfNecessary(this.config.createViewName(),
-				this.config.createViewName());
+		String view = translateIfNecessary(this._config.createViewName(),
+				this._config.createViewName());
 
 		view = StringUtils.addBeginSlash(StringUtils.removeEndSlash(view));
 		view = ParserUtils.assertNotEquals(view, "/", "");

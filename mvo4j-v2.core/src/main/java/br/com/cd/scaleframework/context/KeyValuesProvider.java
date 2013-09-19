@@ -8,10 +8,9 @@ public interface KeyValuesProvider {
 
 	Map<String, String> getKeyValues(String bundleName);
 
-	public Map<String, String> getKeyValues(String bundleName, Locale locale);
+	Map<String, String> getKeyValues(String bundleName, Locale locale);
 
-	public Locale getDefaultLocale();
+	Locale getDefaultLocale();
 
-	public List<Locale> getSupportedLocales();
-
+	List<Locale> getSupportedLocales();
 }

@@ -2,7 +2,7 @@ package org.springview.client;
 
 import org.springview.client.model.Client;
 
-import br.com.cd.scaleframework.core.dynamic.WebCrudControllerBean;
+import br.com.cd.scaleframework.core.orm.dynamic.WebCrudControllerBean;
 
 public class CrudConfigurator {
 

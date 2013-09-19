@@ -32,8 +32,7 @@ public abstract class AbstractComponentFactory<Config extends BeanConfig<?, ?>>
 		String beanName = this.generateBeanName(beanConfig);
 
 		if (!container.containsBean(beanName)) {
-			container.registerBean(beanName,
-					this.createComponentProxy(beanConfig));
+			container.registerBean(beanConfig);
 		}
 
 		return container.getBean(beanName, DynamicBean.class);

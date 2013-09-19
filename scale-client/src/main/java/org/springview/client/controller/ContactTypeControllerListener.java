@@ -3,16 +3,16 @@ package org.springview.client.controller;
 import org.springview.client.model.ContactType;
 import org.springview.client.service.ContactTypeService;
 
-import br.com.cd.scaleframework.context.Messenger;
+import br.com.cd.scaleframework.context.Application;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.controller.Controller;
-import br.com.cd.scaleframework.controller.EventListener;
-import br.com.cd.scaleframework.controller.EventType;
-import br.com.cd.scaleframework.core.dynamic.WebCrudControllerBean;
+import br.com.cd.scaleframework.controller.ControllerListener;
+import br.com.cd.scaleframework.controller.PersistEventType;
+import br.com.cd.scaleframework.core.orm.dynamic.WebCrudControllerBean;
 
 @WebCrudControllerBean(name = "contactTypeBean", path = "contactType", targetEntity = ContactType.class, entityIdType = Integer.class)
 public class ContactTypeControllerListener implements
-		EventListener<ContactType> {
+		ControllerListener<ContactType> {
 
 	public ContactTypeControllerListener(
 			Controller<ContactType, Integer> controller,
@@ -25,21 +25,21 @@ public class ContactTypeControllerListener implements
 	}
 
 	@Override
-	public boolean before(EventType event, ContactType entity,
-			Messenger messenger, Translator translator) {
+	public boolean beforePersist(PersistEventType event, ContactType entity,
+			Application messenger, Translator translator) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void post(EventType event, ContactType entity, Messenger messenger,
+	public void post(PersistEventType event, ContactType entity, Application messenger,
 			Translator translator) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void error(EventType event, ContactType entity, Messenger messenger,
+	public void error(PersistEventType event, ContactType entity, Application messenger,
 			Translator translator, Throwable t) {
 		// TODO Auto-generated method stub
 

@@ -1,12 +1,15 @@
 package br.com.cd.scaleframework.beans.factory.ioc;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import javax.servlet.ServletContext;
 
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBean;
 import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanDiscoveryFactory;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanManager;
+import br.com.cd.scaleframework.controller.dynamic.BeanConfig;
 import br.com.cd.scaleframework.core.ConfigurationException;
+import br.com.cd.scaleframework.core.DynamicBean;
 import br.com.cd.scaleframework.core.NoSuchBeanDefinitionException;
 
 public interface ComponentFactoryContainer {
@@ -35,12 +38,29 @@ public interface ComponentFactoryContainer {
 
 	ServletContext getServletContext();
 
-	Class<?> createComponentProxy(DynamicBean<?> beanConfig)
+	<T> Class<T> createComponentProxy(
+			DynamicBeanManager<? extends BeanConfig<T, ?>> beanConfig)
 			throws NoSuchBeanDefinitionException;
 
-	Object getComponent(DynamicBean<?> beanConfig)
+	<T, ID extends Serializable> DynamicBean<T, ID> getDynamicBean(
+			DynamicBeanManager<? extends BeanConfig<T, ID>> beanConfig)
 			throws NoSuchBeanDefinitionException;
 
-	String generateBeanName(DynamicBean<?> beanConfig);
+	<T, ID extends Serializable, Config extends BeanConfig<T, ID>> DynamicBean<T, ID> getDynamicBean(
+			Class<T> targetEntity, Class<ID> entityIdType,
+			Class<Config> beanConfigType) throws NoSuchBeanDefinitionException;
+
+	String generateBeanName(DynamicBeanManager<?> beanConfig);
+
+	String generateBeanConfigName(Class<?> targetBean, Class<?> targetEntity);
+
+	void registerBean(DynamicBeanManager beanManager)
+			throws NoSuchBeanDefinitionException;
+
+	void registerSingleton(String beanName, Object singletonObject);
+
+	void registerSingleton(DynamicBeanManager beanManager);
+
+	void deepRegister();
 
 }

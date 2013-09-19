@@ -4,12 +4,50 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>br.com.cd.scaleframework</groupId>
-	<artifactId>scale-vraptor</artifactId>
+	<artifactId>mvo4j-v2.core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>scale-vraptor</name>
-	<url>http://maven.apache.org</url>
+	<description>mvo4j's framework lets you create a web application without programming any code in C layer of the MVC pattern.</description>
+	<url>http://>mvo4j.confiancadigital.com.br</url>
+
+	<developers>
+		<developer>
+			<id>its</id>
+			<name>Isaac Taborda da Silva</name>
+			<email>isaac.silva@confiancadigital.com.com</email>
+			<organization>Confiança Digital</organization>
+			<organizationUrl>http://www.confiancadigital.com.br</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-3</timezone>
+		</developer>
+	</developers>
+
+	<organization>
+		<name>Confiança Digital</name>
+		<url>http://www.confiancadigital.com.br</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<distribution>repo</distribution>
+			<name>Apache License, Version 2.0</name>
+			<url>http://apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>http://github.com/itaborda/mvo4j</url>
+		<connection>scm:git:git://github.com/itaborda/mvo4j</connection>
+		<developerConnection>scm:git:git@github.com:itaborda/mvo4j.git</developerConnection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<build>
 		<plugins>
@@ -113,6 +151,11 @@
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 			<version>1.0.0.Final</version>
+		</dependency>
+				<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>3.2.3.RELEASE</version>
 		</dependency>
 	</dependencies>
 </project>

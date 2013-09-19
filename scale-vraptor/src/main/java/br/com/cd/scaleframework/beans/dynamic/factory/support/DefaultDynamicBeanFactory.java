@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBean;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanManager;
 import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanDiscovery;
 import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanFactory;
 import br.com.cd.scaleframework.controller.dynamic.BeanConfig;
@@ -38,7 +38,7 @@ public class DefaultDynamicBeanFactory implements DynamicBeanFactory {
 
 	void dicover() {
 
-		Collection<DynamicBean<BeanConfig<?, ?>>> beans = new ArrayList<DynamicBean<BeanConfig<?, ?>>>();
+		Collection<DynamicBeanManager<BeanConfig<?, ?>>> beans = new ArrayList<DynamicBeanManager<BeanConfig<?, ?>>>();
 		for (DynamicBeanDiscovery discovery : this.discoveries) {
 			beans.addAll(discovery.getCandidates());
 		}
@@ -46,7 +46,7 @@ public class DefaultDynamicBeanFactory implements DynamicBeanFactory {
 		this.processBeans(beans);
 	}
 
-	void processBeans(Collection<DynamicBean<BeanConfig<?, ?>>> beans) {
+	void processBeans(Collection<DynamicBeanManager<BeanConfig<?, ?>>> beans) {
 
 	}
 

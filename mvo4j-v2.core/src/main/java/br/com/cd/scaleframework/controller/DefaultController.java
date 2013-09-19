@@ -17,6 +17,7 @@ import br.com.cd.scaleframework.context.ApplicationKeys;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.controller.dynamic.ControllerBeanConfig;
 import br.com.cd.scaleframework.controller.support.AbstractPageableController;
+import br.com.cd.scaleframework.controller.support.DefaultFilterManager;
 import br.com.cd.scaleframework.core.orm.Service;
 import br.com.cd.scaleframework.util.ParserUtils;
 
@@ -37,6 +38,7 @@ public class DefaultController<T, ID extends Serializable> extends
 	public DefaultController(Application application, Translator translator,
 			DataModelFactory modelFactory, Service<T, ID> service,
 			ControllerBeanConfig<T, ID> config) {
+
 		this.application = application;
 		this.translator = translator;
 		this.modelFactory = modelFactory;
@@ -50,6 +52,8 @@ public class DefaultController<T, ID extends Serializable> extends
 	private List<T> entityList;
 
 	private Service<T, ID> service;
+
+	protected FilterManager FilterManager = new DefaultFilterManager<T>(this);
 
 	private List<ControllerListener<T>> listeners = new LinkedList<ControllerListener<T>>();
 
@@ -472,9 +476,7 @@ public class DefaultController<T, ID extends Serializable> extends
 
 	@Override
 	public Integer getInitialPageSize() {
-		return ParserUtils.parseInt(this.config.initialPageSize(),
-				this.application.getParameter(
-						ControllerBeanConfig.INITIAL_PAGE_SIZE, Integer.class));
+		return this.config.initialPageSize();
 	}
 
 	@Override
@@ -485,5 +487,10 @@ public class DefaultController<T, ID extends Serializable> extends
 	@Override
 	public String getName() {
 		return translateIfNecessary(this.config.name(), this.config.name());
+	}
+
+	@Override
+	public FilterManager getFilter() {
+		return FilterManager;
 	}
 }

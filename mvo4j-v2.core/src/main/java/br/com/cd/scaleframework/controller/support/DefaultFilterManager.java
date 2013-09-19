@@ -12,20 +12,19 @@ import org.slf4j.LoggerFactory;
 
 import br.com.cd.scaleframework.context.Application.MessageLevel;
 import br.com.cd.scaleframework.context.ApplicationKeys;
-import br.com.cd.scaleframework.controller.CrudController;
+import br.com.cd.scaleframework.controller.Controller;
 import br.com.cd.scaleframework.controller.FilterManager;
 import br.com.cd.scaleframework.core.orm.LikeCritirion;
 
 public class DefaultFilterManager<T> implements FilterManager {
 
-	private CrudController<T, ? extends Serializable> controller;
+	private Controller<T, ? extends Serializable> controller;
 
 	private Map<String, FilterField> filterFields = new HashMap<String, FilterField>();
 
 	private Map<String, FilterField> selectedFilterFields = new HashMap<String, FilterField>();
 
-	public DefaultFilterManager(
-			CrudController<T, ? extends Serializable> controller) {
+	public DefaultFilterManager(Controller<T, ? extends Serializable> controller) {
 		this.controller = controller;
 	}
 

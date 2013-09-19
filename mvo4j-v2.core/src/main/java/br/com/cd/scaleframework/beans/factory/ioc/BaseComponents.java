@@ -9,11 +9,9 @@ import br.com.cd.scaleframework.web.controller.dynamic.WebCrudControllerBean;
 
 public class BaseComponents {
 
-    @SuppressWarnings("unchecked")
-    private static final Class<? extends Annotation>[] STEREOTYPES = new Class[] {
-    	CrudControllerBean.class,
-    	ControllerBean.class,
-    	WebCrudControllerBean.class,
-    	WebControllerBean.class
-    };
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends Annotation>[] STEREOTYPES = new Class[] {
+			CrudControllerBean.class, ControllerBean.class,
+			WebCrudControllerBean.class, WebControllerBean.class };
+
 }

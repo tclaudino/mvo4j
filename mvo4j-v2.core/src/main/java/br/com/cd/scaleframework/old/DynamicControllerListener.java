@@ -1,10 +1,9 @@
-package br.com.cd.scaleframework.beans.dynamic.factory;
+package br.com.cd.scaleframework.old;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.ServletContext;
@@ -13,7 +12,7 @@ import javax.servlet.ServletContextListener;
 
 import br.com.cd.scaleframework.context.Application;
 import br.com.cd.scaleframework.context.CacheManager;
-import br.com.cd.scaleframework.context.InitParamKeys;
+import br.com.cd.scaleframework.context.ConfigParamKeys;
 import br.com.cd.scaleframework.context.KeyValuesProvider;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.context.support.DefaultApplication;
@@ -48,25 +47,26 @@ public class DynamicControllerListener implements ServletContextListener {
 
 	public void initialize(ServletContext servletContext) {
 
-		int cacheTime = WebUtil.getInitParameter(servletContext,
-				InitParamKeys.TRANSLATES_CACHETIME,
-				InitParamKeys.DefaultValues.TRANSLATES_CACHETIME);
+		long cacheTime = WebUtil.getInitParameter(servletContext,
+				ConfigParamKeys.CACHE_MANAGER_MAX_SIZE,
+				ConfigParamKeys.DefaultValues.CACHE_MANAGER_MAX_SIZE);
 
 		CacheManager cacheManager = new DefaultCacheManager(cacheTime);
-
-		KeyValuesProvider keyValuesProvider = new DefaultKeyValuesProvider(
-				cacheManager);
 
 		String defaultLocale = "en-US";
 		String currentLocale = "en-US";
 		List<String> suportedLocaleLanguages = new ArrayList<String>();
 
-		String appBundleName = "";
-		Translator appTranslator = new DefaultTranslator(appBundleName,
-				keyValuesProvider, new Locale(currentLocale), null);
+		KeyValuesProvider keyValuesProvider = new DefaultKeyValuesProvider(
+				cacheManager, cacheTime, defaultLocale,
+				suportedLocaleLanguages.toArray(new String[] {}));
 
-		Application application = new DefaultApplication(servletContext,
-				defaultLocale, suportedLocaleLanguages.toArray(new String[] {}));
+		String appBundleName = "";
+		Translator appTranslator = new DefaultTranslator(defaultLocale,
+				appBundleName, keyValuesProvider,
+				suportedLocaleLanguages.toArray(new String[] {}));
+
+		Application application = new DefaultApplication();
 
 		this.initialize(servletContext, application, keyValuesProvider,
 				appTranslator);
@@ -97,8 +97,7 @@ public class DynamicControllerListener implements ServletContextListener {
 				propertyMap, entityType, entityIdType);
 
 		Translator translator = new DefaultTranslator(config.messageBundle(),
-				keyValuesProvider, appTranslator.getCurrentLocale(),
-				appTranslator);
+				keyValuesProvider, appTranslator);
 
 		EntityManagerFactory managerFactory = null;
 

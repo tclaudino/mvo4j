@@ -1,10 +1,7 @@
 package br.com.cd.scaleframework.context;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-
-import javax.servlet.ServletContext;
 
 public interface Application {
 
@@ -59,20 +56,5 @@ public interface Application {
 
 	List<ApplicationMessage> getAllSuccessMessages();
 
-	List<Locale> getSupportedLocales();
-
-	Locale getDefaulLocale();
-
-	String getMessageBundle();
-
-	String getParameter(String parameterName);
-
-	String getParameter(String parameterName, String defaultValue);
-
-	<T> T getParameter(String parameterName, Class<T> resultType);
-
-	<T> T getParameter(String parameterName, T defaultValue);
-
-	ServletContext getServletContext();
-
+	// ServletContext getServletContext();
 }

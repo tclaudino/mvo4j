@@ -2,17 +2,17 @@ package org.springview.client.controller;
 
 import org.springview.client.model.ContractType;
 
-import br.com.cd.scaleframework.context.Messenger;
+import br.com.cd.scaleframework.context.Application;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.controller.Controller;
-import br.com.cd.scaleframework.controller.EventListener;
-import br.com.cd.scaleframework.controller.EventType;
-import br.com.cd.scaleframework.orm.Service;
+import br.com.cd.scaleframework.controller.ControllerListener;
+import br.com.cd.scaleframework.controller.PersistEventType;
+import br.com.cd.scaleframework.core.orm.Service;
 
-public class ContractTypeListener implements EventListener<ContractType> {
+public class ContractTypeListener implements ControllerListener<ContractType> {
 
 	public ContractTypeListener(Service<ContractType, Integer> service,
-			Translator translator, Messenger messenger) {
+			Translator translator, Application messenger) {
 		System.out.println("\ncreating proxy instance for '"
 				+ this.getClass().getName() + "', service:  " + service
 				+ "', translator:  " + translator + "', messenger:  "
@@ -20,22 +20,22 @@ public class ContractTypeListener implements EventListener<ContractType> {
 	}
 
 	@Override
-	public boolean before(EventType event, ContractType entity,
-			Messenger messenger, Translator translator) {
+	public boolean beforePersist(PersistEventType event, ContractType entity,
+			Application messenger, Translator translator) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void post(EventType event, ContractType entity, Messenger messenger,
+	public void post(PersistEventType event, ContractType entity, Application messenger,
 			Translator translator) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void error(EventType event, ContractType entity,
-			Messenger messenger, Translator translator, Throwable t) {
+	public void error(PersistEventType event, ContractType entity,
+			Application messenger, Translator translator, Throwable t) {
 		// TODO Auto-generated method stub
 
 	}

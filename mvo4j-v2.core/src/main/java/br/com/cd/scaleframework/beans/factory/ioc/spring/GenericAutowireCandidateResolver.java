@@ -7,8 +7,9 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.support.SimpleAutowireCandidateResolver;
 
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBean;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanManager;
 import br.com.cd.scaleframework.beans.factory.ioc.ComponentFactoryContainer;
+import br.com.cd.scaleframework.controller.dynamic.BeanConfig;
 import br.com.cd.scaleframework.core.NoSuchBeanDefinitionException;
 
 public class GenericAutowireCandidateResolver extends
@@ -20,6 +21,7 @@ public class GenericAutowireCandidateResolver extends
 		this.container = container;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object getSuggestedValue(DependencyDescriptor descriptor) {
 
@@ -32,14 +34,20 @@ public class GenericAutowireCandidateResolver extends
 
 				final Type type = actualTypeArguments[0];
 
-				String beanName = SpringBeanRegistry.resolveBeanConfigName(
-						descriptor.getField().getType(), type.getClass());
+				String beanName = container.generateBeanConfigName(descriptor
+						.getField().getType(), type.getClass());
 
-				DynamicBean<?> beanConfig;
+				DynamicBeanManager beanConfig;
 				try {
-					beanConfig = container.getBean(beanName, DynamicBean.class);
+					beanConfig = container.getBean(beanName,
+							DynamicBeanManager.class);
 
-					return container.getComponent(beanConfig);
+					if (BeanConfig.class.isAssignableFrom(descriptor.getField()
+							.getType())) {
+						return beanConfig.getBeanConfig();
+					}
+
+					return container.getDynamicBean(beanConfig);
 				} catch (NoSuchBeanDefinitionException e) {
 					//
 				}
