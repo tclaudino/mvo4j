@@ -10,9 +10,8 @@ public class WebControllerBeanConfig<T, ID extends Serializable> extends
 
 	public static final String PATH = "path";
 
-	public WebControllerBeanConfig(PropertyMap adaptee, Class<T> entityType,
-			Class<ID> entityIdType) {
-		super(adaptee, entityType, entityIdType);
+	public WebControllerBeanConfig(PropertyMap adaptee) {
+		super(adaptee);
 	}
 
 	public String path() {

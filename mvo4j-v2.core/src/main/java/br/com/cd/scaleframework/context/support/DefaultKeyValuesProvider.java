@@ -1,103 +1,65 @@
 package br.com.cd.scaleframework.context.support;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.slf4j.LoggerFactory;
 
 import br.com.cd.scaleframework.context.CacheManager;
+import br.com.cd.scaleframework.context.KeyValuesProvider;
 
-public class DefaultKeyValuesProvider extends AbstractKeyValuesProvider {
+public abstract class AbstractKeyValuesProvider implements KeyValuesProvider {
 
-	public DefaultKeyValuesProvider(CacheManager cacheManager) {
-		super(cacheManager);
+	public static final String BUNDLE_KEY = KeyValuesProvider.class.getName()
+			+ "_BUNDLE_KEY_";
+	public static final String I18N_KEY = KeyValuesProvider.class.getName()
+			+ "_I18N_KEY_";
+	public static final String SUPORTED_LOCALES_KEY = KeyValuesProvider.class
+			.getName() + "_SUPORTED_LOCALES_KEY_";
+
+	protected CacheManager cacheManager;
+
+	public AbstractKeyValuesProvider(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
-	@Override
-	public Map<String, String> getKeyValues(String bundleName) {
-
-		Map<String, String> map = new HashMap<String, String>();
-
-		for (Locale locale : this.getSupportedLocales()) {
-			map.putAll(this.getKeyValues(bundleName, locale));
-		}
-		return map;
+	protected int getCacheTime() {
+		return cacheManager.getCacheTime();
 	}
 
-	@Override
-	public Map<String, String> getKeyValues(String bundleName, Locale locale) {
-		locale = setDefaultLocaleIfNecessary(locale);
+	protected ResourceBundle getBundle(String bundleName, Locale locale) {
 
-		String cacheKey = (I18N_KEY + locale.toString()) + "_" + bundleName;
+		String cacheKey = (BUNDLE_KEY + locale.toString() + "_" + bundleName);
 
-		@SuppressWarnings("unchecked")
-		Map<String, String> i18n = (Map<String, String>) cacheManager
-				.getObject(Map.class, cacheKey);
+		ResourceBundle bundle = cacheManager.getObject(ResourceBundle.class,
+				cacheKey);
+		if (bundle == null) {
 
-		if (i18n == null) {
-			i18n = new HashMap<String, String>();
+			try {
+				LoggerFactory.getLogger(KeyValuesProvider.class.getName())
+						.debug("\nloading Bundle: {0}, Locale: {1}",
+								new Object[] { bundleName, locale });
 
-			if (locale != null) {
-				ResourceBundle rBundle = this.getBundle(bundleName, locale);
+				bundle = ResourceBundle.getBundle(bundleName, locale);
 
-				if (rBundle != null) {
-					Enumeration<String> keys = rBundle.getKeys();
-					while (keys.hasMoreElements()) {
-						String key = keys.nextElement();
-						LoggerFactory.getLogger(
-								AbstractTranslator.class.getName()).info(
-								"-> Key: {0}, Message: {1}",
-								new Object[] { key, rBundle.getString(key) });
-						i18n.put(key, rBundle.getString(key));
-					}
-					int cacheTime = getCacheTime();
-					System.out
-							.println("storing i18n map in chache with cacheKey: "
-									+ cacheKey + ", cacheTime: " + cacheTime);
+				int cacheTime = this.getCacheTime();
+				System.out.println("storing bundle in chache with cacheKey: "
+						+ cacheKey + ", cacheTime: " + cacheTime);
 
-					cacheManager.add(cacheKey, i18n, cacheTime);
-				}
+				cacheManager.add(cacheKey, bundle, cacheTime);
+			} catch (Exception e) {
+				LoggerFactory.getLogger(KeyValuesProvider.class.getName())
+						.error("\ncoud not load bundle: {0}, locale: {1}",
+								new Object[] { bundleName, locale }, e);
 			}
 		}
-		return i18n;
+		return bundle;
 	}
 
-	@Override
-	public Locale getDefaultLocale() {
-		Locale defaultLocale = application.getDefaulLocale();
-		if (defaultLocale == null) {
-			defaultLocale = Locale.getDefault();
-		}
-		return defaultLocale;
+	protected Locale setDefaultLocaleIfNecessary(Locale locale) {
+		if (locale == null)
+			locale = getDefaultLocale();
+
+		return locale;
 	}
-
-	@Override
-	public List<Locale> getSupportedLocales() {
-		@SuppressWarnings("unchecked")
-		List<Locale> supportedLocales = cacheManager.getObject(List.class,
-				SUPORTED_LOCALES_KEY);
-
-		if (supportedLocales == null) {
-			supportedLocales = new ArrayList<Locale>();
-
-			LoggerFactory.getLogger(AbstractTranslator.class.getName()).info(
-					"loading supportedLocales...");
-
-			for (Locale locale : application.getSupportedLocales()) {
-				LoggerFactory.getLogger(AbstractTranslator.class.getName())
-						.info("--> {0}", locale.getDisplayName());
-				supportedLocales.add(locale);
-			}
-
-			cacheManager.add(SUPORTED_LOCALES_KEY, supportedLocales,
-					getCacheTime());
-		}
-		return supportedLocales;
-	}
-
 }

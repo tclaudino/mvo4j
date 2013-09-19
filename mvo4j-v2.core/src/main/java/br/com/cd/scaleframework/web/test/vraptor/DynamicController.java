@@ -1,4 +1,4 @@
-package br.com.cd.scaleframework.web.vraptor;
+package br.com.cd.scaleframework.web.test.vraptor;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Resource;
 import br.com.caelum.vraptor.Result;
-import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanFactory;
+import br.com.cd.scaleframework.beans.dynamic.factory.DynamicBeanDiscoveryFactory;
 import br.com.cd.scaleframework.context.Application;
 import br.com.cd.scaleframework.context.Translator;
 import br.com.cd.scaleframework.controller.Controller;
@@ -32,13 +32,13 @@ public class DynamicController {
 	private String prefix;
 	private String sufix;
 
-	private DynamicBeanFactory beanFactory;
+	private DynamicBeanDiscoveryFactory beanFactory;
 	private Application application;
 	private Translator translator;
 
 	private Result result;
 
-	public DynamicController(DynamicBeanFactory beanFactory,
+	public DynamicController(DynamicBeanDiscoveryFactory beanFactory,
 			Application application, Translator translator, Result result) {
 		this.beanFactory = beanFactory;
 		this.application = application;

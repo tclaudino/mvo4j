@@ -8,9 +8,8 @@ import br.com.cd.scaleframework.controller.dynamic.PropertyMap;
 public class WebCrudControllerBeanConfig<T, ID extends Serializable> extends
 		CrudControllerBeanConfig<T, ID> {
 
-	public WebCrudControllerBeanConfig(PropertyMap adaptee,
-			Class<T> entityType, Class<ID> entityIdType) {
-		super(adaptee, entityType, entityIdType);
+	public WebCrudControllerBeanConfig(PropertyMap adaptee) {
+		super(adaptee);
 	}
 
 	public static final String LIST_VIEW_NAME = "listViewName";

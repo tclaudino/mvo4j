@@ -1,68 +1,99 @@
 package br.com.cd.scaleframework.context.support;
 
 import java.util.Locale;
+import java.util.Map;
 
-import br.com.cd.scaleframework.context.ApplicationKeys;
 import br.com.cd.scaleframework.context.KeyValuesProvider;
 import br.com.cd.scaleframework.context.Translator;
+import br.com.cd.scaleframework.context.TranslatorParam;
+import br.com.cd.scaleframework.util.ParserUtils;
+import br.com.cd.scaleframework.util.StringUtils;
 
-public class DefaultTranslator extends AbstractTranslator {
+public abstract class AbstractTranslator implements Translator {
 
-	private String bundleName;
+	protected KeyValuesProvider keyValuesProvider;
+	private Translator parent;
 
-	private Locale currentLocale;
-
-	public DefaultTranslator(String bundleName,
-			KeyValuesProvider keyValuesProvider) {
-		this(bundleName, keyValuesProvider, (Translator) null);
-	}
-
-	public DefaultTranslator(String bundleName,
-			KeyValuesProvider keyValuesProvider, Translator parent) {
-		super(keyValuesProvider, parent);
-		this.bundleName = bundleName;
-	}
-
-	public DefaultTranslator(String bundleName,
-			KeyValuesProvider keyValuesProvider, Locale currentLocale) {
-		this(bundleName, keyValuesProvider, (Translator) null);
-		this.currentLocale = currentLocale;
-	}
-
-	public DefaultTranslator(String bundleName,
-			KeyValuesProvider keyValuesProvider, Locale currentLocale,
+	public AbstractTranslator(KeyValuesProvider keyValuesProvider,
 			Translator parent) {
-		this(bundleName, keyValuesProvider, parent);
-		this.currentLocale = currentLocale;
+		this.keyValuesProvider = keyValuesProvider;
+		this.parent = parent;
 	}
 
 	@Override
-	public String getBundleName() {
-		return this.bundleName;
+	public String getMessage(String messageKey) {
+		return getMessage("", messageKey);
 	}
 
 	@Override
-	public void setBundleName(String bundleName) {
-		this.bundleName = bundleName;
+	public String getMessage(String messagePrefix, String messageKey) {
+		return getMessage(messageKey, messageKey, getCurrentLocale());
 	}
 
 	@Override
-	public Locale getCurrentLocale() {
-		if (this.currentLocale == null)
-			this.currentLocale = this.keyValuesProvider.getDefaultLocale();
-
-		return this.currentLocale;
+	public String getMessage(String messageKey, Locale locale) {
+		Map<String, String> i18n = keyValuesProvider.getKeyValues(
+				this.getBundleName(), locale);
+		if (i18n != null) {
+			if (!"".equals(messageKey)) {
+				if (i18n.containsKey(messageKey)) {
+					return i18n.get(messageKey);
+				} else if (parent != null) {
+					return parent.getMessage(messageKey, locale);
+				}
+			}
+		}
+		return messageKey;
 	}
 
 	@Override
-	public void setCurrentLocale(Locale locale) {
-		this.currentLocale = locale;
+	public String getMessage(String messagePrefix, String messageKey,
+			Locale locale) {
+		messageKey = ParserUtils.parseString(messageKey);
+		messagePrefix = ParserUtils.parseString(messagePrefix);
+		if (!messagePrefix.isEmpty()) {
+			messageKey = messagePrefix + ("." + messageKey);
+		}
+		return getMessage(messageKey, locale);
 	}
 
-	private ApplicationKeys keys = new ApplicationKeys();
+	@Override
+	public String getMessage(String messageKey, Object... args) {
+		return getMessage("", messageKey, args);
+	}
 
-	public ApplicationKeys getKeys() {
-		return keys;
+	@Override
+	public String getMessage(String messagePrefix, String messageKey,
+			Object... args) {
+		return getMessage(messagePrefix, messageKey, getCurrentLocale(), args);
+	}
+
+	@Override
+	public String getMessage(String messageKey, Locale locale, Object... args) {
+		return getMessage("", messageKey, locale, args);
+	}
+
+	@Override
+	public String getMessage(String messagePrefix, String messageKey,
+			Locale locale, Object... args) {
+		return StringUtils.format(
+				getMessage(messagePrefix, messageKey, locale), i18n(args));
+	}
+
+	private Object[] i18n(Object... parameters) {
+		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i] instanceof TranslatorParam) {
+				TranslatorParam tp = (TranslatorParam) parameters[i];
+				parameters[i] = getMessage(tp.getKey(), tp.getParameters());
+			}
+		}
+		return parameters;
+	}
+
+	public static String getMessage(Translator translator, String messageKey,
+			Object... args) {
+		return translator != null ? translator.getMessage(messageKey, args)
+				: messageKey;
 	}
 
 }
