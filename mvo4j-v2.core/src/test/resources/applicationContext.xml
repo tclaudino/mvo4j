@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:util="http://www.springframework.org/schema/util"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+          http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+          http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<import resource="applicationContext-controllerTest.xml" />
+
+	<context:component-scan base-package="br.com.cd.mvo.client" />
+
+	<context:annotation-config />
+
+	<!-- Activates a load-time weaver for the context. Any bean within the context 
+		that implements LoadTimeWeaverAware (such as LocalContainerEntityManagerFactoryBean) 
+		will receive a reference to the autodetected load-time weaver. -->
+	<!-- <context:load-time-weaver aspectj-weaving="on" /> -->
+
+	<!-- <bean name="configInfraLocation" class="org.springframework.jndi.JndiObjectFactoryBean"> 
+		<property name="jndiName"> <value>java:comp/env/configInfraLocation</value> 
+		</property> </bean> -->
+
+	<bean id="jdbcProps"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="database.properties" />
+	</bean>
+
+	<!-- local config -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="#{jdbcProps['database.driver']}" />
+		<property name="url" value="#{jdbcProps['database.url']}" />
+		<property name="username" value="#{jdbcProps['database.user']}" />
+		<property name="password" value="#{jdbcProps['database.pass']}" />
+	</bean>
+
+	<!-- JPA EntityManagerFactory -->
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		p:dataSource-ref="dataSource">
+		<property name="jpaVendorAdapter">
+			<bean id="jpaVendorAdapter"
+				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+				p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform"
+				p:showSql="true">
+			</bean>
+			<!-- <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter" 
+				p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform" 
+				p:showSql="true" /> -->
+		</property>
+		<property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
+		<property name="jpaPropertyMap" ref="jpaPropertyMap" />
+		<property name="packagesToScan">
+			<list>
+				<value>br.com.cd.mvo.client.model</value>
+			</list>
+		</property>
+	</bean>
+
+	<util:map id="jpaPropertyMap">
+		<!-- <entry key="eclipselink.weaving" value="false" /> -->
+		<entry key="hibernate.hbm2ddl.auto" value="create" />
+		<entry key="hibernate.show_sql" value="true" />
+		<entry key="hibernate.format_sql" value="true" />
+		<entry key="hibernate.dialect" value="#{jdbcProps['database.dialect']}" />
+		<!-- <entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.EhCacheRegionFactory" 
+			/> <entry key="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" 
+			/> <entry key="hibernate.cache.use_second_level_cache" value="true" /> -->
+		<entry key="hibernate.cache.use_query_cache" value="false" />
+		<entry key="hibernate.generate_statistics" value="true" />
+	</util:map>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+		p:entityManagerFactory-ref="entityManagerFactory" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
+	<!-- <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" 
+		/> -->
+	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator" />
+
+</beans>
