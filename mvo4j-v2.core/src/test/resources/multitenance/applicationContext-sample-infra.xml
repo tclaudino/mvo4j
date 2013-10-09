@@ -12,7 +12,7 @@
 
 	<bean id="jdbc"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="location" value="classpath:database.properties" />
+		<property name="location" value="classpath:ds-infra.properties" />
 	</bean>
 
 	<bean id="infraDataSource"
@@ -50,6 +50,6 @@
 	</util:map>
 
 	<bean id="infraManager"
-		class="br.com.cd.scaleframework.core.orm.suppport.multitenancy.InfraManager" />
+		class="br.cd.mvo4j.test.multitenancy.internal.InfraManager" />
 
 </beans>

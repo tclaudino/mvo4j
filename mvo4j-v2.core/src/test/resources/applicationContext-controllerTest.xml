@@ -13,10 +13,13 @@
 	<util:properties id="localProperties" location="controllerTest.properties" />
 
 	<bean id="applicationConfig"
-		class="br.com.cd.mvo.context.support.LocalPropertyApplicationConfig">
+		class="br.com.cd.mvo.ioc.LocalPropertyContainerConfig">
 
 		<constructor-arg ref="localProperties" />
 	</bean>
+
+	<bean
+		class="br.com.cd.mvo.ioc.spring.ApplicationContextHolder" />
 
 </beans>
                 

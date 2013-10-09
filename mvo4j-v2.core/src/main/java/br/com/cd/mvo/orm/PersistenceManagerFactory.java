@@ -18,7 +18,8 @@ public abstract class PersistenceManagerFactory<F, B, R extends Repository<?>> {
 
 	protected final Container container;
 	protected final Class<F> factoryType;
-	protected final Class<B> beanType;
+
+		protected final Class<B> beanType;
 
 	@SuppressWarnings("unchecked")
 	public PersistenceManagerFactory(Container container,

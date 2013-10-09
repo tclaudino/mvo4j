@@ -40,8 +40,7 @@
 		<entry key="DS_2" value="ds2" />
 	</util:map>
 
-	<bean id="routerDataSource"
-		class="br.com.cd.scaleframework.core.orm.suppport.multitenancy.RouterDataSource">
+	<bean id="routerDataSource" class="br.br.com.cd.mvo.orm.multitenancy.RouterDataSource">
 		<property name="defaultTargetDataSource" ref="ds1" />
 		<property name="targetDataSources" ref="targetDataSources" />
 	</bean>
@@ -105,7 +104,8 @@
 	<context:load-time-weaver aspectj-weaving="on" />
 	<context:spring-configured />
 
-	<bean id="loginInterceptor" class="app.multitenancy.LoginInterceptor">
+	<bean id="loginInterceptor"
+		class="br.cd.mvo4j.test.multitenancy.internal.LoginInterceptor">
 		<property name="infraManager" ref="infraManager" />
 	</bean>
 
