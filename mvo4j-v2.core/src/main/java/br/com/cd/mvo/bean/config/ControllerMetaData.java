@@ -20,7 +20,7 @@ public class ControllerMetaData extends BeanMetaData {
 
 	@Override
 	public String getBeanNameSuffix() {
-		return BEAN_NAME_SUFFIX;
+		return ControllerMetaData.BEAN_NAME_SUFFIX;
 	}
 	// RelationMap[] relationMaps() default {};
 

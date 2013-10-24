@@ -11,7 +11,7 @@ import br.com.cd.mvo.util.GenericsUtils;
 public abstract class PersistenceManagerFactory<F, B, R extends Repository<?>> {
 
 	private final Class<? extends Annotation> persistenceIdentifierAnnotation;
-	private final Class<? extends Annotation> petPersistenceTypeAnnotation;
+	private final Class<? extends Annotation> persistenceTypeAnnotation;
 
 	private static final String BEAN_NAME_PREFIX = PersistenceManagerFactory.class
 			.getName();
@@ -19,15 +19,15 @@ public abstract class PersistenceManagerFactory<F, B, R extends Repository<?>> {
 	protected final Container container;
 	protected final Class<F> factoryType;
 
-		protected final Class<B> beanType;
+	protected final Class<B> beanType;
 
 	@SuppressWarnings("unchecked")
 	public PersistenceManagerFactory(Container container,
-			Class<? extends Annotation> persistenceIdentifierAnnotation,
-			Class<? extends Annotation> petPersistenceTypeAnnotation) {
+			Class<? extends Annotation> persistenceTypeAnnotation,
+			Class<? extends Annotation> persistenceIdentifierAnnotation) {
 		this.container = container;
+		this.persistenceTypeAnnotation = persistenceTypeAnnotation;
 		this.persistenceIdentifierAnnotation = persistenceIdentifierAnnotation;
-		this.petPersistenceTypeAnnotation = petPersistenceTypeAnnotation;
 
 		this.factoryType = GenericsUtils.getTypesFor(this.getClass()).get(0);
 		this.beanType = GenericsUtils.getTypesFor(this.getClass()).get(1);
@@ -62,12 +62,12 @@ public abstract class PersistenceManagerFactory<F, B, R extends Repository<?>> {
 		return beanType;
 	}
 
-	public Class<? extends Annotation> getPersistenceIdentifierAnnotation() {
-		return persistenceIdentifierAnnotation;
+	public Class<? extends Annotation> getPersistenceTypeAnnotation() {
+		return persistenceTypeAnnotation;
 	}
 
-	public Class<? extends Annotation> getPersistenceTypeAnnotation() {
-		return petPersistenceTypeAnnotation;
+	public Class<? extends Annotation> getPersistenceIdentifierAnnotation() {
+		return persistenceIdentifierAnnotation;
 	}
 
 	public static String getBeanName(String persistenceManagerQualifier) {

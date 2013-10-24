@@ -20,7 +20,7 @@ public class ServiceMetaData extends BeanMetaData {
 
 	@Override
 	public String getBeanNameSuffix() {
-		return BEAN_NAME_SUFFIX;
+		return ServiceMetaData.BEAN_NAME_SUFFIX;
 	}
 
 }

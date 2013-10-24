@@ -8,11 +8,17 @@ import br.com.cd.mvo.bean.config.BeanMetaData;
 import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.ioc.support.BeanFactoryUtils;
 
 public class EntityComponentScanner extends AbstractComponentScanner {
 
-	public EntityComponentScanner(String... packageToScan) {
-		super(packageToScan);
+	public EntityComponentScanner(String packageToScan,
+			String... packagesToScan) {
+		super(packageToScan, packagesToScan);
+	}
+
+	public EntityComponentScanner(String[] packagesToScan) {
+		super(packagesToScan);
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -20,8 +26,9 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 	public void scan(Scanner scanner, Container container)
 			throws ConfigurationException {
 
-		Collection<Class<?>> entities = scanner.scan(packageToScan, container
-				.getPersistenceManagerFactory().getPersistenceTypeAnnotation());
+		Collection<Class<?>> entities = scanner.scan(container
+				.getPersistenceManagerFactory().getPersistenceTypeAnnotation(),
+				packagesToScan);
 
 		for (Class<?> entity : entities) {
 
@@ -38,39 +45,36 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 				continue;
 			}
 
-			for (BeanMetaDataFactory<?, ?> beanMetaDataFactory : this.metaDataFactories) {
+			for (BeanMetaDataFactory<?, ?> bmf : this.metaDataFactories) {
 
-				String beanConfigName = container.getBeanMetaDataName(
-						beanMetaDataFactory.getBeanType(), entity);
+				WriteablePropertyMap propertyMap = bmf
+						.newDefaultPropertyMap(container);
+
+				propertyMap.add(BeanMetaData.TARGET_ENTITY, entity);
+				propertyMap.add(BeanMetaData.ENTITY_ID_TYPE, entityId);
+
+				// BeanMetaData beanMetaData =
+				// bmf.createBeanMetaData(propertyMap);
+				//
+				// @SuppressWarnings("rawtypes")
+				// BeanMetaDataWrapper metaDataWrapper = new
+				// BeanMetaDataWrapper<BeanMetaData>(
+				// null, beanMetaData);
+				BeanMetaDataWrapper<?> metaDataWrapper = bmf
+						.createBeanMetaData(propertyMap);
+
+				// propertyMap.add(BeanMetaData.NAME,
+				// container.getBeanName(beanMetaDataWrapper));
+
+				// propertyMap.add(BeanMetaData.NAME,
+				// BeanFactoryUtils.generateBeanName(metaDataWrapper));
+
+				String beanConfigName = BeanFactoryUtils
+						.generateBeanMetaDataName(metaDataWrapper);
+
 				if (!container.containsBean(beanConfigName)) {
 
-					WriteablePropertyMap propertyMap = new WriteablePropertyMap();
-					propertyMap.add(BeanMetaData.TARGET_ENTITY, entity);
-					propertyMap.add(BeanMetaData.ENTITY_ID_TYPE, entityId);
-					propertyMap.add(BeanMetaData.INITIAL_PAGE_SIZE, container
-							.getInitApplicationConfig().getInitialPageSize());
-					propertyMap.add(BeanMetaData.MESSAGE_BUNDLE, container
-							.getInitApplicationConfig().getBundleName());
-					propertyMap.add(BeanMetaData.SCOPE, container
-							.getInitApplicationConfig().getScopeName());
-					propertyMap.add(BeanMetaData.PERSISTENCE_FACTORY_QUALIFIER,
-							container.getInitApplicationConfig()
-									.getPersistenceFactoryQualifier());
-					propertyMap.add(BeanMetaData.PERSISTENCE_PROVIDER,
-							container.getInitApplicationConfig()
-									.getPersistenceManagerFactoryClass());
-
-					BeanMetaData beanMetaData = beanMetaDataFactory
-							.createBeanMetaData(propertyMap);
-
-					@SuppressWarnings("rawtypes")
-					BeanMetaDataWrapper beanMetaDataWrapper = new BeanMetaDataWrapper<BeanMetaData>(
-							beanMetaDataFactory.getBeanType(), beanMetaData);
-
-					propertyMap.add(BeanMetaData.NAME,
-							container.getBeanName(beanMetaDataWrapper));
-
-					container.registerBean(beanMetaDataWrapper);
+					container.registerBean(metaDataWrapper);
 				}
 			}
 		}

@@ -4,6 +4,7 @@ import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -28,16 +29,11 @@ public class SpringContainerRegistry extends
 
 		try {
 			this.register();
-			this.container.deepRegister();
+			this.deepRegister();
 		} catch (ConfigurationException e) {
 			throw new BeansException(e.getMessage(), e) {
 			};
 		}
-	}
-
-	@Override
-	protected <T> Object getSingletonBeanFactory(ComponentFactory<T> dbf) {
-		return new ComponentFactoryBean<T>(dbf);
 	}
 
 	private void registerCustomInjectionProcessor() {
@@ -46,10 +42,20 @@ public class SpringContainerRegistry extends
 		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		definition.getPropertyValues().addPropertyValue("order",
 				Ordered.LOWEST_PRECEDENCE);
+
+		// container.applicationContext.a
+		// .addBeanFactoryPostProcessor(beanFactoryPostProcessor);
+
 		((BeanDefinitionRegistry) container.applicationContext.getBeanFactory())
 				.registerBeanDefinition(
 						AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME,
 						definition);
+
+		container.applicationContext
+				.getBeanFactory()
+				.addBeanPostProcessor(
+						(BeanPostProcessor) container
+								.getBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
 	}
 
 	@Override
@@ -69,7 +75,7 @@ public class SpringContainerRegistry extends
 	}
 
 	@Override
-	protected void setup() {
+	protected void configure() {
 
 		AnnotationConfigUtils
 				.registerAnnotationConfigProcessors((BeanDefinitionRegistry) container.applicationContext
@@ -78,6 +84,10 @@ public class SpringContainerRegistry extends
 				.registerAspectJAnnotationAutoProxyCreatorIfNecessary((BeanDefinitionRegistry) container.applicationContext
 						.getBeanFactory());
 
-		container.getContainerConfig().getContainerListener().setup(container);
+		container.getContainerConfig().getContainerListener()
+				.configure(container);
+
+		// container.applicationContext.addBeanFactoryPostProcessor(this);
+
 	}
 }

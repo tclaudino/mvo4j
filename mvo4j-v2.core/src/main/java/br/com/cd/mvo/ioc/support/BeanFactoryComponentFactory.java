@@ -25,4 +25,5 @@ public class BeanFactoryComponentFactory<F extends BeanFactory<?, ?>> extends
 
 		return componentFactory;
 	}
+
 }

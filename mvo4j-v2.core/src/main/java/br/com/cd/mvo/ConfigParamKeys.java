@@ -1,7 +1,7 @@
 package br.com.cd.mvo;
 
-import br.com.cd.mvo.ioc.spring.SpringContainerProvider;
 import br.com.cd.mvo.orm.impl.JpaPersistenceManagerFactory;
+import br.com.cd.mvo.web.ioc.spring.SpringWebContainerProvider;
 
 public class ConfigParamKeys {
 
@@ -32,9 +32,9 @@ public class ConfigParamKeys {
 		public static final String PERSISTENCE_MANAGER_FACTORY_CLASS = JpaPersistenceManagerFactory.class
 				.getName();
 		public static final int INITIAL_PAGESIZE = 10;
-		public static final String PERSISTENCE_FACTORY_QUALIFIER = "entityManager";
+		public static final String PERSISTENCE_FACTORY_QUALIFIER = "entityManagerFactory";
 		public static final String SCOPE_NAME = "singleton";
-		public static final String PROVIDER_CLASS = SpringContainerProvider.class
+		public static final String PROVIDER_CLASS = SpringWebContainerProvider.class
 				.getName();
 
 	}

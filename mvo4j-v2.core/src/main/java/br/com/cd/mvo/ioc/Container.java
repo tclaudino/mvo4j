@@ -13,7 +13,7 @@ import br.com.cd.mvo.orm.PersistenceManagerFactory;
 
 public interface Container {
 
-	void start();
+	void start() throws ConfigurationException;
 
 	void stop();
 
@@ -32,10 +32,6 @@ public interface Container {
 	BeanObject getBean(BeanMetaDataWrapper<? extends BeanMetaData> beanConfig)
 			throws NoSuchBeanDefinitionException;
 
-	String getBeanName(BeanMetaDataWrapper<? extends BeanMetaData> beanConfig);
-
-	String getBeanMetaDataName(Class<?> targetBean, Class<?> targetEntity);
-
 	void registerBean(Class<?> beanType, String beanName);
 
 	void registerBean(BeanMetaDataWrapper<? extends BeanMetaData> beanManager)
@@ -46,9 +42,11 @@ public interface Container {
 	void addComponentFactory(
 			ComponentFactory<BeanFactory<?, ?>> componentFactory);
 
+	<T> Object getSingletonBeanFactory(ComponentFactory<T> cf);
+
 	Collection<ComponentFactory<BeanFactory<?, ?>>> getComponentFactories();
 
-	void deepRegister();
+	void deepRegister() throws ConfigurationException;
 
 	ContainerConfig<?> getContainerConfig();
 

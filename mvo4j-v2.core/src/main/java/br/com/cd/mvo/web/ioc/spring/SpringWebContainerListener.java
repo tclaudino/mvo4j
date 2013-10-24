@@ -16,11 +16,13 @@ public class SpringWebContainerListener extends WebContainerListener {
 	}
 
 	@Override
-	public void setup(Container container) {
+	public void configure(Container container) {
 
 		WebApplicationContextUtils
 				.registerWebApplicationScopes(parentApplicationContext
 						.getBeanFactory());
+
+		super.configure(container);
 	}
 
 }

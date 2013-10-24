@@ -10,7 +10,8 @@ import br.com.cd.mvo.util.GenericsUtils;
 public abstract class AbstractComponentFactory<T> implements
 		ComponentFactory<T> {
 
-	private static int order = -1;
+	private static int static_order = -1;
+	private final int order;
 
 	protected final Container container;
 	protected final Class<T> objectType;
@@ -20,7 +21,7 @@ public abstract class AbstractComponentFactory<T> implements
 		this.container = container;
 		this.objectType = GenericsUtils.getTypesFor(this.getClass()).get(0);
 
-		order++;
+		order = static_order++;
 	}
 
 	@Override
@@ -30,7 +31,7 @@ public abstract class AbstractComponentFactory<T> implements
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final T getInstance() throws NoSuchBeanDefinitionException {
+	public T getInstance() throws NoSuchBeanDefinitionException {
 
 		try {
 			return container.getBean(this.getObjectType());
@@ -63,17 +64,56 @@ public abstract class AbstractComponentFactory<T> implements
 
 	@Override
 	public int compareTo(@SuppressWarnings("rawtypes") ComponentFactory o) {
-		if (this.getOrder() < o.getOrder()) {
-			return -1;
-		}
-		if (this.getOrder() > o.getOrder()) {
-			return 1;
-		}
-		return 0;
+
+		return new Integer(this.getOrder())
+				.compareTo(new Integer(o.getOrder()));
 	}
 
 	@Override
 	public final int getOrder() {
 		return order;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((container == null) ? 0 : container.hashCode());
+		result = prime * result
+				+ ((objectType == null) ? 0 : objectType.hashCode());
+		result = prime * result + new Integer(order).hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractComponentFactory<?> other = (AbstractComponentFactory<?>) obj;
+		if (container == null) {
+			if (other.container != null)
+				return false;
+		} else if (!container.equals(other.container))
+			return false;
+		if (objectType == null) {
+			if (other.objectType != null)
+				return false;
+		} else if (!objectType.equals(other.objectType))
+			return false;
+		if (order != other.order)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "AbstractComponentFactory [order=" + order + ", container="
+				+ container + ", objectType=" + objectType + "]";
+	}
+
 }

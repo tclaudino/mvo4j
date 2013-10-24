@@ -10,6 +10,11 @@ public class TranslatorParam {
 		this.parameters = parameters;
 	}
 
+	public static TranslatorParam build(String key, Object... parameters) {
+
+		return new TranslatorParam(key, parameters);
+	}
+
 	public String getKey() {
 		return key;
 	}

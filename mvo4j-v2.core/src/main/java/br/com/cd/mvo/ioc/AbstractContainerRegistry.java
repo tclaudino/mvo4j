@@ -22,7 +22,8 @@ import br.com.cd.mvo.ioc.support.RepositoryBeanFactory;
 import br.com.cd.mvo.ioc.support.ServiceBeanFactory;
 import br.com.cd.mvo.ioc.support.TranslatorComponentFactory;
 
-public abstract class AbstractContainerRegistry<C extends Container> {
+public abstract class AbstractContainerRegistry<C extends Container> implements
+		ContainerRegistry<C> {
 
 	protected C container;
 
@@ -33,49 +34,52 @@ public abstract class AbstractContainerRegistry<C extends Container> {
 		this.scanner = new ReflectionsScanner(container);
 	}
 
-	protected abstract <T> Object getSingletonBeanFactory(
-			ComponentFactory<T> dbf);
-
 	protected abstract void registerCustomComponents();
 
 	private void registerLocalComponentes() {
 
-		container.registerSingleton(CacheManager.class.getName(),
-				getSingletonBeanFactory(new CacheManagerComponentFactory(
+		container.registerSingleton(CacheManager.class.getName(), container
+				.getSingletonBeanFactory(new CacheManagerComponentFactory(
 						this.container)));
 
-		container.registerSingleton(KeyValuesProvider.class.getName(),
-				getSingletonBeanFactory(new KeyValuesProviderComponentFactory(
+		container
+				.registerSingleton(
+						KeyValuesProvider.class.getName(),
+						container
+								.getSingletonBeanFactory(new KeyValuesProviderComponentFactory(
+										this.container)));
+
+		container.registerSingleton(Translator.class.getName(), container
+				.getSingletonBeanFactory(new TranslatorComponentFactory(
 						this.container)));
 
-		container.registerSingleton(Translator.class.getName(),
-				getSingletonBeanFactory(new TranslatorComponentFactory(
+		container.registerSingleton(Application.class.getName(), container
+				.getSingletonBeanFactory(new ApplicationComponentFactory(
 						this.container)));
 
-		container.registerSingleton(Application.class.getName(),
-				getSingletonBeanFactory(new ApplicationComponentFactory(
+		container.registerSingleton(DataModelFactory.class.getName(), container
+				.getSingletonBeanFactory(new DataModelComponentFactory(
 						this.container)));
 
-		container.registerSingleton(DataModelFactory.class.getName(),
-				getSingletonBeanFactory(new DataModelComponentFactory(
-						this.container)));
+		BeanFactory<?, ?> bf = new RepositoryBeanFactory(this.container);
+		ComponentFactory<BeanFactory<?, ?>> cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(
+				this.container, bf);
 
-		BeanFactory<?, ?> cf = new RepositoryBeanFactory(this.container);
-		ComponentFactory<BeanFactory<?, ?>> bf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(
-				this.container, cf);
+		container.addComponentFactory(cf);
+		container.registerSingleton(bf.getClass().getName(), cf);
 
-		container.addComponentFactory(bf);
-		container.registerSingleton(cf.getClass().getName(), bf);
+		bf = new ServiceBeanFactory(this.container);
+		cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(this.container,
+				bf);
 
-		cf = new ServiceBeanFactory(this.container);
-		bf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(this.container,
-				cf);
-
-		container.addComponentFactory(bf);
-		container.registerSingleton(cf.getClass().getName(), bf);
+		container.addComponentFactory(cf);
+		container.registerSingleton(bf.getClass().getName(), cf);
 	}
 
-	private void registerScannedBeans() throws ConfigurationException {
+	@Override
+	public void deepRegister() throws ConfigurationException {
+
+		container.deepRegister();
 
 		ComponentScannerFactory scannerFactory = container
 				.getComponentScannerFactory();
@@ -93,9 +97,10 @@ public abstract class AbstractContainerRegistry<C extends Container> {
 		}
 	}
 
+	@Override
 	public void register() throws ConfigurationException {
 
-		this.setup();
+		this.configure();
 
 		container.registerSingleton(Container.class.getName(), container);
 
@@ -103,8 +108,8 @@ public abstract class AbstractContainerRegistry<C extends Container> {
 
 		this.registerLocalComponentes();
 
-		this.registerScannedBeans();
+		this.deepRegister();
 	}
 
-	protected abstract void setup();
+	protected abstract void configure();
 }

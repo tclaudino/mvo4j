@@ -6,7 +6,7 @@ import br.com.cd.mvo.ioc.support.ControllerBeanFactory;
 public class DefaultContainerListener implements ContainerListener {
 
 	@Override
-	public void contextLoaded(Container container) {
+	public void configure(Container container) {
 
 		BeanFactory<?, ?> bf = new ControllerBeanFactory(container);
 
@@ -15,11 +15,5 @@ public class DefaultContainerListener implements ContainerListener {
 
 		container.addComponentFactory(cf);
 		container.registerSingleton(bf.getClass().getName(), cf);
-	}
-
-	@Override
-	public void setup(Container container) {
-
-		// nothing?
 	}
 }

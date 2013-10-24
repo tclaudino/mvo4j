@@ -29,7 +29,7 @@
 
 	<bean id="jdbcProps"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="location" value="database.properties" />
+		<property name="location" value="classpath:database.properties" />
 	</bean>
 
 	<!-- local config -->
@@ -55,7 +55,7 @@
 				p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform" 
 				p:showSql="true" /> -->
 		</property>
-		<property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
+		<property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml" />
 		<property name="jpaPropertyMap" ref="jpaPropertyMap" />
 		<property name="packagesToScan">
 			<list>

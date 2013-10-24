@@ -1,7 +1,7 @@
 package br.com.cd.mvo.ioc;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.TreeSet;
 
 import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.core.ConfigurationException;
@@ -12,7 +12,7 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 
 	protected final D localContainer;
 
-	protected Collection<BeanMetaDataFactory<?, ?>> factories = new ArrayList<>();
+	protected Collection<BeanMetaDataFactory<?, ?>> factories = new TreeSet<>();
 
 	private ContainerListener listener;
 

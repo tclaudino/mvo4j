@@ -11,8 +11,9 @@ import br.com.cd.mvo.core.BeanObject;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.scan.ComponentScannerFactory;
+import br.com.cd.mvo.ioc.support.BeanFactoryUtils;
+import br.com.cd.mvo.ioc.support.BeanObjectComponentFactory;
 import br.com.cd.mvo.orm.PersistenceManagerFactory;
-import br.com.cd.mvo.util.StringUtils;
 
 public abstract class AbstractContainer implements Container {
 
@@ -25,10 +26,8 @@ public abstract class AbstractContainer implements Container {
 		this.containerConfig = applicationConfig;
 	}
 
-	protected abstract void doRegister(Class<?> type,
-			BeanMetaDataWrapper<? extends BeanMetaData> beanConfig);
-
-	protected abstract void doDeepRegister();
+	protected abstract void doRegister(String beanName, String scope,
+			Class<?> type);
 
 	@Override
 	public void addComponentFactory(
@@ -78,83 +77,78 @@ public abstract class AbstractContainer implements Container {
 	}
 
 	@Override
-	public String getBeanName(
-			BeanMetaDataWrapper<? extends BeanMetaData> beanConfig) {
-
-		for (ComponentFactory<BeanFactory<?, ?>> dcf : componentFactories) {
-
-			BeanFactory<?, ?> cf;
-			cf = dcf.getInstance();
-			if (cf.isCandidate(beanConfig)) {
-				return cf.generateBeanName(beanConfig);
-			}
-		}
-		return beanConfig.getBeanMetaData().name();
-	}
-
-	@Override
-	public String getBeanMetaDataName(Class<?> targetBean, Class<?> targetEntity) {
-
-		@SuppressWarnings("rawtypes")
-		Collection<BeanMetaDataWrapper> configs = this
-				.getBeansOfType(BeanMetaDataWrapper.class);
-
-		for (ComponentFactory<BeanFactory<?, ?>> dcf : componentFactories) {
-
-			BeanFactory<?, ?> cf;
-			cf = dcf.getInstance();
-			for (BeanMetaDataWrapper<?> config : configs) {
-				if (cf.isCandidate(config)
-						&& targetBean.isAssignableFrom(config.getTargetBean())
-						&& config.getBeanMetaData().targetEntity()
-								.equals(targetEntity)) {
-
-					return cf.generateBeanName(config) + "Config";
-				}
-			}
-		}
-		return StringUtils.cammelCase(targetBean.getSimpleName()) + "Config";
-	}
-
-	@Override
 	public BeanObject getBean(
-			BeanMetaDataWrapper<? extends BeanMetaData> beanConfig)
+			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
 			throws NoSuchBeanDefinitionException {
 
-		for (ComponentFactory<BeanFactory<?, ?>> dcf : componentFactories) {
+		for (ComponentFactory<BeanFactory<?, ?>> cf : componentFactories) {
 
-			BeanFactory<?, ?> cf = dcf.getInstance();
-			if (cf.isCandidate(beanConfig)) {
+			BeanFactory<?, ?> bf = cf.getInstance();
+			if (bf.isCandidate(metaDataWrapper)) {
 
-				String beanName = this.getBeanName(beanConfig);
-				return this.getBean(beanName, BeanObject.class);
+				return this.getBean(
+						BeanFactoryUtils.generateBeanName(metaDataWrapper),
+						BeanObject.class);
 			}
 		}
-		throw new NoSuchBeanDefinitionException(beanConfig.getBeanMetaData()
-				.toString());
+		throw new NoSuchBeanDefinitionException(
+				BeanFactoryUtils.generateBeanName(metaDataWrapper));
 	}
 
 	@Override
 	public void registerBean(
-			BeanMetaDataWrapper<? extends BeanMetaData> beanManager)
+			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
 			throws ConfigurationException, NoSuchBeanDefinitionException {
 
-		String beanConfigName = this.getBeanMetaDataName(beanManager
-				.getTargetBean(), beanManager.getBeanMetaData().targetEntity());
-		this.registerSingleton(beanConfigName, beanManager);
+		for (ComponentFactory<BeanFactory<?, ?>> cf : componentFactories) {
 
-		for (ComponentFactory<BeanFactory<?, ?>> dcf : componentFactories) {
+			BeanFactory<?, ?> bf = cf.getInstance();
+			if (bf.isCandidate(metaDataWrapper)) {
 
-			BeanFactory<?, ?> cf = dcf.getInstance();
-			if (cf.isCandidate(beanManager)) {
+				if (bf.isSingleton()) {
 
-				if (cf.isSingleton()) {
-					this.registerSingleton(
-							beanManager.getBeanMetaData().name(),
-							cf.getInstance(beanManager));
+					BeanObject instance = bf.getInstance(metaDataWrapper);
+					String name = metaDataWrapper.getBeanMetaData().name();
+					this.registerSingleton(name, instance);
+
+					// String generatedName = BeanFactoryUtils.generateBeanName(
+					// metaDataWrapper, true);
+					// if (generatedName.equals(name))
+					// this.registerSingleton(generatedName, instance);
 				} else {
-					this.doRegister(cf.createProxy(beanManager), beanManager);
+
+					Class<BeanObject> proxy = bf.createProxy(metaDataWrapper);
+
+					String beanName = metaDataWrapper.getBeanMetaData().name();
+
+					this.doRegister(proxy.getName(), metaDataWrapper
+							.getBeanMetaData().scope(), proxy);
+
+					this.registerSingleton(
+							beanName,
+							this.getSingletonBeanFactory(new BeanObjectComponentFactory<>(
+									this, proxy, proxy.getName())));
+
+					// String generatedName = BeanFactoryUtils.generateBeanName(
+					// metaDataWrapper, true);
+					// if (generatedName.equals(beanName)) {
+					//
+					// this.doRegister(generatedName, metaDataWrapper
+					// .getBeanMetaData().scope(), proxy);
+					//
+					// this.registerSingleton(
+					// beanName,
+					// this.getSingletonBeanFactory(new
+					// BeanObjectComponentFactory<>(
+					// this, proxy, proxy.getName())));
+					// }
 				}
+
+				this.registerSingleton(BeanFactoryUtils
+						.generateBeanMetaDataName(metaDataWrapper),
+						metaDataWrapper);
+
+				break;
 			}
 		}
 	}
@@ -195,11 +189,4 @@ public abstract class AbstractContainer implements Container {
 		}
 	}
 
-	@Override
-	public final void deepRegister() {
-
-		this.doDeepRegister();
-
-		containerConfig.getContainerListener().contextLoaded(this);
-	}
 }

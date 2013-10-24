@@ -17,12 +17,11 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ScopeMetadata;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.core.Ordered;
 
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.AbstractContainer;
+import br.com.cd.mvo.ioc.ComponentFactory;
 import br.com.cd.mvo.ioc.ContainerConfig;
 
 public class SpringContainer extends AbstractContainer {
@@ -32,6 +31,7 @@ public class SpringContainer extends AbstractContainer {
 	private Map<String, Object> singletonObjects = new TreeMap<>();
 	private Collection<BeanDefinitionHolder> beanDefinitionHolderList = new TreeSet<>();
 	private Map<String, BeanDefinition> beanDefinitionList = new TreeMap<>();
+	private SpringContainerRegistry registry = new SpringContainerRegistry(this);
 
 	public SpringContainer(
 			ConfigurableApplicationContext parentApplicationContext,
@@ -41,19 +41,18 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	public void start() {
+	public void start() throws ConfigurationException {
 
-		applicationContext
-				.addBeanFactoryPostProcessor(new SpringContainerRegistry(this));
+		registry.register();
 
 		// ((DefaultListableBeanFactory)parentApplicationContext.getBeanFactory()).setInstantiationStrategy(instantiationStrategy);
-		applicationContext.refresh();
-		applicationContext.start();
+		// applicationContext.refresh();
+		// applicationContext.start();
 	}
 
 	@Override
 	public void stop() {
-		applicationContext.stop();
+		// applicationContext.stop();
 	}
 
 	@Override
@@ -122,8 +121,12 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	protected void doRegister(Class<?> type,
-			BeanMetaDataWrapper<? extends BeanMetaData> beanConfig) {
+	public <T> Object getSingletonBeanFactory(ComponentFactory<T> cf) {
+		return new ComponentFactoryBean<T>(cf);
+	}
+
+	@Override
+	protected void doRegister(String beanName, String scope, Class<?> type) {
 
 		AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(
 				type);
@@ -132,11 +135,14 @@ public class SpringContainer extends AbstractContainer {
 		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
 		ScopeMetadata scopeMetadata = new ScopeMetadata();
-		scopeMetadata.setScopeName(beanConfig.getBeanMetaData().scope());
+		scopeMetadata.setScopeName(scope);
 
 		BeanDefinitionHolder definitionHolder = applyScopeOn(
-				new BeanDefinitionHolder(definition, beanConfig
-						.getBeanMetaData().name()), scopeMetadata);
+				new BeanDefinitionHolder(definition, beanName), scopeMetadata);
+		doRegister(definitionHolder);
+	}
+
+	private void doRegister(BeanDefinitionHolder definitionHolder) {
 
 		if (applicationContext.isActive()) {
 			BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder,
@@ -181,8 +187,8 @@ public class SpringContainer extends AbstractContainer {
 	public void registerBean(Class<?> beanType, String beanName) {
 		RootBeanDefinition definition = new RootBeanDefinition(beanType);
 		definition.setRole(BeanDefinition.ROLE_APPLICATION);
-		definition.getPropertyValues().addPropertyValue("order",
-				Ordered.LOWEST_PRECEDENCE);
+		// definition.getPropertyValues().addPropertyValue("order",
+		// Ordered.LOWEST_PRECEDENCE);
 
 		if (applicationContext.isActive()) {
 			((BeanDefinitionRegistry) applicationContext.getBeanFactory())
@@ -193,7 +199,7 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	protected void doDeepRegister() {
+	public void deepRegister() {
 
 		for (Map.Entry<String, BeanDefinition> entry : this.beanDefinitionList
 				.entrySet()) {

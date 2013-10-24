@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -25,27 +26,65 @@ public class ReflectionsScanner implements Scanner {
 	}
 
 	@Override
-	public Collection<Class<?>> scan(String[] packageToScan,
-			Class<? extends Annotation> annotationType) {
-
-		Set<URL> urls = new HashSet<URL>();
-
-		urls.addAll(ClasspathHelper.forJavaClassPath());
-		urls.addAll(ClasspathHelper.forManifest());
-		if (container.getContainerConfig().getLocalContainer() instanceof ServletContext) {
-			urls.addAll(ClasspathHelper.forWebInfLib((ServletContext) container
-					.getContainerConfig().getLocalContainer()));
-			urls.add(ClasspathHelper
-					.forWebInfClasses((ServletContext) container
-							.getContainerConfig().getLocalContainer()));
-		}
+	public Collection<Class<?>> scan(
+			Class<? extends Annotation> annotationType, String[] packagesToScan) {
 
 		ConfigurationBuilder configuration = new ConfigurationBuilder()
-				.filterInputsBy(new FilterBuilder()).setUrls(urls)
-				.setScanners(new TypeAnnotationsScanner());
+				.filterInputsBy(getFilterBuilder(packagesToScan))
+				.setUrls(getURLs()).setScanners(new TypeAnnotationsScanner());
 
 		return new Reflections(configuration)
 				.getTypesAnnotatedWith(annotationType);
+	}
+
+	protected FilterBuilder getFilterBuilder(String... packagesToScan) {
+		FilterBuilder filterBuilder = new FilterBuilder();
+		for (String pkg : packagesToScan) {
+			filterBuilder.include(FilterBuilder.prefix(pkg));
+		}
+		return filterBuilder;
+	}
+
+	protected Set<URL> getURLs() {
+
+		Set<URL> urls = new HashSet<URL>();
+
+		addAll(urls, ClasspathHelper.forJavaClassPath());
+		addAll(urls, ClasspathHelper.forManifest());
+
+		ServletContext sc = (ServletContext) container.getContainerConfig()
+				.getLocalContainer();
+
+		if (container.getContainerConfig().getLocalContainer() instanceof ServletContext) {
+
+			if (sc.getResourcePaths("/WEB-INF/lib") != null)
+				addAll(urls, ClasspathHelper.forWebInfLib(sc));
+
+			if (sc.getResourcePaths("/WEB-INF/classes") != null) {
+				URL tempURL = ClasspathHelper.forWebInfClasses(sc);
+				if (tempURL != null) {
+					urls.add(tempURL);
+				}
+			}
+		}
+
+		return urls;
+	}
+
+	private void addAll(Set<URL> urls, Set<URL> tempURLs) {
+		if (tempURLs != null && tempURLs.size() > 0)
+			urls.addAll(tempURLs);
+	}
+
+	@Override
+	public <T> Collection<Class<? extends T>> scanSubTypesOf(Class<T> type,
+			String[] packagesToScan) {
+
+		ConfigurationBuilder configuration = new ConfigurationBuilder()
+				.filterInputsBy(getFilterBuilder(packagesToScan))
+				.setUrls(getURLs()).setScanners(new SubTypesScanner());
+
+		return new Reflections(configuration).getSubTypesOf(type);
 	}
 
 }

@@ -15,9 +15,6 @@ public interface BeanFactory<D extends BeanMetaData, A extends Annotation> {
 
 	boolean isCandidate(Class<? extends Annotation> annotation);
 
-	String generateBeanName(
-			BeanMetaDataWrapper<? extends BeanMetaData> beanConfig);
-
 	Class<BeanObject> createProxy(
 			BeanMetaDataWrapper<? extends BeanMetaData> beanConfig)
 			throws NoSuchBeanDefinitionException;

@@ -1,20 +1,21 @@
 package br.com.cd.mvo.ioc.scan;
 
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 
-import br.com.cd.mvo.bean.config.BeanMetaData;
+import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.DefaultCrudController;
-import br.com.cd.mvo.ioc.BeanFactory;
-import br.com.cd.mvo.ioc.ComponentFactory;
 import br.com.cd.mvo.ioc.Container;
 
 public class AnnotatedComponentScanner extends AbstractComponentScanner {
 
-	public AnnotatedComponentScanner(String... packageToScan) {
-		super(packageToScan);
+	public AnnotatedComponentScanner(String packageToScan,
+			String... packagesToScan) {
+		super(packageToScan, packagesToScan);
+	}
+
+	public AnnotatedComponentScanner(String[] packagesToScan) {
+		super(packagesToScan);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -22,32 +23,28 @@ public class AnnotatedComponentScanner extends AbstractComponentScanner {
 	public void scan(Scanner scanner, Container container)
 			throws ConfigurationException {
 
-		for (BeanMetaDataFactory metaDataFactory : this.metaDataFactories) {
+		for (BeanMetaDataFactory bmf : this.metaDataFactories) {
 
-			Collection<Class<?>> scan = scanner.scan(packageToScan,
-					metaDataFactory.getBeanAnnotationType());
+			Collection<Class<?>> beanTypes = bmf.scan(scanner, packagesToScan);
 
-			for (Class<?> beanType : scan) {
+			for (Class<?> beanType : beanTypes) {
 
-				Annotation annotation = beanType.getAnnotation(metaDataFactory
-						.getBeanAnnotationType());
+				// Annotation annotation = beanType.getAnnotation(bmf
+				// .getBeanAnnotationType());
 
-				for (ComponentFactory<BeanFactory<?, ?>> dynamicBeanFactory : container
-						.getComponentFactories()) {
+				WriteablePropertyMap propertyMap = bmf
+						.newDefaultPropertyMap(container);
 
-					BeanFactory cf = dynamicBeanFactory.getInstance();
+				// BeanMetaData beanMetaData = bmf.createBeanMetaData(
+				// propertyMap, beanType, annotation);
 
-					if (!cf.isCandidate(annotation.getClass()))
-						continue;
+				// BeanMetaDataWrapper<BeanMetaData> metaDataWrapper = new
+				// BeanMetaDataWrapper<BeanMetaData>(
+				// beanType, beanMetaData);
+				BeanMetaDataWrapper<?> metaDataWrapper = bmf
+						.createBeanMetaData(propertyMap, beanType, container);
 
-					BeanMetaData beanMetaData = metaDataFactory
-							.createBeanMetaData(beanType, annotation);
-
-					BeanMetaDataWrapper<BeanMetaData> metaDataWrapper = new BeanMetaDataWrapper<BeanMetaData>(
-							DefaultCrudController.class, beanMetaData);
-
-					container.registerBean(metaDataWrapper);
-				}
+				container.registerBean(metaDataWrapper);
 			}
 		}
 	}

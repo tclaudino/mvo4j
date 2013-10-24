@@ -12,7 +12,7 @@ import br.com.cd.mvo.orm.LikeCritirionEnum;
 import br.com.cd.mvo.orm.Repository;
 import br.com.cd.mvo.orm.Repository.ActionListenerEventType;
 
-@RepositoryBean(targetEntity = ContactType.class, name = "contactTypeService")
+@RepositoryBean(targetEntity = ContactType.class, name = "contactTypeRepository")
 public class ContactTypeRepository implements RepositoryListener<ContactType> {
 
 	public Repository<ContactType> repository;

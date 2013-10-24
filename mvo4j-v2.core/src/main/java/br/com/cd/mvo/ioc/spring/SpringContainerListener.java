@@ -15,8 +15,9 @@ public class SpringContainerListener extends DefaultContainerListener {
 	}
 
 	@Override
-	public void setup(Container container) {
+	public void configure(Container container) {
 
 		// nothing?
+		super.configure(container);
 	}
 }

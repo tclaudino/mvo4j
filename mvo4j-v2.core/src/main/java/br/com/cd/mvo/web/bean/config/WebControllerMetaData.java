@@ -8,6 +8,8 @@ import br.com.cd.mvo.web.bean.WebControllerBean;
 
 public class WebControllerMetaData extends ControllerMetaData {
 
+	public static final String BEAN_NAME_SUFFIX = "WebController";
+
 	public static final String PATH = "path";
 
 	public static final String LIST_VIEW_NAME = "listViewName";
@@ -37,6 +39,11 @@ public class WebControllerMetaData extends ControllerMetaData {
 	@Override
 	public Class<? extends Annotation> annotationType() {
 		return WebControllerBean.class;
+	}
+
+	@Override
+	public String getBeanNameSuffix() {
+		return WebControllerMetaData.BEAN_NAME_SUFFIX;
 	}
 
 }

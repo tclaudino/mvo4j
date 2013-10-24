@@ -10,7 +10,7 @@
           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
-	<util:properties id="localProperties" location="controllerTest.properties" />
+	<util:properties id="localProperties" location="classpath:controllerTest.properties" />
 
 	<bean id="applicationConfig"
 		class="br.com.cd.mvo.ioc.LocalPropertyContainerConfig">

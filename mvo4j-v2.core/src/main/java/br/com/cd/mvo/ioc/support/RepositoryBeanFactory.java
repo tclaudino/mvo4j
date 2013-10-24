@@ -39,25 +39,25 @@ public class RepositoryBeanFactory extends
 			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
 			throws ConfigurationException {
 
-		String persistenceImplClassName = container.getInitApplicationConfig()
+		String providerClassName = container.getInitApplicationConfig()
 				.getPersistenceManagerFactoryClass();
 
 		if (!metaDataWrapper.getBeanMetaData().persistenceProvider().isEmpty()) {
-			persistenceImplClassName = metaDataWrapper.getBeanMetaData()
+			providerClassName = metaDataWrapper.getBeanMetaData()
 					.persistenceProvider();
 		}
 
-		String beanName = PersistenceManagerFactory.getBeanName(metaDataWrapper
-				.getBeanMetaData().persistenceManagerQualifier());
+		String providerBeanName = PersistenceManagerFactory
+				.getBeanName(metaDataWrapper.getBeanMetaData()
+						.persistenceManagerQualifier());
 
-		Class<? extends PersistenceManagerFactory> persistenceProviderClass = loadClass(persistenceImplClassName);
-		PersistenceManagerFactory persistenceManagerFactory = container
-				.getPersistenceManagerFactory(beanName,
-						persistenceProviderClass);
+		Class<? extends PersistenceManagerFactory> persistenceProviderClass = loadClass(providerClassName);
+		PersistenceManagerFactory pmf = container.getPersistenceManagerFactory(
+				providerBeanName, persistenceProviderClass);
 
-		return persistenceManagerFactory.getRepositoryInstance(metaDataWrapper
-				.getBeanMetaData().persistenceManagerQualifier(),
-				metaDataWrapper.getBeanMetaData().targetEntity());
+		return pmf.getRepositoryInstance(metaDataWrapper.getBeanMetaData()
+				.persistenceManagerQualifier(), metaDataWrapper
+				.getBeanMetaData().targetEntity());
 	}
 
 	@Override

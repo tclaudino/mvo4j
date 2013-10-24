@@ -1,27 +1,36 @@
 package br.com.cd.mvo.ioc.scan;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 
 public abstract class AbstractComponentScanner implements ComponentScanner {
 
-	protected String[] packageToScan;
+	protected String[] packagesToScan;
 
-	protected Collection<BeanMetaDataFactory<?, ?>> metaDataFactories = new HashSet<>();
+	protected Collection<BeanMetaDataFactory<?, ?>> metaDataFactories = new TreeSet<>();
 	{
 		{
 			metaDataFactories.add(new ServiceMetaDataFactory());
 			metaDataFactories.add(new RepositoryMetaDataFactory());
+			metaDataFactories.add(new ControllerListenerMetaDataFactory());
 		}
 	}
 
-	public AbstractComponentScanner(String... packageToScan) {
-		this.packageToScan = packageToScan;
+	public AbstractComponentScanner(String packageToScan,
+			String... packagesToScan) {
+		List<String> asList = Arrays.asList(packagesToScan);
+		asList.add(packageToScan);
+		this.packagesToScan = asList.toArray(new String[asList.size()]);
+	}
+
+	public AbstractComponentScanner(String[] packagesToScan) {
+		this.packagesToScan = packagesToScan;
 	}
 
 	public AbstractComponentScanner(List<String> packageToScan) {
-		this.packageToScan = packageToScan.toArray(new String[packageToScan
+		this.packagesToScan = packageToScan.toArray(new String[packageToScan
 				.size()]);
 	}
 

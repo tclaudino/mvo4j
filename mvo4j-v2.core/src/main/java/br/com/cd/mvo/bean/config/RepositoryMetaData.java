@@ -20,7 +20,7 @@ public class RepositoryMetaData extends BeanMetaData {
 
 	@Override
 	public String getBeanNameSuffix() {
-		return BEAN_NAME_SUFFIX;
+		return RepositoryMetaData.BEAN_NAME_SUFFIX;
 	}
 
 }

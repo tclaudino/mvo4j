@@ -16,11 +16,11 @@ public class JpaPersistenceManagerFactory
 		extends
 		PersistenceManagerFactory<EntityManagerFactory, EntityManager, JpaRepository<?>> {
 
-	public static final Class<? extends Annotation> PERSISTENCE_IDENTIFIER_ANNOTATION = Id.class;
 	public static final Class<? extends Annotation> PERSISTENCE_TYPE_ANNOTATION = Entity.class;
+	public static final Class<? extends Annotation> PERSISTENCE_IDENTIFIER_ANNOTATION = Id.class;
 
 	public JpaPersistenceManagerFactory(Container container) {
-		super(container, PERSISTENCE_IDENTIFIER_ANNOTATION,
+		super(container, PERSISTENCE_TYPE_ANNOTATION,
 				PERSISTENCE_IDENTIFIER_ANNOTATION);
 	}
 

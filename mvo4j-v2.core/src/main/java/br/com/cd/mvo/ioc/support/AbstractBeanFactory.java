@@ -13,7 +13,6 @@ import br.com.cd.mvo.ioc.BeanFactory;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.util.GenericsUtils;
 import br.com.cd.mvo.util.ProxyUtils;
-import br.com.cd.mvo.util.StringUtils;
 
 public abstract class AbstractBeanFactory<D extends BeanMetaData, A extends Annotation>
 		implements BeanFactory<D, A> {
@@ -57,10 +56,12 @@ public abstract class AbstractBeanFactory<D extends BeanMetaData, A extends Anno
 			final Class<P> superClass) {
 
 		try {
-			Class<P> proxyClass = ProxyUtils.createProxyClass("", sourceClass,
-					superClass);
 
-			return proxyClass;
+			if (sourceClass == null) {
+				return ProxyUtils.createProxyClass(superClass);
+			}
+
+			return ProxyUtils.createProxyClass(sourceClass, superClass);
 			/*
 			 * Enhancer enhancer = new Enhancer();
 			 * enhancer.setSuperclass(proxyClass); Set<Class> allInterfaces =
@@ -100,21 +101,11 @@ public abstract class AbstractBeanFactory<D extends BeanMetaData, A extends Anno
 	}
 
 	@Override
-	public final String generateBeanName(
-			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper) {
-
-		String beanName = metaDataWrapper.getBeanMetaData().name();
-
-		return (beanName != null && !beanName.isEmpty()) ? beanName
-				: (StringUtils.cammelCase(metaDataWrapper.getBeanMetaData()
-						.targetEntity().getSimpleName()) + metaDataWrapper
-						.getBeanMetaData().getBeanNameSuffix());
-	}
-
-	@Override
 	public BeanObject getInstance(
 			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
 			throws ConfigurationException {
+
+		// return container.getBeanFactory(metaDataWrapper);
 
 		throw new ConfigurationException(new UnsupportedOperationException(
 				"@TODO: message"));

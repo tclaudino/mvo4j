@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- * Copyright 2009 Red Hat, Inc. * * Red Hat licenses this file to you 
+	under the Apache License, version 2.0 * (the "License"); you may not use 
+	this file except in compliance with the * License. You may obtain a copy 
+	of the License at: * * http://www.apache.org/licenses/LICENSE-2.0 * * Unless 
+	required by applicable law or agreed to in writing, software * distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT * WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
+	the specific language governing permissions and limitations * under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>br.com.cd.scaleframework</groupId>
+	<groupId>br.com.cd</groupId>
 	<artifactId>mvo4j-v2.core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
 
-	<name>scale-vraptor</name>
+	<name>mvo4j</name>
 	<description>mvo4j's framework lets you create a web application without programming any code in C layer of the MVC pattern.</description>
 	<url>http://>mvo4j.confiancadigital.com.br</url>
 
@@ -56,12 +64,141 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.0.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<compilerVersion>1.7</compilerVersion>
+					<fork>true</fork>
+					<source>1.7</source>
+					<target>1.7</target>
+					<debug>true</debug>
+					<optimize>true</optimize>
+					<showDeprecation>true</showDeprecation>
+					<showWarnings>true</showWarnings>
+					<compilerArgument>-Xlint:-options</compilerArgument>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<useFile>false</useFile>
+					<trimStackTrace>false</trimStackTrace>
+					<argLine>-Xms256m -Xmx2048m -XX:PermSize=512m</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<configuration>
+					<configLocation>/checkstyle/checkstyle.xml</configLocation>
+					<headerLocation>/checkstyle/checkstyle-header.txt</headerLocation>
+					<suppressionsLocation>/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+					<propertiesLocation>/checkstyle/checkstyle.properties</propertiesLocation>
+					<propertyExpansion>basedir=${basedir}/checkstyle</propertyExpansion>
+				</configuration>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<additionalBuildcommands>
+						<buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
+					</additionalBuildcommands>
+					<additionalProjectnatures>
+						<projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
+					</additionalProjectnatures>
+					<additionalConfig>
+						<file>
+							<name>checkstyle</name>
+							<location>/checkstyle/eclipse-checkstyle.xml</location>
+						</file>
+					</additionalConfig>
 				</configuration>
 			</plugin>
 		</plugins>
+
 	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<doclet>org.jboss.apiviz.APIviz</doclet>
+					<docletArtifact>
+						<groupId>org.jboss.apiviz</groupId>
+						<artifactId>apiviz</artifactId>
+						<version>1.3.2.GA</version>
+					</docletArtifact>
+					<attach>false</attach>
+					<stylesheetfile>${basedir}/src/javadoc/stylesheet.css</stylesheetfile>
+					<javadocDirectory>${basedir}/src/javadoc</javadocDirectory>
+					<docfilessubdirs>true</docfilessubdirs>
+					<useStandardDocletOptions>true</useStandardDocletOptions>
+					<outputDirectory>${project.build.directory}/api</outputDirectory>
+					<reportOutputDirectory>${project.build.directory}/api</reportOutputDirectory>
+					<destDir>api</destDir>
+					<charset>UTF-8</charset>
+					<docencoding>UTF-8</docencoding>
+					<breakiterator>true</breakiterator>
+					<version>true</version>
+					<author>true</author>
+					<keywords>true</keywords>
+					<overview>${basedir}/src/javadoc/overview.html</overview>
+					<doctitle>${project.name} API Reference (${project.version})</doctitle>
+					<windowtitle>${project.name} API Reference (${project.version})</windowtitle>
+					<additionalparam>
+						-link http://java.sun.com/javase/6/docs/api/
+						-link
+						http://code.google.com/apis/protocolbuffers/docs/reference/java/
+						-link
+						http://java.sun.com/products/servlet/2.5/docs/servlet-2_5-mr2/
+						-link http://www.osgi.org/javadoc/r4v41/
+						-link
+						http://www.slf4j.org/apidocs/
+						-link
+						http://commons.apache.org/logging/commons-logging-1.1.1/apidocs/
+						-link http://logging.apache.org/log4j/1.2/apidocs/
+
+						-sourceclasspath ${project.build.outputDirectory}
+						-nopackagediagram
+					</additionalparam>
+					<!-- -group "Low-level data representation" ${project.groupId}.buffer* 
+						-group "Central interface for all I/O operations" ${project.groupId}.channel* 
+						-group "Client &amp; Server bootstrapping utilities" ${project.groupId}.bootstrap* 
+						-group "Reusable I/O event interceptors" ${project.groupId}.handler* -group 
+						"Miscellaneous" ${project.groupId}.logging*:${project.groupId}.util* -->
+					<encoding>UTF-8</encoding>
+					<locale>en_US</locale>
+					<excludePackageNames>${project.groupId}.example*:${project.groupId}.util.internal*</excludePackageNames>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<inputEncoding>UTF-8</inputEncoding>
+					<outputEncoding>UTF-8</outputEncoding>
+					<linkJavadoc>true</linkJavadoc>
+					<destDir>${project.build.directory}/xref</destDir>
+					<javadocDir>${project.build.directory}/api</javadocDir>
+					<stylesheet>${basedir}/src/javadoc/xref/stylesheet.css</stylesheet>
+					<docTitle>${project.name} Source Xref (${project.version})</docTitle>
+					<windowTitle>${project.name} Source Xref (${project.version})</windowTitle>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<repositories>
 		<repository>
@@ -82,12 +219,56 @@
 	</repositories>
 
 	<dependencies>
+		<!-- Testing Dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>4.8.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.26</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>3.2.3.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-ejb_3.1_spec</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jpa_2.0_spec</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jta_1.1_spec</artifactId>
+			<version>1.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-servlet_3.0_spec</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-validation_1.0_spec</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>br.com.caelum</groupId>
 			<artifactId>vraptor</artifactId>
@@ -137,7 +318,7 @@
 		</dependency>
 		<dependency>
 			<groupId>javax</groupId>
-			<artifactId>javaee-web-api</artifactId>
+			<artifactId>javaee-api</artifactId>
 			<version>6.0</version>
 			<scope>provided</scope>
 		</dependency>
@@ -146,16 +327,40 @@
 			<artifactId>xstream</artifactId>
 			<version>1.4.2</version>
 		</dependency>
-
 		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.0.Final</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>4.2.6.Final</version>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>3.2.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>3.2.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.18.0-GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.8</version>
 		</dependency>
 	</dependencies>
 </project>
