@@ -18,4 +18,9 @@ public class DataModelComponentFactory extends
 
 		return new DefaultDataModelFactory();
 	}
+
+	@Override
+	protected String getComponentBeanName() {
+		return DataModelFactory.BEAN_NAME;
+	}
 }

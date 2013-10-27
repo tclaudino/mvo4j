@@ -1,15 +1,26 @@
 package br.com.cd.mvo.core;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import br.com.cd.mvo.bean.config.ServiceMetaData;
 import br.com.cd.mvo.orm.Repository;
 
-public class DefaultCrudService<T> implements CrudService<T> {
+public class DefaultCrudService<T> implements ListenableCrudService<T> {
 
 	private final Repository<T> repository;
 
-	public DefaultCrudService(Repository<T> repository) {
+	protected ServiceMetaData metaData;
+
+	private List<ServiceListener<T>> listeners = new LinkedList<ServiceListener<T>>();
+
+	public DefaultCrudService(Repository<T> repository, ServiceMetaData metaData) {
 		this.repository = repository;
+		this.metaData = metaData;
 	}
 
 	@Override
@@ -39,6 +50,38 @@ public class DefaultCrudService<T> implements CrudService<T> {
 	@Override
 	public Repository<T> getRepository() {
 		return this.repository;
+	}
+
+	@PostConstruct
+	@Override
+	public void afterPropertiesSet() {
+		for (ServiceListener<T> listener : this.getListeners()) {
+			listener.postConstruct(this);
+		}
+	}
+
+	@Override
+	public ServiceMetaData getBeanMetaData() {
+		return metaData;
+	}
+
+	@PreDestroy
+	@Override
+	public final void destroy() {
+		for (ServiceListener<T> listener : this.getListeners()) {
+			listener.preDestroy(this);
+		}
+	}
+
+	@Override
+	public List<ServiceListener<T>> getListeners() {
+		return listeners;
+	}
+
+	@Override
+	public void addListener(ServiceListener<T> listener) {
+
+		this.listeners.add(listener);
 	}
 
 }

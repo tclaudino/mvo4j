@@ -15,10 +15,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 
-import br.com.cd.mvo.orm.AbstractSQLRepository;
+import br.com.cd.mvo.bean.config.RepositoryMetaData;
 import br.com.cd.mvo.orm.JpaRepository;
 import br.com.cd.mvo.orm.LikeCritirionEnum;
 import br.com.cd.mvo.orm.OrderBy;
+import br.com.cd.mvo.orm.support.AbstractSQLRepository;
 import br.com.cd.mvo.util.ParserUtils;
 
 public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
@@ -26,8 +27,9 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 
 	private final EntityManager em;
 
-	public JpaRepositoryImpl(EntityManager em, Class<T> entityClass) {
-		super(entityClass);
+	public JpaRepositoryImpl(EntityManager em, Class<T> entityClass,
+			RepositoryMetaData metaData) {
+		super(entityClass, metaData);
 		this.em = em;
 	}
 
@@ -201,21 +203,30 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 
 	protected final T find(final CriteriaQuery<T> criteriaQuery) {
 
+		Root<T> root = criteriaQuery.from(this.entityClass);
+		criteriaQuery.select(root);
+
 		TypedQuery<T> query = em.createQuery(criteriaQuery);
 
-		T toResult = query.getSingleResult();
-		if (toResult != null) {
+		List<T> resultList = query.getResultList();
+		if (!resultList.isEmpty()) {
+			T toResult = resultList.get(0);
 			ArrayList<T> list = new ArrayList<>();
 			list.add(toResult);
 			listener.onRead(list);
+			return toResult;
 		}
-		return toResult;
+		return null;
 	}
 
 	protected final List<T> findList(final CriteriaQuery<T> criteriaQuery,
 			final int firstResult, final int maxResults) {
 
+		Root<T> root = criteriaQuery.from(this.entityClass);
+		criteriaQuery.select(root);
+
 		TypedQuery<T> query = em.createQuery(criteriaQuery);
+
 		boolean all = maxResults == -1;
 		int offset = !all && firstResult == -1 ? 0 : firstResult;
 		if (!all) {
@@ -223,7 +234,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 			query.setFirstResult(offset);
 		}
 		List<T> toResult = query.getResultList();
-		if (toResult != null && toResult.size() > 0) {
+		if (!toResult.isEmpty()) {
 			listener.onRead(toResult);
 		}
 		return toResult;
@@ -252,13 +263,15 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 		}
 
 		@SuppressWarnings("unchecked")
-		T toResult = (T) query.getSingleResult();
-		if (toResult != null) {
+		List<T> resultList = query.getResultList();
+		if (!resultList.isEmpty()) {
+			T toResult = resultList.get(0);
 			ArrayList<T> list = new ArrayList<>();
 			list.add(toResult);
 			listener.onRead(list);
+			return toResult;
 		}
-		return toResult;
+		return null;
 	}
 
 	@Override
@@ -293,7 +306,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 		}
 		@SuppressWarnings("unchecked")
 		List<T> toResult = (List<T>) query.getResultList();
-		if (toResult != null && toResult.size() > 0) {
+		if (!toResult.isEmpty()) {
 			listener.onRead(toResult);
 		}
 		return toResult;

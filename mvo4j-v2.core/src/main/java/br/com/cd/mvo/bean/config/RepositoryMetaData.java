@@ -23,4 +23,19 @@ public class RepositoryMetaData extends BeanMetaData {
 		return RepositoryMetaData.BEAN_NAME_SUFFIX;
 	}
 
+	public static class ListenerMetaData extends RepositoryMetaData {
+
+		public static final String BEAN_NAME_SUFFIX = RepositoryMetaData.BEAN_NAME_SUFFIX
+				+ "Listener";
+
+		public ListenerMetaData(PropertyMap adaptee) {
+			super(adaptee);
+		}
+
+		@Override
+		public String getBeanNameSuffix() {
+			return ListenerMetaData.BEAN_NAME_SUFFIX;
+		}
+	}
+
 }

@@ -8,7 +8,7 @@ public interface ComponentScanner extends Comparable<ComponentScanner> {
 	void scan(Scanner scanner, Container container)
 			throws ConfigurationException;
 
-	void addMetaDataFactory(BeanMetaDataFactory<?, ?> metaDataFactory);
-
 	int getOrder();
+
+	void addMetaDataFactories(BeanMetaDataFactory<?, ?> metaDataFactory);
 }

@@ -22,9 +22,9 @@ public class SpringContainerProvider implements
 
 		config.setListener(new SpringContainerListener(applicationContext));
 
-		Container context = new SpringContainer(applicationContext, config);
+		Container container = new SpringContainer(applicationContext, config);
 
-		return context;
+		return container;
 	}
 
 	private ConfigurableApplicationContext getApplicationContext(

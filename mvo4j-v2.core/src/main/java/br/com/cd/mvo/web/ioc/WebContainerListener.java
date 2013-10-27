@@ -1,30 +1,22 @@
 package br.com.cd.mvo.web.ioc;
 
-import br.com.cd.mvo.ioc.BeanFactory;
-import br.com.cd.mvo.ioc.ComponentFactory;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.ioc.ContainerListener;
-import br.com.cd.mvo.ioc.support.BeanFactoryComponentFactory;
-import br.com.cd.mvo.ioc.support.ControllerBeanFactory;
+import br.com.cd.mvo.ioc.DefaultContainerListener;
 
-public class WebContainerListener implements ContainerListener {
+public class WebContainerListener extends DefaultContainerListener {
 
 	@Override
 	public void configure(Container container) {
 
-		BeanFactory<?, ?> bf = new ControllerBeanFactory(container);
-		ComponentFactory<BeanFactory<?, ?>> cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(
-				container, bf);
-
-		container.addComponentFactory(cf);
-		container.registerSingleton(bf.getClass().getName(), cf);
-
-		bf = new WebControllerBeanFactory(container);
-		cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(container, bf);
-
-		container.addComponentFactory(cf);
-		container.registerSingleton(bf.getClass().getName(), cf);
-
+		// nothing?
+		super.configure(container);
 	}
 
+	@Override
+	public void deepRegister(Container container) {
+
+		super.deepRegister(container);
+
+		container.addComponentFactory(new WebControllerBeanFactory(container));
+	}
 }

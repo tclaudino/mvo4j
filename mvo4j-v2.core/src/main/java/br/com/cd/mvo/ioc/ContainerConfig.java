@@ -1,9 +1,6 @@
 package br.com.cd.mvo.ioc;
 
-import java.util.Collection;
-
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
 
 public interface ContainerConfig<D> {
 
@@ -26,8 +23,6 @@ public interface ContainerConfig<D> {
 	D getLocalContainer();
 
 	ContainerListener getContainerListener();
-
-	Collection<BeanMetaDataFactory<?, ?>> getBeanMetaDataFactories();
 
 	ContainerProvider<ContainerConfig<D>> getContainerProvider()
 			throws ConfigurationException;

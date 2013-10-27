@@ -1,4 +1,4 @@
-package br.com.cd.mvo.orm;
+package br.com.cd.mvo.orm.support;
 
 import java.lang.annotation.Annotation;
 
@@ -6,72 +6,82 @@ import org.apache.commons.collections.map.ReferenceMap;
 
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.orm.ListenableRepository;
+import br.com.cd.mvo.orm.RepositoryFactory;
 import br.com.cd.mvo.util.GenericsUtils;
 
-public abstract class PersistenceManagerFactory<F, B, R extends Repository<?>> {
+public abstract class AbstractRepositoryFactory<F, B, R extends ListenableRepository<?>>
+		implements RepositoryFactory<F, B, R> {
 
-	private final Class<? extends Annotation> persistenceIdentifierAnnotation;
-	private final Class<? extends Annotation> persistenceTypeAnnotation;
+	private final Class<? extends Annotation> entityIdentifierAnnotation;
+	private final Class<? extends Annotation> entityAnnotation;
 
-	private static final String BEAN_NAME_PREFIX = PersistenceManagerFactory.class
+	private static final String BEAN_NAME_PREFIX = AbstractRepositoryFactory.class
 			.getName();
 
 	protected final Container container;
-	protected final Class<F> factoryType;
+	protected final Class<F> persistenceManagerFactoryType;
 
-	protected final Class<B> beanType;
+	protected final Class<B> persistenceManagerType;
 
 	@SuppressWarnings("unchecked")
-	public PersistenceManagerFactory(Container container,
+	public AbstractRepositoryFactory(Container container,
 			Class<? extends Annotation> persistenceTypeAnnotation,
 			Class<? extends Annotation> persistenceIdentifierAnnotation) {
 		this.container = container;
-		this.persistenceTypeAnnotation = persistenceTypeAnnotation;
-		this.persistenceIdentifierAnnotation = persistenceIdentifierAnnotation;
+		this.entityAnnotation = persistenceTypeAnnotation;
+		this.entityIdentifierAnnotation = persistenceIdentifierAnnotation;
 
-		this.factoryType = GenericsUtils.getTypesFor(this.getClass()).get(0);
-		this.beanType = GenericsUtils.getTypesFor(this.getClass()).get(1);
+		this.persistenceManagerFactoryType = GenericsUtils.getTypesFor(
+				this.getClass()).get(0);
+		this.persistenceManagerType = GenericsUtils
+				.getTypesFor(this.getClass()).get(1);
 	}
 
-	protected abstract B getInstance(F factory)
+	protected abstract B createPersistenceManager(F factory)
 			throws NoSuchBeanDefinitionException;
-
-	public abstract Repository<?> getRepositoryInstance(
-			String persistenceManagerQualifier, Class<?> entityClass);
 
 	private ReferenceMap cachedBean = new ReferenceMap();
 
+	@Override
 	@SuppressWarnings("unchecked")
-	public final B getInstance(String persistenceManagerQualifier)
+	public final B getPersistenceManager(
+			String persistenceManagerFactoryBeanName)
 			throws NoSuchBeanDefinitionException {
 
-		if (!cachedBean.containsKey(persistenceManagerQualifier)) {
+		if (!cachedBean.containsKey(persistenceManagerFactoryBeanName)) {
 			synchronized (this) {
-				if (!cachedBean.containsKey(persistenceManagerQualifier)) {
-					B instance = this.getInstance(container.getBean(
-							persistenceManagerQualifier, factoryType));
-					cachedBean.put(persistenceManagerQualifier, instance);
-					return instance;
+				if (!cachedBean.containsKey(persistenceManagerFactoryBeanName)) {
+					B persistenceManager = this
+							.createPersistenceManager(container.getBean(
+									persistenceManagerFactoryBeanName,
+									persistenceManagerFactoryType));
+					cachedBean.put(persistenceManagerFactoryBeanName,
+							persistenceManager);
+					return persistenceManager;
 				}
 			}
 		}
-		return (B) cachedBean.get(persistenceManagerQualifier);
+		return (B) cachedBean.get(persistenceManagerFactoryBeanName);
 	}
 
-	public Class<B> getObjectType() {
-		return beanType;
+	@Override
+	public Class<B> getPersistenceManagagerType() {
+		return persistenceManagerType;
 	}
 
-	public Class<? extends Annotation> getPersistenceTypeAnnotation() {
-		return persistenceTypeAnnotation;
+	@Override
+	public Class<? extends Annotation> getEntityAnnotation() {
+		return entityAnnotation;
 	}
 
-	public Class<? extends Annotation> getPersistenceIdentifierAnnotation() {
-		return persistenceIdentifierAnnotation;
+	@Override
+	public Class<? extends Annotation> getEntityIdentifierAnnotation() {
+		return entityIdentifierAnnotation;
 	}
 
-	public static String getBeanName(String persistenceManagerQualifier) {
+	public static String getBeanName(String persistenceManagerBeanName) {
 
-		return BEAN_NAME_PREFIX + "." + persistenceManagerQualifier;
+		return BEAN_NAME_PREFIX + "." + persistenceManagerBeanName;
 	}
 }

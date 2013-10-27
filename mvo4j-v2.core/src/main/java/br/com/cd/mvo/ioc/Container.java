@@ -2,14 +2,12 @@ package br.com.cd.mvo.ioc;
 
 import java.util.Collection;
 
-import br.com.cd.mvo.InitApplicationConfig;
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
-import br.com.cd.mvo.core.BeanObject;
+import br.com.cd.mvo.ApplicationConfig;
+import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.scan.ComponentScannerFactory;
-import br.com.cd.mvo.orm.PersistenceManagerFactory;
+import br.com.cd.mvo.orm.RepositoryFactory;
 
 public interface Container {
 
@@ -29,12 +27,9 @@ public interface Container {
 	<T> Collection<T> getBeansOfType(Class<T> beanType)
 			throws NoSuchBeanDefinitionException;
 
-	BeanObject getBean(BeanMetaDataWrapper<? extends BeanMetaData> beanConfig)
-			throws NoSuchBeanDefinitionException;
+	void registerBean(String beanName, Class<?> beanType);
 
-	void registerBean(Class<?> beanType, String beanName);
-
-	void registerBean(BeanMetaDataWrapper<? extends BeanMetaData> beanManager)
+	void registerBean(BeanMetaDataWrapper<?> beanManager)
 			throws ConfigurationException, NoSuchBeanDefinitionException;
 
 	void registerSingleton(String beanName, Object singletonObject);
@@ -42,25 +37,29 @@ public interface Container {
 	void addComponentFactory(
 			ComponentFactory<BeanFactory<?, ?>> componentFactory);
 
-	<T> Object getSingletonBeanFactory(ComponentFactory<T> cf);
+	<F extends BeanFactory<?, ?>> void addComponentFactory(F beanFactoy);
+
+	<T> void registerBean(ComponentFactory<T> cf);
 
 	Collection<ComponentFactory<BeanFactory<?, ?>>> getComponentFactories();
+
+	void configure();
 
 	void deepRegister() throws ConfigurationException;
 
 	ContainerConfig<?> getContainerConfig();
 
-	InitApplicationConfig getInitApplicationConfig();
+	ApplicationConfig getApplicationConfig();
 
 	ComponentScannerFactory getComponentScannerFactory()
 			throws ConfigurationException;
 
 	@SuppressWarnings("rawtypes")
-	PersistenceManagerFactory getPersistenceManagerFactory()
+	RepositoryFactory getPersistenceManagerFactory()
 			throws ConfigurationException;
 
 	@SuppressWarnings("rawtypes")
-	<P extends PersistenceManagerFactory> P getPersistenceManagerFactory(
+	<P extends RepositoryFactory> P getPersistenceManagerFactory(
 			String beanName, Class<P> impl);
 
 }

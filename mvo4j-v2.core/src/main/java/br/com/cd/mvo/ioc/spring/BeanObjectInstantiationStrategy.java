@@ -1,78 +1,111 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc.spring;
 
-import br.com.cd.mvo.bean.config.ControllerListenerMetaData;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.CglibSubclassingInstantiationStrategy;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+
+import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.Controller;
-import br.com.cd.mvo.core.ControllerListener;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
+import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.util.GenericsUtils;
+import br.com.cd.mvo.ioc.Proxifier;
 
-public class BeanObjectComponentFactory<O extends BeanObject> extends
-		AbstractComponentFactory<O> {
+public class BeanObjectInstantiationStrategy extends
+		CglibSubclassingInstantiationStrategy {
 
-	private Class<O> objectType;
-	private String beanName;
+	private final Container container;
 
-	public BeanObjectComponentFactory(Container container, Class<O> objectType,
-			String beanName) {
-		super(container);
-		this.objectType = objectType;
-		this.beanName = beanName;
+	public BeanObjectInstantiationStrategy(Container container) {
+		this.container = container;
 	}
 
 	@Override
-	public Class<O> getObjectType() {
-		return objectType;
-	}
+	public Object instantiate(RootBeanDefinition beanDefinition,
+			String beanName, BeanFactory owner) {
 
-	@Override
-	public O getInstance() throws NoSuchBeanDefinitionException {
-
-		return this.getInstanceInternal();
-	}
-
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected O getInstanceInternal() throws NoSuchBeanDefinitionException {
-
-		O bean = container.getBean(beanName, objectType);
-
-		if (!Controller.class.isAssignableFrom(objectType)) {
-			return bean;
-		}
-
-		Controller<?> controller = (Controller<?>) bean;
-
-		if (!container.containsBean(beanName
-				+ ControllerListenerMetaData.BEAN_NAME_SUFFIX)) {
-			return bean;
-		}
-
-		ControllerListener listener;
 		try {
-			listener = container.getBean(beanName
-					+ ControllerListenerMetaData.BEAN_NAME_SUFFIX,
-					ControllerListener.class);
-		} catch (NoSuchBeanDefinitionException e) {
-			throw new NoSuchBeanDefinitionException(objectType.getName()
-					+ " does not is a instance of"
-					+ ControllerListener.class.getName());
+			Object instantiate = instantiate(beanDefinition, null);
+			if (instantiate != null)
+				return instantiate;
+		} catch (ConfigurationException e) {
+		}
+		return super.instantiate(beanDefinition, beanName, owner);
+	}
+
+	@Override
+	public Object instantiate(RootBeanDefinition beanDefinition,
+			String beanName, BeanFactory owner, Constructor<?> ctor,
+			Object[] args) {
+
+		try {
+			Object instantiate = instantiate(beanDefinition, args);
+			if (instantiate != null)
+				return instantiate;
+		} catch (ConfigurationException e) {
+		}
+		return super.instantiate(beanDefinition, beanName, owner, ctor, args);
+	}
+
+	@Override
+	public Object instantiate(RootBeanDefinition beanDefinition,
+			String beanName, BeanFactory owner, Object factoryBean,
+			Method factoryMethod, Object[] args) {
+
+		try {
+			Object instantiate = instantiate(beanDefinition, args);
+			if (instantiate != null)
+				return instantiate;
+		} catch (ConfigurationException e) {
 		}
 
-		Class<?> targetEntity = GenericsUtils.getTypesFor(listener.getClass(),
-				ControllerListener.class).get(0);
+		return super.instantiate(beanDefinition, beanName, owner, factoryBean,
+				factoryMethod, args);
+	}
 
-		if (!controller.getControllerConfig().targetEntity()
-				.equals(targetEntity)) {
-			throw new NoSuchBeanDefinitionException(controller
-					.getControllerConfig().targetEntity()
-					+ " does not is a instance of" + targetEntity);
+	interface Callback {
+
+		Object instantiate();
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object instantiate(RootBeanDefinition beanDefinition, Object[] args)
+			throws ConfigurationException {
+
+		if (!container.containsBean(beanDefinition.getBeanClassName())) {
+			// if (true) {
+			return null;
 		}
 
-		controller.addListener(listener);
+		@SuppressWarnings("rawtypes")
+		BeanMetaDataWrapper metaDataWrapper = container.getBean(
+				beanDefinition.getBeanClassName(), BeanMetaDataWrapper.class);
+		@SuppressWarnings("rawtypes")
+		br.com.cd.mvo.ioc.BeanFactory bf = container.getBean(
+				BeanMetaDataWrapper.generateBeanMetaDataName(metaDataWrapper),
+				br.com.cd.mvo.ioc.BeanFactory.class);
 
-		return bean;
+		final BeanObject instance = bf.getInstance(metaDataWrapper);
 
+		Proxifier proxyfier = container.getBean(Proxifier.BEAN_NAME,
+				Proxifier.class);
+
+		Object proxy;
+		if (args == null || args.length == 0)
+			proxy = proxyfier.proxify(StringUtils.capitalize(metaDataWrapper
+					.getBeanMetaData().name()),
+					metaDataWrapper.getTargetBean(), instance);
+		else
+			proxy = proxyfier.proxify(StringUtils.capitalize(metaDataWrapper
+					.getBeanMetaData().name()),
+					metaDataWrapper.getTargetBean(), instance, args);
+
+		if (proxy instanceof BeanObject)
+			proxy = bf.wrap((BeanObject) proxy);
+
+		return proxy;
 	}
 }

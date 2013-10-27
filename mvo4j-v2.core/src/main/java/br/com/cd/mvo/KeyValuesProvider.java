@@ -6,6 +6,8 @@ import java.util.Map;
 
 public interface KeyValuesProvider {
 
+	public String BEAN_NAME = KeyValuesProvider.class.getName();
+
 	Map<String, String> getKeyValues(String bundleName);
 
 	Map<String, String> getKeyValues(String bundleName, Locale locale);

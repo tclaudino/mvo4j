@@ -61,8 +61,9 @@ public abstract class BeanMetaData extends PropertyMapAdapter {
 		return this.get(PERSISTENCE_FACTORY_QUALIFIER);
 	}
 
-	public String persistenceProvider() {
-		return this.get(PERSISTENCE_PROVIDER);
+	public Class<?> persistenceProvider() {
+		return (Class<?>) this.get(BeanMetaData.PERSISTENCE_PROVIDER,
+				Class.class);
 	}
 
 	@Override

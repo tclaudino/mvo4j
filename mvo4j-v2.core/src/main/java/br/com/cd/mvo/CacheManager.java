@@ -2,6 +2,8 @@ package br.com.cd.mvo;
 
 public interface CacheManager {
 
+	public String BEAN_NAME = CacheManager.class.getName();
+
 	boolean add(String key, Object value, long seconds);
 
 	Object getObject(String key);

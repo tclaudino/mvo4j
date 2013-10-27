@@ -3,7 +3,7 @@ package br.com.cd.mvo.orm;
 import java.util.List;
 import java.util.Map.Entry;
 
-public interface SQLRepository<T> extends Repository<T> {
+public interface SQLRepository<T> extends ListenableRepository<T> {
 
 	T findByQuery(
 			final String query,

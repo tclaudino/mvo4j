@@ -118,7 +118,7 @@ public class DynamicController {
 
 			bean.toEditMode();
 			if (entityId.getClass().isAssignableFrom(
-					bean.getControllerConfig().entityIdType())) {
+					bean.getBeanMetaData().entityIdType())) {
 				bean.setCurrentEntity(entityId);
 
 				System.out.println("bean: " + bean);

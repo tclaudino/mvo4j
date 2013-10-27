@@ -1,4 +1,4 @@
-package br.com.cd.mvo.util;
+package br.com.cd.mvo.util.javassist;
 
 import java.util.ArrayList;
 import java.util.List;

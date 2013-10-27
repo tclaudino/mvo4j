@@ -8,7 +8,7 @@ public interface ListenableController<T> extends Controller<T> {
 
 	void addListener(ControllerListener<T> listener);
 
-	void afterPropertiesSet() throws Exception;
+	void afterPropertiesSet();
 
 	void destroy();
 }

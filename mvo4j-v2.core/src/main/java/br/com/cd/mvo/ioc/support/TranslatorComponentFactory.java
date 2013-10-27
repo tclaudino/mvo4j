@@ -31,24 +31,28 @@ public class TranslatorComponentFactory extends
 		}
 	}
 
+	@Override
+	protected String getComponentBeanName() {
+		return Translator.BEAN_NAME;
+	}
+
 	private String getDefaultLocale() throws ConfigurationException {
 		if (defaultLocale == null)
-			defaultLocale = container.getInitApplicationConfig()
-					.getDefaultLocale();
+			defaultLocale = container.getApplicationConfig().getDefaultLocale();
 
 		return defaultLocale;
 	}
 
 	private String getBundleName() throws ConfigurationException {
 		if (bundleName == null)
-			bundleName = container.getInitApplicationConfig().getBundleName();
+			bundleName = container.getApplicationConfig().getBundleName();
 
 		return bundleName;
 	}
 
 	private String[] getSuportedLocaleLanguages() throws ConfigurationException {
 		if (suportedLocaleLanguages == null)
-			suportedLocaleLanguages = container.getInitApplicationConfig()
+			suportedLocaleLanguages = container.getApplicationConfig()
 					.getSuportedLocales();
 
 		return suportedLocaleLanguages;
@@ -58,7 +62,8 @@ public class TranslatorComponentFactory extends
 			throws NoSuchBeanDefinitionException {
 
 		if (keyValuesProvider == null)
-			keyValuesProvider = container.getBean(KeyValuesProvider.class);
+			keyValuesProvider = container.getBean(KeyValuesProvider.BEAN_NAME,
+					KeyValuesProvider.class);
 
 		return keyValuesProvider;
 	}

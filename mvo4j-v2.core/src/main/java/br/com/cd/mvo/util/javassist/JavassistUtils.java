@@ -1,4 +1,4 @@
-package br.com.cd.mvo.util;
+package br.com.cd.mvo.util.javassist;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,16 +13,32 @@ import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.analysis.Type;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.MemberValue;
+import br.com.cd.mvo.util.StringUtils;
 
-public class ProxyUtils {
+public class JavassistUtils {
 
-	private static long proxiesCount = 1;
-
-	@SuppressWarnings("unchecked")
 	public static <T> Class<T> createProxyClass(Class<?> subClass,
 			Class<T> superClass, Class<?>... classPaths)
+			throws NotFoundException, CannotCompileException {
+
+		return JavassistUtils.createProxyClass(subClass.getName(), subClass,
+				superClass, classPaths);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T> createProxyClass(String className,
+			Class<?> subClass, Class<T> superClass, Class<?>... classPaths)
+			throws NotFoundException, CannotCompileException {
+
+		return (Class<T>) createCtClass(className, subClass, superClass,
+				classPaths).toClass();
+	}
+
+	public static CtClass createCtClass(String className, Class<?> subClass,
+			Class<?> superClass, Class<?>... classPaths)
 			throws NotFoundException, CannotCompileException {
 
 		ClassPool pool = ClassPool.getDefault();
@@ -55,34 +71,66 @@ public class ProxyUtils {
 		CtConstructor newSubConstructor = CtNewConstructor.copy(subConstructor,
 				ctSubClass, null);
 
-		String callThis = "super(#PARAMETER#);";
-		int count = superConstructor.getParameterTypes().length;
-		for (CtClass parameterType : superConstructor.getParameterTypes()) {
-			newSubConstructor.insertParameter(parameterType);
-			callThis = callThis.replace("#PARAMETER#", "$" + count--
-					+ ",#PARAMETER#");
+		String callSuper = "super(#PARAMETER#);";
+		for (int i = 0; i < superConstructor.getParameterTypes().length; i++) {
+			CtClass parameterType = superConstructor.getParameterTypes()[i];
+
+			boolean hasSameTypes = false;
+			for (int j = 0; j < newSubConstructor.getParameterTypes().length; j++) {
+				CtClass subParameterType = newSubConstructor
+						.getParameterTypes()[j];
+
+				if (Type.get(parameterType).isAssignableFrom(
+						Type.get(subParameterType))) {
+
+					hasSameTypes = true;
+					callSuper = callSuper.replace("#PARAMETER#", "$" + (j + 1)
+							+ ",#PARAMETER#");
+					break;
+				}
+			}
+
+			if (!hasSameTypes) {
+				newSubConstructor.addParameter(parameterType);
+				callSuper = callSuper.replace("#PARAMETER#", "$"
+						+ newSubConstructor.getParameterTypes().length
+						+ ",#PARAMETER#");
+			}
 		}
-		newSubConstructor.insertBefore(callThis.replace("#PARAMETER#", "")
+		newSubConstructor.insertBefore(callSuper.replace("#PARAMETER#", "")
 				.replace(",)", ")"));
 
 		newSubConstructor.setModifiers(Modifier.PUBLIC);
 		ctSubClass.addConstructor(newSubConstructor);
 		ctSubClass.removeConstructor(subConstructor);
 
-		String className = subClass.getName() + "$" + ProxyUtils.proxiesCount++;
+		className = StringUtils.getUniqueString(className);
 		CtClass ctResultClass = pool.makeClass(className, ctSubClass);
 
 		System.out.println("doPruning, ctClass: " + ctResultClass
-				+ ", className : " + className
-				+ ", \nbeforing call createClass...");
+				+ ", className : " + className + "\n\nbody:\n"
+				+ ctSubClass.toString() + "\n\n");
 
 		// ctClasss.defrost();
 
-		return (Class<T>) ctResultClass.toClass();
+		return ctResultClass;
+	}
+
+	public static <T> Class<T> createProxyClass(Class<T> superClass)
+			throws NotFoundException, CannotCompileException {
+
+		return createProxyClass(superClass.getName(), superClass);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Class<T> createProxyClass(Class<T> superClass)
+	public static <T> Class<T> createProxyClass(String className,
+			Class<T> superClass) throws NotFoundException,
+			CannotCompileException {
+
+		return (Class<T>) createCtClass(className, superClass).toClass();
+	}
+
+	public static CtClass createCtClass(String className, Class<?> superClass)
 			throws NotFoundException, CannotCompileException {
 
 		ClassPool pool = ClassPool.getDefault();
@@ -91,8 +139,7 @@ public class ProxyUtils {
 
 		CtClass ctSuperClass = pool.get(superClass.getName());
 
-		String className = superClass.getName() + "$"
-				+ ProxyUtils.proxiesCount++;
+		className = StringUtils.getUniqueString(className);
 		CtClass ctResultClass = pool.makeClass(className, ctSuperClass);
 
 		System.out.println("doPruning, ctClass: " + ctResultClass
@@ -101,7 +148,7 @@ public class ProxyUtils {
 
 		// ctClasss.defrost();
 
-		return (Class<T>) ctResultClass.toClass();
+		return ctResultClass;
 	}
 
 	public static Map<String, Object> getAnnotationAtributes(

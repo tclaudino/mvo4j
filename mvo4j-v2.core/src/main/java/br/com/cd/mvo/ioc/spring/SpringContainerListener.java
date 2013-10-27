@@ -20,4 +20,12 @@ public class SpringContainerListener extends DefaultContainerListener {
 		// nothing?
 		super.configure(container);
 	}
+
+	@Override
+	public void deepRegister(Container container) {
+
+		// nothing?
+		super.deepRegister(container);
+	}
+
 }

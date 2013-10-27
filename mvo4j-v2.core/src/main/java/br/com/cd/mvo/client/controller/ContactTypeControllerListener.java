@@ -12,45 +12,48 @@ import br.com.cd.mvo.web.bean.WebControllerBean;
 public class ContactTypeControllerListener implements
 		ControllerListener<ContactType> {
 
+	private ContactTypeService service;
 	private Controller<ContactType> controler;
 
 	public ContactTypeControllerListener(ContactTypeService service) {
 
-		System.out.println("\ncreating proxy instance for '"
-				+ this.getClass().getName() + ", service:  " + service);
+		System.out.println(this.getClass().getName() + ".<init>");
+		this.service = service;
 	}
 
 	@Override
 	public boolean beforePersist(PersistEventType event, ContactType entity,
 			Application application) {
-		// TODO Auto-generated method stub
-		return false;
+
+		System.out.println(this.getClass().getName() + ".beforePersist");
+		return true;
 	}
 
 	@Override
 	public void postPersist(PersistEventType event, ContactType entity,
 			Application application) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".postPersist");
 	}
 
 	@Override
 	public void onPersistError(PersistEventType event, ContactType entity,
 			Application application, Throwable t) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".onPersistError");
 	}
 
 	@Override
 	public void postConstruct(Controller<ContactType> controler) {
 
+		System.out.println(this.getClass().getName() + ".postConstruct");
 		this.controler = controler;
 	}
 
 	@Override
 	public void preDestroy(Controller<ContactType> controler) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".preDestroy");
 	}
 
 }

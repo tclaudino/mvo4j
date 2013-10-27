@@ -7,6 +7,9 @@ import java.util.TreeSet;
 
 public class ComponentScannerFactory {
 
+	public static final String BEAN_NAME = ComponentScannerFactory.class
+			.getName();
+
 	private String[] packagesToScan;
 	private Collection<ComponentScanner> scanners = new TreeSet<>();
 

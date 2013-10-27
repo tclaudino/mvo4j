@@ -32,16 +32,21 @@ public class KeyValuesProviderComponentFactory extends
 		}
 	}
 
+	@Override
+	protected String getComponentBeanName() {
+		return KeyValuesProvider.BEAN_NAME;
+	}
+
 	private long getCacheTime() throws ConfigurationException {
 		if (cacheTime == -1)
-			cacheTime = container.getInitApplicationConfig().getI18nCacheTime();
+			cacheTime = container.getApplicationConfig().getI18nCacheTime();
 
 		return cacheTime;
 	}
 
 	private String[] getSuportedLocaleLanguages() throws ConfigurationException {
 		if (suportedLocaleLanguages == null)
-			suportedLocaleLanguages = container.getInitApplicationConfig()
+			suportedLocaleLanguages = container.getApplicationConfig()
 					.getSuportedLocales();
 
 		return suportedLocaleLanguages;
@@ -49,8 +54,7 @@ public class KeyValuesProviderComponentFactory extends
 
 	private String getDefaultLocale() throws ConfigurationException {
 		if (defaultLocale == null)
-			defaultLocale = container.getInitApplicationConfig()
-					.getDefaultLocale();
+			defaultLocale = container.getApplicationConfig().getDefaultLocale();
 
 		return defaultLocale;
 	}
@@ -58,7 +62,8 @@ public class KeyValuesProviderComponentFactory extends
 	private CacheManager getCacheManager() throws NoSuchBeanDefinitionException {
 
 		if (cacheManager == null)
-			cacheManager = container.getBean(CacheManager.class);
+			cacheManager = container.getBean(CacheManager.BEAN_NAME,
+					CacheManager.class);
 
 		return cacheManager;
 	}

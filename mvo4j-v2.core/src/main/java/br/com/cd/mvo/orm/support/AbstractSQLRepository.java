@@ -1,13 +1,18 @@
-package br.com.cd.mvo.orm;
+package br.com.cd.mvo.orm.support;
 
 import java.util.List;
 import java.util.Map.Entry;
 
+import br.com.cd.mvo.bean.config.RepositoryMetaData;
+import br.com.cd.mvo.orm.NamedQuery;
+import br.com.cd.mvo.orm.SQLRepository;
+
 public abstract class AbstractSQLRepository<T> extends AbstractRepository<T>
 		implements SQLRepository<T> {
 
-	public AbstractSQLRepository(Class<T> entityClass) {
-		super(entityClass);
+	public AbstractSQLRepository(Class<T> entityClass,
+			RepositoryMetaData metaData) {
+		super(entityClass, metaData);
 	}
 
 	@Override

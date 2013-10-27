@@ -17,6 +17,7 @@ public @interface ServiceBean {
 
 	Class<?> targetEntity();
 
-	String sessionFactoryQualifier() default "";
+	String scope() default "singleton";
 
+	String persistenceManagerFactoryBeanName() default "";
 }

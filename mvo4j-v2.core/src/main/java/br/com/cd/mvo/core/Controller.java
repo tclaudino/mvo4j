@@ -6,15 +6,12 @@ import java.util.List;
 import br.com.cd.mvo.Application;
 import br.com.cd.mvo.Application.MessageLevel;
 import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.bean.config.ControllerMetaData;
 
 public interface Controller<T> extends PageableController, BeanObject {
 
 	CrudService<T> getService();
 
 	void setService(CrudService<T> Service);
-
-	void addListener(ControllerListener<T> listener);
 
 	void create();
 
@@ -60,6 +57,4 @@ public interface Controller<T> extends PageableController, BeanObject {
 
 	void addTranslatedMessage(MessageLevel level, String msgSumary,
 			String msgDetail, Object... args);
-
-	ControllerMetaData getControllerConfig();
 }

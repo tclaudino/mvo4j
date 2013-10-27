@@ -2,17 +2,14 @@ package br.com.cd.mvo.ioc.spring;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.support.AutowireCandidateResolver;
 
 import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
+import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
-import br.com.cd.mvo.ioc.BeanFactory;
-import br.com.cd.mvo.ioc.ComponentFactory;
 import br.com.cd.mvo.ioc.Container;
 
 public class GenericAutowireCandidateResolver implements
@@ -27,60 +24,82 @@ public class GenericAutowireCandidateResolver implements
 		this.delegate = delegate;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object getSuggestedValue(DependencyDescriptor descriptor) {
 
-		Type parameterType = descriptor.getMethodParameter()
+		if (descriptor.getMethodParameter() == null)
+			return delegate.getSuggestedValue(descriptor);
+
+		Type genericParameterType = descriptor.getMethodParameter()
 				.getGenericParameterType();
 
-		if (parameterType == null
-				|| !(parameterType instanceof ParameterizedType)) {
-			return delegate.getSuggestedValue(descriptor);
+		if (genericParameterType != null
+				&& (genericParameterType instanceof ParameterizedType)) {
+
+			return handleGeneric((ParameterizedType) genericParameterType,
+					descriptor);
 		}
 
-		ParameterizedType pt = (ParameterizedType) parameterType;
+		return handle(descriptor.getMethodParameter().getParameterType(),
+				descriptor);
+	}
 
-		if (pt != null) {
-			Type[] actualTypeArguments = pt.getActualTypeArguments();
-			if (actualTypeArguments != null && actualTypeArguments.length >= 1) {
+	private Object handle(Class<?> parameterType,
+			DependencyDescriptor descriptor) {
 
-				final Type type = actualTypeArguments[0];
+		// String beanName = container.getBeanMetaDataName(descriptor
+		// .getMethodParameter().getDeclaringClass(), type
+		// .getClass());
+
+		BeanMetaDataWrapper<?> metaData = BeanMetaDataWrapper.getBeanMetaData(
+				container, parameterType, descriptor.getMethodParameter()
+						.getDeclaringClass());
+
+		if (metaData != null) {
+			if (BeanMetaData.class.isAssignableFrom(parameterType)) {
+				return metaData.getBeanMetaData();
+			} else {
+				try {
+					return container.getBean(BeanMetaDataWrapper
+							.generateBeanName(metaData));
+				} catch (NoSuchBeanDefinitionException e) {
+					//
+				}
+			}
+		}
+		return delegate.getSuggestedValue(descriptor);
+	}
+
+	private Object handleGeneric(ParameterizedType parameterType,
+			DependencyDescriptor descriptor) {
+
+		if (parameterType != null) {
+
+			Type[] typeArguments = parameterType.getActualTypeArguments();
+			if (typeArguments != null && typeArguments.length > 0) {
+
+				final Type type = typeArguments[0];
 
 				// String beanName = container.getBeanMetaDataName(descriptor
 				// .getMethodParameter().getDeclaringClass(), type
 				// .getClass());
 
-				Collection<BeanMetaDataWrapper> configs = container
-						.getBeansOfType(BeanMetaDataWrapper.class);
+				BeanMetaDataWrapper<?> metaData = BeanMetaDataWrapper
+						.getBeanMetaDataFromTargetEntity(container, descriptor
+								.getMethodParameter().getParameterType(), type
+								.getClass());
 
-				BeanMetaDataWrapper beanConfig = null;
-				for (ComponentFactory<BeanFactory<?, ?>> cf : container
-						.getComponentFactories()) {
-
-					BeanFactory<?, ?> bf;
-					bf = cf.getInstance();
-					for (BeanMetaDataWrapper<?> config : configs) {
-						if (bf.isCandidate(config)
-								&& config.getBeanMetaData().targetEntity()
-										.equals(type.getClass())) {
-
-							beanConfig = config;
-						}
-					}
-				}
-
-				if (beanConfig != null) {
+				if (metaData != null) {
 					if (BeanMetaData.class.isAssignableFrom(descriptor
 							.getField().getType())) {
-						return beanConfig.getBeanMetaData();
-					}
-				} else {
-					try {
-
-						return container.getBean(beanConfig);
-					} catch (NoSuchBeanDefinitionException e) {
-						//
+						return metaData.getBeanMetaData();
+					} else {
+						try {
+							return container.getBean(BeanMetaDataWrapper
+									.generateBeanName(metaData));
+						} catch (NoSuchBeanDefinitionException e) {
+							//
+						}
 					}
 				}
 			}

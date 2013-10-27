@@ -10,6 +10,8 @@ public interface Application {
 		WARNING, ERROR, INFO;
 	}
 
+	public String BEAN_NAME = Application.class.getName();
+
 	ApplicationMessage.ThrowableMessage addErrorMessage(Exception ex,
 			String summary);
 

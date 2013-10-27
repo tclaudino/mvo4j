@@ -1,5 +1,6 @@
 package br.com.cd.mvo.ioc.scan;
 
+import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.bean.RepositoryBean;
 import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
@@ -17,15 +18,10 @@ public class RepositoryMetaDataFactory extends
 	public RepositoryMetaData doCreateBeanMetaData(
 			WriteablePropertyMap propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE, "singleton");
+		propertyMap.add(BeanMetaData.SCOPE,
+				ConfigParamKeys.DefaultValues.SCOPE_SINGLETON_NAME);
 		RepositoryMetaData beanConfig = new RepositoryMetaData(propertyMap);
 
 		return beanConfig;
 	}
-
-	@Override
-	public int getOrder() {
-		return 0;
-	}
-
 }

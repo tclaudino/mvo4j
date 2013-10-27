@@ -1,4 +1,4 @@
-package br.com.cd.mvo.orm;
+package br.com.cd.mvo.orm.support;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -8,10 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class AbstractRepository<T> implements Repository<T> {
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
-	protected final Class<T> entityClass;
-	protected Repository.ActionListener<T> listener = new Repository.ActionListener<T>() {
+import br.com.cd.mvo.bean.config.RepositoryMetaData;
+import br.com.cd.mvo.ioc.scan.NoScan;
+import br.com.cd.mvo.orm.LikeCritirion;
+import br.com.cd.mvo.orm.LikeCritirionEnum;
+import br.com.cd.mvo.orm.ListenableRepository;
+import br.com.cd.mvo.orm.OrderBy;
+import br.com.cd.mvo.orm.Repository;
+import br.com.cd.mvo.orm.RepositoryListener;
+
+public abstract class AbstractRepository<T> implements ListenableRepository<T> {
+
+	@NoScan
+	protected RepositoryListener<T> listener = new RepositoryListener<T>() {
 
 		@Override
 		public void onRead(List<T> entity) {
@@ -19,30 +31,65 @@ public abstract class AbstractRepository<T> implements Repository<T> {
 
 		@Override
 		public boolean onSave(T entity,
-				Repository.ActionListenerEventType eventType) {
-			return false;
+				RepositoryListener.ActionListenerEventType eventType) {
+			return true;
 		}
 
 		@Override
 		public boolean onUpdate(T entity,
-				Repository.ActionListenerEventType eventType) {
-			return false;
+				RepositoryListener.ActionListenerEventType eventType) {
+			return true;
 		}
 
 		@Override
 		public boolean onDelete(T entity,
-				Repository.ActionListenerEventType eventType) {
-			return false;
+				RepositoryListener.ActionListenerEventType eventType) {
+			return true;
+		}
+
+		@Override
+		public void postConstruct(Repository<T> repository) {
+		}
+
+		@Override
+		public void preDestroy(Repository<T> repository) {
 		}
 	};
 
-	public AbstractRepository(Class<T> entityClass) {
+	protected final Class<T> entityClass;
+
+	protected RepositoryMetaData metaData;
+
+	public AbstractRepository(Class<T> entityClass, RepositoryMetaData metaData) {
 		this.entityClass = entityClass;
+		this.metaData = metaData;
 	}
 
 	@Override
-	public final void setListener(Repository.ActionListener<T> listener) {
+	public final void setListener(RepositoryListener<T> listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public RepositoryListener<T> getListener() {
+		return listener;
+	}
+
+	@PostConstruct
+	@Override
+	public void afterPropertiesSet() {
+		listener.postConstruct(this);
+	}
+
+	@PreDestroy
+	@Override
+	public final void destroy() {
+		listener.preDestroy(this);
+	}
+
+	@Override
+	public RepositoryMetaData getBeanMetaData() {
+		return metaData;
 	}
 
 	protected abstract T doSave(final T entity);
@@ -50,9 +97,11 @@ public abstract class AbstractRepository<T> implements Repository<T> {
 	@Override
 	public final T save(final T entity) {
 		T result = entity;
-		if (listener.onSave(entity, Repository.ActionListenerEventType.BEFORE)) {
+		if (listener.onSave(entity,
+				RepositoryListener.ActionListenerEventType.BEFORE)) {
 			result = doSave(entity);
-			listener.onSave(entity, Repository.ActionListenerEventType.AFTER);
+			listener.onSave(entity,
+					RepositoryListener.ActionListenerEventType.AFTER);
 		}
 		return result;
 	}
@@ -61,10 +110,11 @@ public abstract class AbstractRepository<T> implements Repository<T> {
 
 	@Override
 	public final T update(T entity) {
-		if (listener
-				.onUpdate(entity, Repository.ActionListenerEventType.BEFORE)) {
+		if (listener.onUpdate(entity,
+				RepositoryListener.ActionListenerEventType.BEFORE)) {
 			entity = doUpdate(entity);
-			listener.onUpdate(entity, Repository.ActionListenerEventType.AFTER);
+			listener.onUpdate(entity,
+					RepositoryListener.ActionListenerEventType.AFTER);
 		}
 		return entity;
 	}
@@ -73,10 +123,11 @@ public abstract class AbstractRepository<T> implements Repository<T> {
 
 	@Override
 	public final void delete(final T entity) {
-		if (listener
-				.onDelete(entity, Repository.ActionListenerEventType.BEFORE)) {
+		if (listener.onDelete(entity,
+				RepositoryListener.ActionListenerEventType.BEFORE)) {
 			doDelete(entity);
-			listener.onDelete(entity, Repository.ActionListenerEventType.AFTER);
+			listener.onDelete(entity,
+					RepositoryListener.ActionListenerEventType.AFTER);
 		}
 	}
 

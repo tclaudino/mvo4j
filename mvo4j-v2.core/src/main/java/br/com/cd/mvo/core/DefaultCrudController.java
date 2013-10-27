@@ -12,7 +12,7 @@ import br.com.cd.mvo.Translator;
 import br.com.cd.mvo.bean.config.ControllerMetaData;
 
 public class DefaultCrudController<T> extends DefaultController<T> implements
-		CrudController<T> {
+		CrudController<T>, ListenableController<T> {
 
 	public static enum ViewMode {
 
@@ -25,8 +25,8 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 
 	public DefaultCrudController(Application application,
 			Translator translator, DataModelFactory modelFactory,
-			CrudService<T> service, ControllerMetaData config) {
-		super(application, translator, modelFactory, service, config);
+			CrudService<T> service, ControllerMetaData metaData) {
+		super(application, translator, modelFactory, service, metaData);
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -24,6 +26,7 @@ public class ContactType {
 
 	@Id
 	@Column(name = "ID", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@Basic(optional = false)
@@ -34,7 +37,6 @@ public class ContactType {
 	@Column(name = "TYPE")
 	@NotNull
 	private String type;
-	@NotNull
 	@Column(name = "ACRONYM")
 	private String acronym;
 

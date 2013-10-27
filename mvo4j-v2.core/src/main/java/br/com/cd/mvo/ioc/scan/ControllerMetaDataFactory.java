@@ -1,5 +1,6 @@
 package br.com.cd.mvo.ioc.scan;
 
+import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.bean.ControllerBean;
 import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
@@ -17,16 +18,11 @@ public class ControllerMetaDataFactory extends
 	public ControllerMetaData doCreateBeanMetaData(
 			WriteablePropertyMap propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE, "session");
+		propertyMap.add(BeanMetaData.SCOPE,
+				ConfigParamKeys.DefaultValues.SCOPE_SESSION_NAME);
 
 		ControllerMetaData beanConfig = new ControllerMetaData(propertyMap);
 
 		return beanConfig;
 	}
-
-	@Override
-	public int getOrder() {
-		return 3;
-	}
-
 }

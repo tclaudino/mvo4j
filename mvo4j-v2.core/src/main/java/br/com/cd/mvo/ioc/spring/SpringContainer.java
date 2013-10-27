@@ -121,15 +121,16 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	public <T> Object getSingletonBeanFactory(ComponentFactory<T> cf) {
+	public <T> Object newSingletonFactoryBean(ComponentFactory<T> cf) {
 		return new ComponentFactoryBean<T>(cf);
 	}
 
 	@Override
-	protected void doRegister(String beanName, String scope, Class<?> type) {
+	protected void doRegisterBean(String beanName, String scope,
+			Class<?> beanType) {
 
 		AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(
-				type);
+				beanType);
 		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
 		definition.setPrimary(true);
 		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -139,10 +140,10 @@ public class SpringContainer extends AbstractContainer {
 
 		BeanDefinitionHolder definitionHolder = applyScopeOn(
 				new BeanDefinitionHolder(definition, beanName), scopeMetadata);
-		doRegister(definitionHolder);
+		doRegisterBean(definitionHolder);
 	}
 
-	private void doRegister(BeanDefinitionHolder definitionHolder) {
+	private void doRegisterBean(BeanDefinitionHolder definitionHolder) {
 
 		if (applicationContext.isActive()) {
 			BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder,
@@ -184,7 +185,7 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	public void registerBean(Class<?> beanType, String beanName) {
+	public void registerBean(String beanName, Class<?> beanType) {
 		RootBeanDefinition definition = new RootBeanDefinition(beanType);
 		definition.setRole(BeanDefinition.ROLE_APPLICATION);
 		// definition.getPropertyValues().addPropertyValue("order",
@@ -199,7 +200,13 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	public void deepRegister() {
+	protected void doConfigure() {
+
+		// nothing?
+	}
+
+	@Override
+	protected void doDeepRegister() {
 
 		for (Map.Entry<String, BeanDefinition> entry : this.beanDefinitionList
 				.entrySet()) {

@@ -20,9 +20,9 @@ public class SpringWebContainerProvider implements
 
 		config.setListener(new SpringWebContainerListener(applicationContext));
 
-		Container context = new SpringContainer(applicationContext, config);
+		Container container = new SpringContainer(applicationContext, config);
 
-		return context;
+		return container;
 	}
 
 	private ConfigurableWebApplicationContext getApplicationContext(

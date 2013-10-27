@@ -35,17 +35,22 @@ public class ParserUtils {
 			} else if (returnType.equals(Date.class)) {
 				return (T) ParserUtils.parseDate(value, (Date) defaultValue);
 			} else if (returnType.equals(Integer.class)) {
-				return (T) Integer.valueOf(ParserUtils.parseInt(value,
-						(Integer) defaultValue));
+				return (T) new Integer(ParserUtils.parseInt(value,
+						(Integer) (defaultValue != null ? defaultValue : 0)));
 			} else if (returnType.equals(Double.class)) {
-				return (T) Double.valueOf(ParserUtils.parseDouble(value,
-						(Double) defaultValue));
+				return (T) new Double(ParserUtils.parseDouble(value,
+						(Double) (defaultValue != null ? defaultValue : 0D)));
 			} else if (returnType.equals(Float.class)) {
-				return (T) Float.valueOf(ParserUtils.parseFloat(value,
-						(Float) defaultValue));
+				return (T) new Float(ParserUtils.parseFloat(value,
+						(Float) (defaultValue != null ? defaultValue : 0F)));
+			} else if (returnType.equals(Long.class)) {
+				return (T) new Long(ParserUtils.parseLong(value,
+						(Long) (defaultValue != null ? defaultValue : 0L)));
 			} else if (returnType.equals(Boolean.class)) {
-				return (T) Boolean.valueOf(ParserUtils.parseBoolean(value,
-						(Boolean) defaultValue));
+				return (T) new Boolean(
+						ParserUtils.parseBoolean(value,
+								(Boolean) (defaultValue != null ? defaultValue
+										: false)));
 			} else if (returnType.isAssignableFrom(value.getClass())) {
 				return (T) value;
 			}

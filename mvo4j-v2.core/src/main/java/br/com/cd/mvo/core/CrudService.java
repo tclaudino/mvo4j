@@ -15,4 +15,5 @@ public interface CrudService<T> extends BeanObject {
 	T find(final Serializable id);
 
 	Repository<T> getRepository();
+
 }

@@ -7,7 +7,7 @@ public interface ComponentFactory<T> extends Comparable<ComponentFactory> {
 
 	T getInstance() throws NoSuchBeanDefinitionException;
 
-	Class<T> getObjectType();
+	Class<T> getComponentType();
 
 	int getOrder();
 

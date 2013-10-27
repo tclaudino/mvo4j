@@ -5,6 +5,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -211,7 +215,57 @@ public class ReflectionUtils {
 				return exception;
 			}
 		}
+	}
 
+	public static List<String> getJavaObjectMethods() {
+
+		return new ArrayList<String>() {
+			{
+
+				for (Method m : Object.class.getDeclaredMethods()) {
+					add(m.getName());
+				}
+			}
+		};
+	}
+
+	public static boolean isSameSignature(Method methodA, Method methodB) {
+
+		if (methodA == null || methodB == null)
+			return false;
+		if (!methodA.getName().equals(methodB.getName()))
+			return false;
+
+		Class<?>[] parameterTypesA = methodA.getParameterTypes();
+		Class<?>[] parameterTypesB = methodB.getParameterTypes();
+
+		if (parameterTypesA.length != parameterTypesB.length)
+			return false;
+
+		for (int i = 0; i < parameterTypesA.length; i++) {
+			if (!parameterTypesA[i].equals(parameterTypesB[i]))
+				return false;
+		}
+
+		return true;
+	}
+
+	private static Map<Method, Boolean> cachedMethods = new HashMap<>();
+
+	public static boolean containsMethod(Method[] methods, Method method) {
+
+		Boolean result = cachedMethods.get(method);
+		if (result != null)
+			return result;
+
+		for (Method m : methods) {
+			if (isSameSignature(m, method)) {
+				cachedMethods.put(method, true);
+				return true;
+			}
+		}
+		cachedMethods.put(method, false);
+		return false;
 	}
 
 }

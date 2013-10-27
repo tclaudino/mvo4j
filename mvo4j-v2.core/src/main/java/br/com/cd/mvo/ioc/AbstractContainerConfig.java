@@ -1,18 +1,12 @@
 package br.com.cd.mvo.ioc;
 
-import java.util.Collection;
-import java.util.TreeSet;
-
 import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
 import br.com.cd.mvo.util.ParserUtils;
 
 public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 
 	protected final D localContainer;
-
-	protected Collection<BeanMetaDataFactory<?, ?>> factories = new TreeSet<>();
 
 	private ContainerListener listener;
 
@@ -34,12 +28,6 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 
 	public void setListener(ContainerListener listener) {
 		this.listener = listener;
-	}
-
-	@Override
-	public Collection<BeanMetaDataFactory<?, ?>> getBeanMetaDataFactories() {
-
-		return factories;
 	}
 
 	@Override

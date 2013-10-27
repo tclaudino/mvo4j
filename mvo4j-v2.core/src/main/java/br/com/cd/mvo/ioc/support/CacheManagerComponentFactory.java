@@ -26,10 +26,15 @@ public class CacheManagerComponentFactory extends
 		}
 	}
 
+	@Override
+	protected String getComponentBeanName() {
+		return CacheManager.BEAN_NAME;
+	}
+
 	private long getCacheTime() throws ConfigurationException {
 
 		if (cacheTime == -1)
-			cacheTime = container.getInitApplicationConfig()
+			cacheTime = container.getApplicationConfig()
 					.getCacheManagerMaxSize();
 
 		return this.cacheTime;

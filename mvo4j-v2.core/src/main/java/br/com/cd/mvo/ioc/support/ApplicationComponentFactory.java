@@ -16,4 +16,9 @@ public class ApplicationComponentFactory extends
 
 		return new DefaultApplication();
 	}
+
+	@Override
+	protected String getComponentBeanName() {
+		return Application.BEAN_NAME;
+	}
 }

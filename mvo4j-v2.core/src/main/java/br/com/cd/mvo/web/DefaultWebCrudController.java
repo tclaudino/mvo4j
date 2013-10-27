@@ -5,12 +5,13 @@ import br.com.cd.mvo.Translator;
 import br.com.cd.mvo.core.CrudService;
 import br.com.cd.mvo.core.DataModelFactory;
 import br.com.cd.mvo.core.DefaultCrudController;
+import br.com.cd.mvo.core.ListenableController;
 import br.com.cd.mvo.util.ParserUtils;
 import br.com.cd.mvo.util.StringUtils;
 import br.com.cd.mvo.web.bean.config.WebControllerMetaData;
 
 public class DefaultWebCrudController<T> extends DefaultCrudController<T>
-		implements WebCrudController<T> {
+		implements WebCrudController<T>, ListenableController<T> {
 
 	private WebControllerMetaData _config;
 

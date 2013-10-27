@@ -12,6 +12,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -25,10 +27,9 @@ import javax.validation.constraints.Size;
 @Table(name = "clients", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME" }) })
 public class Client {
 
-	private static final long serialVersionUID = -3444645425674910693L;
-
 	@Id
 	@Column(name = "ID", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@Basic(optional = false)

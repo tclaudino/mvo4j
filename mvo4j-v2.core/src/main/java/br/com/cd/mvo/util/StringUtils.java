@@ -1,5 +1,8 @@
 package br.com.cd.mvo.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class StringUtils {
 
 	public static String cammelCase(String txt) {
@@ -309,5 +312,25 @@ public class StringUtils {
 			i++;
 		}
 		return s;
+	}
+
+	private static Map<String, Double> uniqueStrings = new HashMap<>();
+
+	public static String getUniqueString(String className) {
+
+		String _className = org.apache.commons.lang3.StringUtils
+				.capitalize(className);
+
+		String classNameKey = _className.substring(_className.lastIndexOf("."))
+				.replaceAll("[$&#@.]", "_").replaceAll("__", "_");
+
+		synchronized (uniqueStrings) {
+			if (uniqueStrings.containsKey(classNameKey)) {
+				double size = uniqueStrings.get(_className);
+				uniqueStrings.put(classNameKey, ++size);
+				_className += size;
+			}
+		}
+		return _className;
 	}
 }

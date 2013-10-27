@@ -1,6 +1,5 @@
 package br.com.cd.mvo.orm;
 
-
 public interface ListenableRepository<T> extends Repository<T> {
 
 	RepositoryListener<T> getListener();

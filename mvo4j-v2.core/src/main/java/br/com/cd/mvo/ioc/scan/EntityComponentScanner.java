@@ -5,10 +5,11 @@ import java.util.Collection;
 
 import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
+import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanObject;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.ioc.support.BeanFactoryUtils;
+import br.com.cd.mvo.ioc.Proxifier;
 
 public class EntityComponentScanner extends AbstractComponentScanner {
 
@@ -27,8 +28,11 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 			throws ConfigurationException {
 
 		Collection<Class<?>> entities = scanner.scan(container
-				.getPersistenceManagerFactory().getPersistenceTypeAnnotation(),
+				.getPersistenceManagerFactory().getEntityAnnotation(),
 				packagesToScan);
+
+		Proxifier proxifier = container.getBean(Proxifier.BEAN_NAME,
+				Proxifier.class);
 
 		for (Class<?> entity : entities) {
 
@@ -36,7 +40,7 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 			for (Field field : entity.getDeclaredFields()) {
 				if (field.isAnnotationPresent(container
 						.getPersistenceManagerFactory()
-						.getPersistenceIdentifierAnnotation())) {
+						.getEntityIdentifierAnnotation())) {
 					entityId = field.getType();
 					break;
 				}
@@ -45,7 +49,16 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 				continue;
 			}
 
+			// for (ComponentFactory<BeanFactory<?, ?>> compFactory : container
+			// .getComponentFactories()) {
+			// BeanFactory<?, ?> bf = compFactory.getInstance();
+			// BeanMetaDataFactory<?, ?> bmf = bf.getBeanMetaDataFactory();
+
 			for (BeanMetaDataFactory<?, ?> bmf : this.metaDataFactories) {
+
+				if (bmf.getBeanAnnotationType().equals(NoScan.class)) {
+					continue;
+				}
 
 				WriteablePropertyMap propertyMap = bmf
 						.newDefaultPropertyMap(container);
@@ -53,26 +66,21 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 				propertyMap.add(BeanMetaData.TARGET_ENTITY, entity);
 				propertyMap.add(BeanMetaData.ENTITY_ID_TYPE, entityId);
 
-				// BeanMetaData beanMetaData =
-				// bmf.createBeanMetaData(propertyMap);
-				//
-				// @SuppressWarnings("rawtypes")
-				// BeanMetaDataWrapper metaDataWrapper = new
-				// BeanMetaDataWrapper<BeanMetaData>(
-				// null, beanMetaData);
+				String className = entity.getSimpleName()
+						+ entity.getPackage().getName().hashCode()
+						+ bmf.getBeanObjectType().getSimpleName();
+
+				Class<?> proxyClass = proxifier.proxify(className,
+						EmptyBeanObject.class);
+
 				BeanMetaDataWrapper<?> metaDataWrapper = bmf
-						.createBeanMetaData(propertyMap);
+						.createBeanMetaData(propertyMap, proxyClass, container,
+								false);
 
-				// propertyMap.add(BeanMetaData.NAME,
-				// container.getBeanName(beanMetaDataWrapper));
-
-				// propertyMap.add(BeanMetaData.NAME,
-				// BeanFactoryUtils.generateBeanName(metaDataWrapper));
-
-				String beanConfigName = BeanFactoryUtils
+				String beanMetaDataName = BeanMetaDataWrapper
 						.generateBeanMetaDataName(metaDataWrapper);
 
-				if (!container.containsBean(beanConfigName)) {
+				if (!container.containsBean(beanMetaDataName)) {
 
 					container.registerBean(metaDataWrapper);
 				}
@@ -83,6 +91,14 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 	@Override
 	public int getOrder() {
 		return 1;
+	}
+
+	public static class EmptyBeanObject implements BeanObject {
+
+		@Override
+		public BeanMetaData getBeanMetaData() {
+			return null;
+		}
 	}
 
 }

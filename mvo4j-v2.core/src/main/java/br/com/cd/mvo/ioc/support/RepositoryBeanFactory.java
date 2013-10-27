@@ -1,78 +1,79 @@
 package br.com.cd.mvo.ioc.support;
 
 import br.com.cd.mvo.bean.RepositoryBean;
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
 import br.com.cd.mvo.bean.config.RepositoryMetaData;
+import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.orm.PersistenceManagerFactory;
+import br.com.cd.mvo.ioc.scan.RepositoryMetaDataFactory;
+import br.com.cd.mvo.orm.ListenableRepository;
+import br.com.cd.mvo.orm.RepositoryFactory;
+import br.com.cd.mvo.orm.RepositoryListener;
+import br.com.cd.mvo.orm.support.AbstractRepositoryFactory;
 
 @SuppressWarnings("rawtypes")
 public class RepositoryBeanFactory extends
 		AbstractBeanFactory<RepositoryMetaData, RepositoryBean> {
 
 	public RepositoryBeanFactory(Container container) {
-		super(container);
-	}
-
-	@Override
-	protected Class<? extends BeanObject> getBeanType(
-			RepositoryMetaData metaData) {
-
-		throw new UnsupportedOperationException("@TODO: message");
-	}
-
-	@Override
-	public Class<BeanObject> createProxy(
-			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
-			throws NoSuchBeanDefinitionException {
-
-		throw new UnsupportedOperationException("@TODO: message");
+		super(container, new RepositoryMetaDataFactory());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public BeanObject getInstance(
-			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
+			BeanMetaDataWrapper<RepositoryMetaData> metaDataWrapper)
 			throws ConfigurationException {
 
-		String providerClassName = container.getInitApplicationConfig()
-				.getPersistenceManagerFactoryClass();
-
-		if (!metaDataWrapper.getBeanMetaData().persistenceProvider().isEmpty()) {
-			providerClassName = metaDataWrapper.getBeanMetaData()
-					.persistenceProvider();
+		Class<RepositoryFactory> repositoryFactoryClass;
+		try {
+			repositoryFactoryClass = (Class<RepositoryFactory>) metaDataWrapper
+					.getBeanMetaData().persistenceProvider();
+		} catch (ClassCastException e) {
+			throw new ConfigurationException(e);
 		}
 
-		String providerBeanName = PersistenceManagerFactory
+		String providerBeanName = AbstractRepositoryFactory
 				.getBeanName(metaDataWrapper.getBeanMetaData()
 						.persistenceManagerQualifier());
 
-		Class<? extends PersistenceManagerFactory> persistenceProviderClass = loadClass(providerClassName);
-		PersistenceManagerFactory pmf = container.getPersistenceManagerFactory(
-				providerBeanName, persistenceProviderClass);
+		RepositoryFactory pmf = container.getPersistenceManagerFactory(
+				providerBeanName, repositoryFactoryClass);
 
-		return pmf.getRepositoryInstance(metaDataWrapper.getBeanMetaData()
-				.persistenceManagerQualifier(), metaDataWrapper
-				.getBeanMetaData().targetEntity());
+		final ListenableRepository repository = pmf.getInstance(metaDataWrapper
+				.getBeanMetaData().persistenceManagerQualifier(),
+				metaDataWrapper.getBeanMetaData().targetEntity(),
+				metaDataWrapper.getBeanMetaData());
+
+		return repository;
 	}
 
+	@SuppressWarnings({ "unchecked" })
 	@Override
-	public boolean isSingleton() {
-		return true;
+	public BeanObject wrap(BeanObject bean) {
+
+		if (!(bean instanceof ListenableRepository))
+			return bean;
+
+		ListenableRepository repository = (ListenableRepository) bean;
+
+		if (RepositoryListener.class.isAssignableFrom(repository.getClass())) {
+
+			repository.setListener((RepositoryListener) repository);
+		} else {
+
+			try {
+				RepositoryListener listener = container
+						.getBean(RepositoryListener.class);
+				repository.setListener(listener);
+			} catch (NoSuchBeanDefinitionException e) {
+			}
+		}
+		repository.afterPropertiesSet();
+
+		return repository;
 	}
 
-	@SuppressWarnings("unchecked")
-	private Class<? extends PersistenceManagerFactory> loadClass(
-			String className) throws ConfigurationException {
-		try {
-			return (Class<? extends PersistenceManagerFactory>) Class
-					.forName(className);
-		} catch (ClassNotFoundException | ClassCastException e) {
-			throw new ConfigurationException(e);
-		}
-	}
 }

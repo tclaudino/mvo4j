@@ -1,5 +1,6 @@
 package br.com.cd.mvo.web.ioc.scan;
 
+import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
 import br.com.cd.mvo.ioc.scan.AbstractBeanMetaDataFactory;
@@ -18,15 +19,11 @@ public class WebControllerMetaDataFactory extends
 	public WebControllerMetaData doCreateBeanMetaData(
 			WriteablePropertyMap propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE, "session");
+		propertyMap.add(BeanMetaData.SCOPE,
+				ConfigParamKeys.DefaultValues.SCOPE_SESSION_NAME);
 		WebControllerMetaData beanConfig = new WebControllerMetaData(
 				propertyMap);
 
 		return beanConfig;
-	}
-
-	@Override
-	public int getOrder() {
-		return 4;
 	}
 }

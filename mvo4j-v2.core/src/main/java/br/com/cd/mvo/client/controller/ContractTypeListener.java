@@ -12,43 +12,42 @@ public class ContractTypeListener implements ControllerListener<ContractType> {
 
 	public ContractTypeListener(Repository<ContractType> service,
 			Translator translator, Application messenger) {
-		System.out.println("\ncreating proxy instance for '"
-				+ this.getClass().getName() + "', service:  " + service
-				+ "', translator:  " + translator + "', messenger:  "
-				+ messenger);
+
+		System.out.println(this.getClass().getName() + ".<init>");
 	}
 
 	@Override
 	public boolean beforePersist(PersistEventType event, ContractType entity,
 			Application application) {
-		// TODO Auto-generated method stub
-		return false;
+
+		System.out.println(this.getClass().getName() + ".beforePersist");
+		return true;
 	}
 
 	@Override
 	public void postPersist(PersistEventType event, ContractType entity,
 			Application application) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".postPersist");
 	}
 
 	@Override
 	public void onPersistError(PersistEventType event, ContractType entity,
 			Application application, Throwable t) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".onPersistError");
 	}
 
 	@Override
 	public void postConstruct(Controller<ContractType> controler) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".postConstruct");
 	}
 
 	@Override
 	public void preDestroy(Controller<ContractType> controler) {
-		// TODO Auto-generated method stub
 
+		System.out.println(this.getClass().getName() + ".preDestroy");
 	}
 
 }

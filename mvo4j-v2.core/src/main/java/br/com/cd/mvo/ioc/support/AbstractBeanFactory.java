@@ -1,18 +1,13 @@
 package br.com.cd.mvo.ioc.support;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
 import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.BeanMetaDataWrapper;
-import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.BeanFactory;
 import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
 import br.com.cd.mvo.util.GenericsUtils;
-import br.com.cd.mvo.util.ProxyUtils;
 
 public abstract class AbstractBeanFactory<D extends BeanMetaData, A extends Annotation>
 		implements BeanFactory<D, A> {
@@ -20,21 +15,25 @@ public abstract class AbstractBeanFactory<D extends BeanMetaData, A extends Anno
 	protected final Container container;
 	protected final Class<D> metaDataType;
 	protected final Class<A> annotationType;
+	protected final BeanMetaDataFactory<D, A> metaDataFactory;
 
-	@SuppressWarnings("unchecked")
-	public AbstractBeanFactory(Container container) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public AbstractBeanFactory(Container container,
+			BeanMetaDataFactory<D, A> metaDataFactory) {
 		this.container = container;
-		this.metaDataType = GenericsUtils.getTypesFor(this.getClass()).get(0);
-		this.annotationType = GenericsUtils.getTypesFor(this.getClass()).get(1);
+		assert this.container != null : "'container' must be not null";
+		this.metaDataFactory = metaDataFactory;
+		assert this.metaDataFactory != null : "'metaDataFactory' must be not null";
+		List<Class> typesFor = GenericsUtils.getTypesFor(this.getClass());
+		this.metaDataType = typesFor.get(0);
+		assert this.metaDataType != null : "generic parameter[0] <D extends BeanMetaData> must be not null";
+		this.annotationType = typesFor.get(1);
+		assert this.annotationType != null : "generic parameter[0] <A extends Annotation> must be not null";
 	}
 
-	protected abstract Class<? extends BeanObject> getBeanType(D metaData);
-
 	@Override
-	public boolean isCandidate(
-			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper) {
-		return metaDataWrapper.getBeanMetaData().getClass()
-				.equals(metaDataType);
+	public boolean isCandidate(BeanMetaData metaData) {
+		return metaDataType.equals(metaData.getClass());
 	}
 
 	@Override
@@ -42,83 +41,14 @@ public abstract class AbstractBeanFactory<D extends BeanMetaData, A extends Anno
 		return this.annotationType.equals(annotation);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Class<BeanObject> createProxy(
-			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
-			throws NoSuchBeanDefinitionException {
+	public BeanMetaDataFactory<D, A> getBeanMetaDataFactory() {
 
-		return (Class<BeanObject>) createProxy(metaDataWrapper.getTargetBean(),
-				getBeanType((D) metaDataWrapper.getBeanMetaData()));
-	}
-
-	private <S, P> Class<?> createProxy(final Class<S> sourceClass,
-			final Class<P> superClass) {
-
-		try {
-
-			if (sourceClass == null) {
-				return ProxyUtils.createProxyClass(superClass);
-			}
-
-			return ProxyUtils.createProxyClass(sourceClass, superClass);
-			/*
-			 * Enhancer enhancer = new Enhancer();
-			 * enhancer.setSuperclass(proxyClass); Set<Class> allInterfaces =
-			 * new HashSet<Class>();
-			 * allInterfaces.addAll(Arrays.asList(sourceClass.getClass()
-			 * .getInterfaces()));
-			 * allInterfaces.addAll(Arrays.asList(superClass.getInterfaces()));
-			 * enhancer.setInterfaces(allInterfaces .toArray(new
-			 * Class[allInterfaces.size()]));
-			 * 
-			 * enhancer.setCallback(new MethodInterceptor() {
-			 * 
-			 * public Object intercept(Object proxy, Method method, Object[]
-			 * args, MethodProxy methodProxy) throws Throwable {
-			 * 
-			 * try {
-			 * 
-			 * S source = AbstractComponentFactory.this.container
-			 * .getBean(sourceClass);
-			 * 
-			 * if ("getSource".equals(method.getName()) &&
-			 * superClass.equals(method.getDeclaringClass())) { return source; }
-			 * 
-			 * if (Arrays.asList(superClass.getDeclaredMethods())
-			 * .contains(method)) { return methodProxy.invokeSuper(proxy, args);
-			 * } } catch (NoSuchBeanDefinitionException e) { throw new
-			 * ConfigurationException(e); }
-			 * 
-			 * return methodProxy.invoke(source, args); } });
-			 * 
-			 * return enhancer.createClass();
-			 */
-
-		} catch (NotFoundException | CannotCompileException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public BeanObject getInstance(
-			BeanMetaDataWrapper<? extends BeanMetaData> metaDataWrapper)
-			throws ConfigurationException {
-
-		// return container.getBeanFactory(metaDataWrapper);
-
-		throw new ConfigurationException(new UnsupportedOperationException(
-				"@TODO: message"));
-	}
-
-	@Override
-	public boolean isSingleton() {
-		return false;
+		return metaDataFactory;
 	}
 
 	@Override
 	public Class<D> getBeanMetaDataType() {
 		return metaDataType;
 	}
-
 }

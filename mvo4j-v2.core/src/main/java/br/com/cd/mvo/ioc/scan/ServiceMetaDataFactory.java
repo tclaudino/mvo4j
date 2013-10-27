@@ -19,10 +19,4 @@ public class ServiceMetaDataFactory extends
 
 		return beanConfig;
 	}
-
-	@Override
-	public int getOrder() {
-		return 2;
-	}
-
 }

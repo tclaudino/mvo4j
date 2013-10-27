@@ -25,7 +25,7 @@ public class ComponentFactoryBean<T> implements FactoryBean<T> {
 
 	@Override
 	public Class<T> getObjectType() {
-		return componentFactory.getObjectType();
+		return componentFactory.getComponentType();
 	}
 
 	@Override

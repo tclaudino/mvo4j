@@ -7,23 +7,28 @@ import br.com.cd.mvo.ioc.Container;
 public class BeanFactoryComponentFactory<F extends BeanFactory<?, ?>> extends
 		AbstractComponentFactory<F> {
 
-	private F componentFactory;
+	private F beanFactory;
 
-	public BeanFactoryComponentFactory(Container container, F componentFactory) {
+	public BeanFactoryComponentFactory(Container container, F beanFactory) {
 		super(container);
-		this.componentFactory = componentFactory;
+		this.beanFactory = beanFactory;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Class<F> getObjectType() {
-		return (Class<F>) componentFactory.getClass();
+	public Class<F> getComponentType() {
+		return (Class<F>) beanFactory.getClass();
 	}
 
 	@Override
 	protected F getInstanceInternal() throws NoSuchBeanDefinitionException {
 
-		return componentFactory;
+		return beanFactory;
+	}
+
+	@Override
+	protected String getComponentBeanName() {
+		return this.getComponentType().getName();
 	}
 
 }

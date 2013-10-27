@@ -19,7 +19,7 @@ import br.com.cd.mvo.bean.config.ControllerMetaData;
 import br.com.cd.mvo.util.ParserUtils;
 
 public class DefaultController<T> extends AbstractPageableController implements
-		Controller<T> {
+		ListenableController<T> {
 
 	protected Logger logger = LoggerFactory
 			.getLogger(this.getClass().getName());
@@ -30,16 +30,16 @@ public class DefaultController<T> extends AbstractPageableController implements
 
 	private DataModelFactory modelFactory;
 
-	protected ControllerMetaData config;
+	protected ControllerMetaData metaData;
 
 	public DefaultController(Application application, Translator translator,
 			DataModelFactory modelFactory, CrudService<T> service,
-			ControllerMetaData config) {
+			ControllerMetaData metaData) {
 
 		this.application = application;
 		this.translator = translator;
 		this.modelFactory = modelFactory;
-		this.config = config;
+		this.metaData = metaData;
 		this.service = service;
 	}
 
@@ -55,13 +55,15 @@ public class DefaultController<T> extends AbstractPageableController implements
 	private List<ControllerListener<T>> listeners = new LinkedList<ControllerListener<T>>();
 
 	@PostConstruct
-	public void afterPropertiesSet() throws Exception {
+	@Override
+	public void afterPropertiesSet() {
 		for (ControllerListener<T> listener : this.getListeners()) {
 			listener.postConstruct(this);
 		}
 	}
 
 	@PreDestroy
+	@Override
 	public final void destroy() {
 		for (ControllerListener<T> listener : this.getListeners()) {
 			listener.preDestroy(this);
@@ -80,7 +82,8 @@ public class DefaultController<T> extends AbstractPageableController implements
 		this.service = service;
 	}
 
-	protected List<ControllerListener<T>> getListeners() {
+	@Override
+	public List<ControllerListener<T>> getListeners() {
 		return listeners;
 	}
 
@@ -90,8 +93,8 @@ public class DefaultController<T> extends AbstractPageableController implements
 	}
 
 	@Override
-	public ControllerMetaData getControllerConfig() {
-		return config;
+	public ControllerMetaData getBeanMetaData() {
+		return metaData;
 	}
 
 	@Override
@@ -306,7 +309,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 
 	@SuppressWarnings("unchecked")
 	public final Class<T> getEntityClass() {
-		return (Class<T>) this.config.targetEntity();
+		return (Class<T>) this.metaData.targetEntity();
 	}
 
 	@Override
@@ -436,21 +439,22 @@ public class DefaultController<T> extends AbstractPageableController implements
 	public final void addTranslatedMessage(MessageLevel level,
 			String msgSumary, String msgDetail, Object... args) {
 
+		String message = this.getTranslator().getMessage(msgDetail, args);
 		switch (level) {
 		case WARNING:
 			application.addWarningMessage(
-					this.getTranslator().getMessage(msgSumary), this
-							.getTranslator().getMessage(msgDetail, args));
+					this.getTranslator().getMessage(msgSumary), message);
+			logger.warn(message);
 			break;
 		case ERROR:
 			application.addErrorMessage(
-					this.getTranslator().getMessage(msgSumary), this
-							.getTranslator().getMessage(msgDetail, args));
+					this.getTranslator().getMessage(msgSumary), message);
+			logger.error(message);
 			break;
 		case INFO:
 			application.addInfoMessage(
-					this.getTranslator().getMessage(msgSumary), this
-							.getTranslator().getMessage(msgDetail, args));
+					this.getTranslator().getMessage(msgSumary), message);
+			logger.info(message);
 			break;
 		}
 	}
@@ -475,18 +479,18 @@ public class DefaultController<T> extends AbstractPageableController implements
 
 	@Override
 	public Integer getInitialPageSize() {
-		return this.config.initialPageSize();
+		return this.metaData.initialPageSize();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T newEntity() throws InstantiationException, IllegalAccessException {
-		return (T) config.targetEntity().newInstance();
+		return (T) metaData.targetEntity().newInstance();
 	}
 
 	@Override
 	public String getName() {
-		return translateIfNecessary(this.config.name(), this.config.name());
+		return translateIfNecessary(this.metaData.name(), this.metaData.name());
 	}
 
 	@Override

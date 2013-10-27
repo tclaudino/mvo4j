@@ -1,11 +1,11 @@
 package br.com.cd.mvo.ioc.support;
 
-import java.util.Collection;
-
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.ComponentFactory;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.util.GenericsUtils;
+import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.mvo.util.ThreadLocalMapUtil;
 
 public abstract class AbstractComponentFactory<T> implements
 		ComponentFactory<T> {
@@ -14,50 +14,49 @@ public abstract class AbstractComponentFactory<T> implements
 	private final int order;
 
 	protected final Container container;
-	protected final Class<T> objectType;
+	protected final Class<T> componentType;
 
 	@SuppressWarnings("unchecked")
 	public AbstractComponentFactory(Container container) {
 		this.container = container;
-		this.objectType = GenericsUtils.getTypesFor(this.getClass()).get(0);
+		this.componentType = GenericsUtils.getTypesFor(this.getClass()).get(0);
 
-		order = static_order++;
+		order = new Integer(++static_order);
 	}
 
 	@Override
-	public Class<T> getObjectType() {
-		return objectType;
+	public Class<T> getComponentType() {
+		return componentType;
 	}
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public T getInstance() throws NoSuchBeanDefinitionException {
 
+		String threadIdentifier = ParserUtils.parseString(ThreadLocalMapUtil
+				.getThreadVariable(this.getComponentBeanName()));
+
 		try {
-			return container.getBean(this.getObjectType());
-		} catch (NoSuchBeanDefinitionException e) {
+			if (threadIdentifier.isEmpty()) {
+				ThreadLocalMapUtil.setThreadVariable(
+						this.getComponentBeanName(),
+						this.getComponentBeanName() + "_RUNNING");
+				T bean = container.getBean(this.getComponentBeanName(),
+						this.getComponentType());
+				ThreadLocalMapUtil.removeThreadVariable(this
+						.getComponentBeanName());
 
-			try {
-
-				Collection<ComponentFactory> beansOfType = container
-						.getBeansOfType(ComponentFactory.class);
-
-				for (ComponentFactory factory : beansOfType) {
-
-					if (!factory.getClass().equals(this.getClass())) {
-						if (factory.getObjectType()
-								.equals(this.getObjectType())) {
-
-							return (T) factory.getInstance();
-						}
-					}
-				}
-			} catch (NoSuchBeanDefinitionException e1) {
-				//
+				return bean;
 			}
+		} catch (NoSuchBeanDefinitionException e) {
 		}
-		return this.getInstanceInternal();
+		T instance = this.getInstanceInternal();
+		if (!container.containsBean(getComponentBeanName())) {
+			container.registerSingleton(this.getComponentBeanName(), instance);
+		}
+		return instance;
 	}
+
+	protected abstract String getComponentBeanName();
 
 	protected abstract T getInstanceInternal()
 			throws NoSuchBeanDefinitionException;
@@ -81,7 +80,7 @@ public abstract class AbstractComponentFactory<T> implements
 		result = prime * result
 				+ ((container == null) ? 0 : container.hashCode());
 		result = prime * result
-				+ ((objectType == null) ? 0 : objectType.hashCode());
+				+ ((componentType == null) ? 0 : componentType.hashCode());
 		result = prime * result + new Integer(order).hashCode();
 		return result;
 	}
@@ -100,10 +99,10 @@ public abstract class AbstractComponentFactory<T> implements
 				return false;
 		} else if (!container.equals(other.container))
 			return false;
-		if (objectType == null) {
-			if (other.objectType != null)
+		if (componentType == null) {
+			if (other.componentType != null)
 				return false;
-		} else if (!objectType.equals(other.objectType))
+		} else if (!componentType.equals(other.componentType))
 			return false;
 		if (order != other.order)
 			return false;
@@ -113,7 +112,7 @@ public abstract class AbstractComponentFactory<T> implements
 	@Override
 	public String toString() {
 		return "AbstractComponentFactory [order=" + order + ", container="
-				+ container + ", objectType=" + objectType + "]";
+				+ container + ", objectType=" + componentType + "]";
 	}
 
 }

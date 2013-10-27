@@ -5,6 +5,8 @@ import java.util.Locale;
 
 public interface Translator {
 
+	public String BEAN_NAME = Translator.class.getName();
+
 	String getMessage(String messageKey);
 
 	String getMessage(String messageKey, Locale locale);

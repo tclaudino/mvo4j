@@ -8,8 +8,7 @@ import br.com.cd.mvo.web.bean.WebControllerBean;
 public class ContractTypeController {
 
 	public ContractTypeController(Controller<ContractType> controller) {
-		System.out.println("\ncreating proxy instance for '"
-				+ this.getClass().getName() + "', controller: " + controller);
 
+		System.out.println(this.getClass().getName() + ".<init>");
 	}
 }

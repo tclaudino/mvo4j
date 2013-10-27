@@ -27,6 +27,7 @@ public class DefaultTranslator implements Translator {
 			KeyValuesProvider keyValuesProvider,
 			String... suportedLocaleLanguages) {
 		this.keyValuesProvider = keyValuesProvider;
+		this.bundleName = bundleName;
 
 		this.setSuportedLocales(suportedLocaleLanguages);
 		this.setDefaultLocale(defaultLocale);

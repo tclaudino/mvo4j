@@ -17,14 +17,15 @@ public class ContactTypeService implements ServiceListener<ContactType> {
 	private CrudService<ContactType> service;
 
 	public ContactTypeService(ContactTypeRepository repository) {
-		System.out.println("\ncreating proxy instance for '"
-				+ this.getClass().getName() + "', repository: " + repository);
 
+		System.out.println(this.getClass().getName() + ".<init>");
 		this.repository = repository;
 	}
 
 	public ContactType testFindLike(
 			@LikeCritirion(LikeCritirionEnum.ALL) Integer v1, String v2) {
+
+		System.out.println(this.getClass().getName() + ".testFindLike");
 
 		Entry<String, Object> entry1 = new AbstractMap.SimpleEntry<String, Object>(
 				"", v1);
@@ -38,15 +39,21 @@ public class ContactTypeService implements ServiceListener<ContactType> {
 
 	public ContactType testLocalRepository(Integer v1) {
 
+		System.out.println(this.getClass().getName() + ".testLocalRepository");
+
 		return repository.testLocalRepository(v1);
 	}
 
 	@Override
 	public void postConstruct(CrudService<ContactType> service) {
+
+		System.out.println(this.getClass().getName() + ".postConstruct");
 		this.service = service;
 	}
 
 	@Override
 	public void preDestroy(CrudService<ContactType> service) {
+
+		System.out.println(this.getClass().getName() + ".preDestroy");
 	}
 }

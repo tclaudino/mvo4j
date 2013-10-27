@@ -2,19 +2,15 @@ package br.com.cd.mvo.ioc;
 
 import java.util.Collection;
 
-import br.com.cd.mvo.Application;
-import br.com.cd.mvo.CacheManager;
-import br.com.cd.mvo.KeyValuesProvider;
-import br.com.cd.mvo.Translator;
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.DataModelFactory;
-import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
 import br.com.cd.mvo.ioc.scan.ComponentScanner;
 import br.com.cd.mvo.ioc.scan.ComponentScannerFactory;
+import br.com.cd.mvo.ioc.scan.ControllerListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.scan.ReflectionsScanner;
+import br.com.cd.mvo.ioc.scan.RepositoryListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.scan.Scanner;
+import br.com.cd.mvo.ioc.scan.ServiceListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.support.ApplicationComponentFactory;
-import br.com.cd.mvo.ioc.support.BeanFactoryComponentFactory;
 import br.com.cd.mvo.ioc.support.CacheManagerComponentFactory;
 import br.com.cd.mvo.ioc.support.DataModelComponentFactory;
 import br.com.cd.mvo.ioc.support.KeyValuesProviderComponentFactory;
@@ -34,52 +30,41 @@ public abstract class AbstractContainerRegistry<C extends Container> implements
 		this.scanner = new ReflectionsScanner(container);
 	}
 
-	protected abstract void registerCustomComponents();
+	protected abstract void configure();
+
+	@Override
+	public void register() throws ConfigurationException {
+
+		container.registerSingleton(Container.class.getName(), container);
+
+		this.configure();
+		container.configure();
+
+		this.registerLocalComponentes();
+
+		container.deepRegister();
+		this.deepRegister();
+	}
 
 	private void registerLocalComponentes() {
 
-		container.registerSingleton(CacheManager.class.getName(), container
-				.getSingletonBeanFactory(new CacheManagerComponentFactory(
-						this.container)));
+		container
+				.registerBean(new CacheManagerComponentFactory(this.container));
+		container.registerBean(new KeyValuesProviderComponentFactory(
+				this.container));
+		container.registerBean(new TranslatorComponentFactory(this.container));
+		container.registerBean(new ApplicationComponentFactory(this.container));
+		container.registerBean(new DataModelComponentFactory(this.container));
 
 		container
-				.registerSingleton(
-						KeyValuesProvider.class.getName(),
-						container
-								.getSingletonBeanFactory(new KeyValuesProviderComponentFactory(
-										this.container)));
+				.addComponentFactory(new RepositoryBeanFactory(this.container));
+		container.addComponentFactory(new ServiceBeanFactory(this.container));
 
-		container.registerSingleton(Translator.class.getName(), container
-				.getSingletonBeanFactory(new TranslatorComponentFactory(
-						this.container)));
-
-		container.registerSingleton(Application.class.getName(), container
-				.getSingletonBeanFactory(new ApplicationComponentFactory(
-						this.container)));
-
-		container.registerSingleton(DataModelFactory.class.getName(), container
-				.getSingletonBeanFactory(new DataModelComponentFactory(
-						this.container)));
-
-		BeanFactory<?, ?> bf = new RepositoryBeanFactory(this.container);
-		ComponentFactory<BeanFactory<?, ?>> cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(
-				this.container, bf);
-
-		container.addComponentFactory(cf);
-		container.registerSingleton(bf.getClass().getName(), cf);
-
-		bf = new ServiceBeanFactory(this.container);
-		cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(this.container,
-				bf);
-
-		container.addComponentFactory(cf);
-		container.registerSingleton(bf.getClass().getName(), cf);
+		container.registerBean(Proxifier.BEAN_NAME, container
+				.getApplicationConfig().getProxifierClass());
 	}
 
-	@Override
-	public void deepRegister() throws ConfigurationException {
-
-		container.deepRegister();
+	private void deepRegister() throws ConfigurationException {
 
 		ComponentScannerFactory scannerFactory = container
 				.getComponentScannerFactory();
@@ -89,27 +74,19 @@ public abstract class AbstractContainerRegistry<C extends Container> implements
 
 		for (ComponentScanner componentScanner : scanners) {
 
-			for (BeanMetaDataFactory<?, ?> property : this.container
-					.getContainerConfig().getBeanMetaDataFactories()) {
-				componentScanner.addMetaDataFactory(property);
+			for (ComponentFactory<BeanFactory<?, ?>> cf : container
+					.getComponentFactories()) {
+				componentScanner.addMetaDataFactories(cf.getInstance()
+						.getBeanMetaDataFactory());
 			}
+			componentScanner
+					.addMetaDataFactories(new RepositoryListenerMetaDataFactory());
+			componentScanner
+					.addMetaDataFactories(new ServiceListenerMetaDataFactory());
+			componentScanner
+					.addMetaDataFactories(new ControllerListenerMetaDataFactory());
+
 			componentScanner.scan(scanner, this.container);
 		}
 	}
-
-	@Override
-	public void register() throws ConfigurationException {
-
-		this.configure();
-
-		container.registerSingleton(Container.class.getName(), container);
-
-		this.registerCustomComponents();
-
-		this.registerLocalComponentes();
-
-		this.deepRegister();
-	}
-
-	protected abstract void configure();
 }

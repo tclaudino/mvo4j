@@ -23,4 +23,19 @@ public class ServiceMetaData extends BeanMetaData {
 		return ServiceMetaData.BEAN_NAME_SUFFIX;
 	}
 
+	public static class ListenerMetaData extends ServiceMetaData {
+
+		public static final String BEAN_NAME_SUFFIX = ServiceMetaData.BEAN_NAME_SUFFIX
+				+ "Listener";
+
+		public ListenerMetaData(PropertyMap adaptee) {
+			super(adaptee);
+		}
+
+		@Override
+		public String getBeanNameSuffix() {
+			return ListenerMetaData.BEAN_NAME_SUFFIX;
+		}
+	}
+
 }

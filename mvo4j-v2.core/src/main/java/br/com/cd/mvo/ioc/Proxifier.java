@@ -1,11 +1,16 @@
 package br.com.cd.mvo.ioc;
 
-public interface BeanInstantiationStrategy {
+import br.com.cd.mvo.core.ConfigurationException;
 
-	<T> T instantiate(final Class<T> targetBean, final Object bean,
-			Object... arguments);
+public interface Proxifier {
 
-	<T> Class<T> createProxy(final Class<T> targetBean, final Object instance);
+	public String BEAN_NAME = Proxifier.class.getName();
 
-	<T> Class<T> createProxy(final Class<T> targetBean);
+	<T> T proxify(final String classNameSuffix, final Class<T> targetBean,
+			final Object bean, Object... parameters)
+			throws ConfigurationException;
+
+	<T> Class<T> proxify(String classNameSuffix, final Class<T> targetBean)
+			throws ConfigurationException;
+
 }

@@ -6,44 +6,44 @@ import java.util.HashSet;
 import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.ControllerListenerMetaData;
+import br.com.cd.mvo.bean.config.ServiceMetaData;
 import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.ControllerListener;
-import br.com.cd.mvo.core.CrudController;
+import br.com.cd.mvo.core.CrudService;
+import br.com.cd.mvo.core.ServiceListener;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.util.GenericsUtils;
 
 public class ServiceListenerMetaDataFactory extends
-		AbstractBeanMetaDataFactory<ControllerListenerMetaData, NoScan> {
+		AbstractBeanMetaDataFactory<ServiceMetaData.ListenerMetaData, NoScan> {
 
 	public ServiceListenerMetaDataFactory() {
-		super(CrudController.class);
+		super(CrudService.class);
 	}
 
 	@Override
-	public ControllerListenerMetaData doCreateBeanMetaData(
+	public ServiceMetaData.ListenerMetaData doCreateBeanMetaData(
 			WriteablePropertyMap propertyMap) {
 
 		propertyMap.add(BeanMetaData.SCOPE,
 				ConfigParamKeys.DefaultValues.SCOPE_SESSION_NAME);
 
-		ControllerListenerMetaData beanConfig = new ControllerListenerMetaData(
+		ServiceMetaData.ListenerMetaData beanConfig = new ServiceMetaData.ListenerMetaData(
 				propertyMap);
 
 		return beanConfig;
 	}
 
 	@Override
-	public BeanMetaDataWrapper<ControllerListenerMetaData> createBeanMetaData(
+	public BeanMetaDataWrapper<ServiceMetaData.ListenerMetaData> createBeanMetaData(
 			WriteablePropertyMap propertyMap, Class<?> beanType,
 			Container container, boolean readAnnotationAttributes)
 			throws ConfigurationException {
 
-		if (ControllerListener.class.isAssignableFrom(beanType)) {
+		if (ServiceListener.class.isAssignableFrom(beanType)) {
 
 			Class<?> targetEntity = GenericsUtils.getTypesFor(beanType,
-					ControllerListener.class).get(0);
+					ServiceListener.class).get(0);
 			propertyMap.add(BeanMetaData.TARGET_ENTITY, targetEntity);
 		}
 
@@ -55,8 +55,8 @@ public class ServiceListenerMetaDataFactory extends
 	public Collection<Class<?>> scan(Scanner scanner, String[] packagesToScan) {
 
 		@SuppressWarnings("rawtypes")
-		Collection<Class<? extends ControllerListener>> subTypes = scanner
-				.scanSubTypesOf(ControllerListener.class, packagesToScan);
+		Collection<Class<? extends ServiceListener>> subTypes = scanner
+				.scanSubTypesOf(ServiceListener.class, packagesToScan);
 
 		Collection<Class<?>> result = new HashSet<>();
 		result.addAll(subTypes);

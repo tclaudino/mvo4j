@@ -9,24 +9,6 @@ import br.com.cd.mvo.core.BeanObject;
 
 public interface Repository<T> extends BeanObject {
 
-	public enum ActionListenerEventType {
-
-		BEFORE, AFTER;
-	}
-
-	public interface ActionListener<T> {
-
-		void onRead(final List<T> entity);
-
-		boolean onSave(final T entity, ActionListenerEventType eventType);
-
-		boolean onUpdate(final T entity, ActionListenerEventType eventType);
-
-		boolean onDelete(final T entity, ActionListenerEventType eventType);
-	}
-
-	void setListener(final ActionListener<T> listener);
-
 	T save(final T entity);
 
 	T update(T entity);

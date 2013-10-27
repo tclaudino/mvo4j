@@ -2,15 +2,10 @@ package br.com.cd.mvo.ioc;
 
 import java.util.Properties;
 
-import br.com.cd.mvo.ioc.scan.ControllerMetaDataFactory;
 import br.com.cd.mvo.util.ParserUtils;
 
 public class LocalPropertyContainerConfig extends
 		AbstractContainerConfig<Properties> {
-
-	{
-		factories.add(new ControllerMetaDataFactory());
-	}
 
 	public LocalPropertyContainerConfig(Properties localProperties) {
 		super(localProperties, new DefaultContainerListener());

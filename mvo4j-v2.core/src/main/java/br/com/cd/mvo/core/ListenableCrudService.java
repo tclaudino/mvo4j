@@ -8,7 +8,7 @@ public interface ListenableCrudService<T> extends CrudService<T> {
 
 	void addListener(ServiceListener<T> listener);
 
-	void afterPropertiesSet() throws Exception;
+	void afterPropertiesSet();
 
 	void destroy();
 }

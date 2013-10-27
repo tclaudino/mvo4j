@@ -1,6 +1,5 @@
 package br.com.cd.mvo.ioc;
 
-import br.com.cd.mvo.ioc.support.BeanFactoryComponentFactory;
 import br.com.cd.mvo.ioc.support.ControllerBeanFactory;
 
 public class DefaultContainerListener implements ContainerListener {
@@ -8,12 +7,12 @@ public class DefaultContainerListener implements ContainerListener {
 	@Override
 	public void configure(Container container) {
 
-		BeanFactory<?, ?> bf = new ControllerBeanFactory(container);
+		// nothing?
+	}
 
-		ComponentFactory<BeanFactory<?, ?>> cf = new BeanFactoryComponentFactory<BeanFactory<?, ?>>(
-				container, bf);
+	@Override
+	public void deepRegister(Container container) {
 
-		container.addComponentFactory(cf);
-		container.registerSingleton(bf.getClass().getName(), cf);
+		container.addComponentFactory(new ControllerBeanFactory(container));
 	}
 }
