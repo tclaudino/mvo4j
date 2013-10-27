@@ -17,8 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 import br.com.cd.mvo.client.controller.ContactTypeControllerListener;
+import br.com.cd.mvo.client.controller.ContractTypeController;
+import br.com.cd.mvo.client.controller.ContractTypeListener;
 import br.com.cd.mvo.client.model.ContactType;
+import br.com.cd.mvo.client.model.ContractType;
+import br.com.cd.mvo.client.service.ContactTypeService;
 import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.core.CrudService;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.ContainerConfig;
@@ -39,10 +44,13 @@ public class ControllerTest {
 
 	// @Autowired
 	// private LocalPropertyContainerConfig applicationConfig;
-	private Container container;
+	private Container container = null;
 
 	@Before
 	public void setUp() {
+
+		if (container != null)
+			return;
 
 		servletContext.setContextPath("mvo-test");
 		servletContext.setInitParameter("br.com.cd.PROVIDER_CLASS",
@@ -74,24 +82,99 @@ public class ControllerTest {
 	@Test
 	@Transactional
 	@Rollback
-	public void test() {
+	public void testContactTypeControllerListener() {
+
+		ContactTypeControllerListener controller = null;
+		try {
+			controller = container.getBean(ContactTypeControllerListener.class);
+
+		} catch (NoSuchBeanDefinitionException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		Assert.assertTrue(
+				"Instance for ContactTypeControllerListener not is instance of 'WebCrudController'",
+				WebCrudController.class.isAssignableFrom(controller.getClass()));
+
+		WebCrudController<ContactType> webCrudController = (WebCrudController<ContactType>) controller;
+
+		webCrudController.toNewMode();
+		ContactType entity = new ContactType("TYPE_TEST");
+		webCrudController.save(entity);
+
+		Assert.assertNotNull(webCrudController.getService().getRepository()
+				.find("type", "TYPE_TEST"));
+	}
+
+	@Test
+	@Transactional
+	@Rollback
+	public void testContactTypeService() {
+
+		ContactTypeService service = null;
+		try {
+			service = container.getBean(ContactTypeService.class);
+
+		} catch (NoSuchBeanDefinitionException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		Assert.assertTrue(
+				"Instance for ContactTypeService not is instance of 'CrudService'",
+				CrudService.class.isAssignableFrom(service.getClass()));
+
+		CrudService<ContactType> crudService = (CrudService<ContactType>) service;
+
+		ContactType entity = new ContactType("TYPE_TEST");
+		crudService.getRepository().save(entity);
+
+		Assert.assertNotNull(crudService.getRepository().find("type",
+				"TYPE_TEST"));
+
+		ContactType testFind = service.testFindLike(1, "TESTE");
+		Assert.assertNotNull(testFind);
+
+		testFind = service.testLocalRepository(1);
+		Assert.assertNotNull(testFind);
+	}
+
+	@Test
+	@Transactional
+	@Rollback
+	public void testContractTypeController() {
+
+		ContractTypeController controller = null;
+		try {
+			controller = container.getBean(ContractTypeController.class);
+
+		} catch (NoSuchBeanDefinitionException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		Assert.assertTrue(
+				"Instance for ContractTypeController not is instance of 'WebCrudController'",
+				WebCrudController.class.isAssignableFrom(controller.getClass()));
+
+		WebCrudController<ContractType> webController = (WebCrudController<ContractType>) controller;
+
+		ContractType entity = new ContractType();
+		entity.setAcronym("ACRONYM_TESTE");
+		entity.setType("TYPE_TESTE");
+		entity.setPeriodicity(2);
+		webController.save(entity);
+
+		webController.toPreviousPage();
+		Assert.assertNotNull(webController.getCurrentEntity());
+	}
+
+	@Test
+	@Transactional
+	@Rollback
+	public void testContractTypeListener() {
 
 		try {
-			ContactTypeControllerListener controller = container
-					.getBean(ContactTypeControllerListener.class);
-
-			Assert.assertEquals(
-					"Instance for ContactTypeControllerListener not is instance of 'WebCrudController'",
-					controller.getClass(), WebCrudController.class);
-
-			WebCrudController<ContactType> webCrudController = (WebCrudController<ContactType>) controller;
-
-			webCrudController.toNewMode();
-			ContactType entity = new ContactType("TYPE_TEST");
-			webCrudController.save(entity);
-
-			Assert.assertNotNull(webCrudController.getService().getRepository()
-					.find("type", "TYPE_TEST"));
+			ContractTypeListener controller = container
+					.getBean(ContractTypeListener.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
 			e.printStackTrace();
