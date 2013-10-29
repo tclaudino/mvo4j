@@ -1,9 +1,12 @@
 package br.com.cd.mvo.ioc.support;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
@@ -12,6 +15,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
 import br.com.cd.mvo.ioc.Proxifier;
 import br.com.cd.mvo.util.ReflectionUtils;
+import br.com.cd.mvo.util.ThreadLocalMapUtil;
 import br.com.cd.mvo.util.cglib.CglibUtils;
 
 public class CglibProxifier implements Proxifier {
@@ -23,7 +27,6 @@ public class CglibProxifier implements Proxifier {
 				&& !Modifier.isNative(method.getModifiers())
 				&& !Modifier.isStatic(method.getModifiers())
 				&& !Modifier.isStrict(method.getModifiers())
-				&& !Modifier.isTransient(method.getModifiers())
 				&& !Modifier.isVolatile(method.getModifiers())
 				&& !ReflectionUtils.getJavaObjectMethods().contains(
 						method.getName());
@@ -50,9 +53,13 @@ public class CglibProxifier implements Proxifier {
 								&& ReflectionUtils.containsMethod(bean
 										.getClass().getMethods(), method)) {
 
-							return method.invoke(bean, args);
+							Object invoke = method.invoke(bean, args);
+							return invoke;
 						}
-						return methodProxy.invokeSuper(object, args);
+						applySetParameterAnnotations(method);
+						Object invoke = methodProxy.invokeSuper(object, args);
+						applyUnsetParameterAnnotations(method);
+						return invoke;
 					}
 				}, allInterfaces.toArray(new Class[allInterfaces.size()]));
 
@@ -81,8 +88,31 @@ public class CglibProxifier implements Proxifier {
 				targetBean, null);
 
 		enhancer.setCallbackType(NoOp.class);
-		// enhancer.setCallbackFilter(FILTER);
 
 		return (Class<T>) enhancer.createClass();
+	}
+
+	private void applyUnsetParameterAnnotations(Method method) {
+
+		ThreadLocalMapUtil.removeThreadVariable("PARAMETER_ANNOTATIONS");
+	}
+
+	private void applySetParameterAnnotations(Method method) {
+
+		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+		if (parameterAnnotations.length > 0
+				&& parameterAnnotations[0].length > 0)
+			ThreadLocalMapUtil.setThreadVariable("PARAMETER_ANNOTATIONS",
+					joinAnnotations(method.getParameterAnnotations()));
+	}
+
+	private Annotation[] joinAnnotations(Annotation[][] annotationsArray) {
+
+		List<Annotation> list = new LinkedList<>();
+		for (Annotation[] annotations : annotationsArray) {
+			if (annotations.length > 0)
+				list.addAll(Arrays.asList(annotations));
+		}
+		return list.toArray(new Annotation[list.size()]);
 	}
 }

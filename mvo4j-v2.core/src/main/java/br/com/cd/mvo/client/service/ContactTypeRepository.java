@@ -16,13 +16,13 @@ public class ContactTypeRepository implements RepositoryListener<ContactType> {
 
 	public Repository<ContactType> repository;
 
-	public ContactType testLocalRepository(Integer v1) {
+	public ContactType testLocalRepository(
+			@LikeCritirion(LikeCritirionEnum.iSTART) String v1) {
 
 		System.out.println(this.getClass().getName() + ".testLocalRepository");
 
-		@LikeCritirion(LikeCritirionEnum.END)
 		Entry<String, Object> entry1 = new AbstractMap.SimpleEntry<String, Object>(
-				"", v1);
+				"type", v1);
 
 		return repository.find(entry1);
 	}

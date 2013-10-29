@@ -1,20 +1,20 @@
 package br.cd.mvo4j.test;
 
+import static org.testng.Assert.*;
+
 import javax.servlet.ServletContext;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import br.com.cd.mvo.client.controller.ContactTypeControllerListener;
 import br.com.cd.mvo.client.controller.ContractTypeController;
@@ -31,10 +31,10 @@ import br.com.cd.mvo.ioc.ContainerProvider;
 import br.com.cd.mvo.web.WebCrudController;
 import br.com.cd.mvo.web.ioc.WebApplicationConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+//@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/webapp/WEB-INF/applicationContext.xml" }, loader = MockServletContextWebContextLoader.class)
 @WebAppConfiguration("src/test/webapp")
-public class ControllerTest {
+public class ControllerTest extends AbstractTestNGSpringContextTests {
 
 	@Autowired
 	ConfigurableWebApplicationContext wac; // cached
@@ -46,11 +46,8 @@ public class ControllerTest {
 	// private LocalPropertyContainerConfig applicationConfig;
 	private Container container = null;
 
-	@Before
+	@BeforeClass
 	public void setUp() {
-
-		if (container != null)
-			return;
 
 		servletContext.setContextPath("mvo-test");
 		servletContext.setInitParameter("br.com.cd.PROVIDER_CLASS",
@@ -70,31 +67,31 @@ public class ControllerTest {
 
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
-			Assert.fail();
+			fail();
 		}
 	}
 
-	@After
+	@AfterClass
 	public void tearDown() throws Exception {
 		container.stop();
 	}
 
-	@Test
+	@Test(groups = "client1")
 	@Transactional
 	@Rollback
 	public void testContactTypeControllerListener() {
 
 		ContactTypeControllerListener controller = null;
 		try {
-			controller = container.getBean(ContactTypeControllerListener.class);
+			controller = container.getBean("contactTypeBean",
+					ContactTypeControllerListener.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
-			e.printStackTrace();
-			Assert.fail();
+			fail(e.getMessage(), e);
 		}
-		Assert.assertTrue(
-				"Instance for ContactTypeControllerListener not is instance of 'WebCrudController'",
-				WebCrudController.class.isAssignableFrom(controller.getClass()));
+		assertTrue(
+				WebCrudController.class.isAssignableFrom(controller.getClass()),
+				"Instance for ContactTypeControllerListener not is instance of 'WebCrudController'");
 
 		WebCrudController<ContactType> webCrudController = (WebCrudController<ContactType>) controller;
 
@@ -102,11 +99,11 @@ public class ControllerTest {
 		ContactType entity = new ContactType("TYPE_TEST");
 		webCrudController.save(entity);
 
-		Assert.assertNotNull(webCrudController.getService().getRepository()
+		assertNotNull(webCrudController.getService().getRepository()
 				.find("type", "TYPE_TEST"));
 	}
 
-	@Test
+	@Test(groups = "client1")
 	@Transactional
 	@Rollback
 	public void testContactTypeService() {
@@ -116,44 +113,45 @@ public class ControllerTest {
 			service = container.getBean(ContactTypeService.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
-			e.printStackTrace();
-			Assert.fail();
+			fail(e.getMessage(), e);
 		}
-		Assert.assertTrue(
-				"Instance for ContactTypeService not is instance of 'CrudService'",
-				CrudService.class.isAssignableFrom(service.getClass()));
+		assertTrue(CrudService.class.isAssignableFrom(service.getClass()),
+				"Instance for ContactTypeService not is instance of 'CrudService'");
 
 		CrudService<ContactType> crudService = (CrudService<ContactType>) service;
 
 		ContactType entity = new ContactType("TYPE_TEST");
+		entity.setAcronym("ACRONYM_TEST");
 		crudService.getRepository().save(entity);
 
-		Assert.assertNotNull(crudService.getRepository().find("type",
-				"TYPE_TEST"));
+		assertNotNull(crudService.getRepository().find("type", "TYPE_TEST"));
 
-		ContactType testFind = service.testFindLike(1, "TESTE");
-		Assert.assertNotNull(testFind);
+		ContactType testFind = service.testFindLike("YPE_", "EST");
+		assertNotNull(testFind);
 
-		testFind = service.testLocalRepository(1);
-		Assert.assertNotNull(testFind);
+		testFind = service.testLocalRepository("_TEST");
+		assertNotNull(testFind);
+
+		testFind = service.testLocalRepository("_TEST_12383");
+		assertNull(testFind);
 	}
 
-	@Test
+	@Test(groups = "client1")
 	@Transactional
 	@Rollback
 	public void testContractTypeController() {
 
 		ContractTypeController controller = null;
 		try {
-			controller = container.getBean(ContractTypeController.class);
+			controller = container.getBean("contractTypeBean",
+					ContractTypeController.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
-			e.printStackTrace();
-			Assert.fail();
+			fail(e.getMessage(), e);
 		}
-		Assert.assertTrue(
-				"Instance for ContractTypeController not is instance of 'WebCrudController'",
-				WebCrudController.class.isAssignableFrom(controller.getClass()));
+		assertTrue(
+				WebCrudController.class.isAssignableFrom(controller.getClass()),
+				"Instance for ContractTypeController not is instance of 'WebCrudController'");
 
 		WebCrudController<ContractType> webController = (WebCrudController<ContractType>) controller;
 
@@ -164,10 +162,10 @@ public class ControllerTest {
 		webController.save(entity);
 
 		webController.toPreviousPage();
-		Assert.assertNotNull(webController.getCurrentEntity());
+		assertNotNull(webController.getCurrentEntity());
 	}
 
-	@Test
+	@Test(groups = "client1")
 	@Transactional
 	@Rollback
 	public void testContractTypeListener() {
@@ -177,8 +175,7 @@ public class ControllerTest {
 					.getBean(ContractTypeListener.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
-			e.printStackTrace();
-			Assert.fail();
+			fail(e.getMessage(), e);
 		}
 	}
 }

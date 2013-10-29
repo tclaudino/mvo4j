@@ -13,6 +13,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
 import br.com.cd.mvo.bean.config.RepositoryMetaData;
@@ -343,9 +344,10 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 
 		Root<T> root = cq.from(this.entityClass);
 
-		Iterator<Entry<String, Entry<Object, LikeCritirionEnum>>> iterator = map
-				.entrySet().iterator();
-		while (iterator.hasNext()) {
+		Expression expression = null;
+		for (Iterator<Entry<String, Entry<Object, LikeCritirionEnum>>> iterator = map
+				.entrySet().iterator(); iterator.hasNext();) {
+
 			Entry<String, Entry<Object, LikeCritirionEnum>> entry = iterator
 					.next();
 			System.out.println("put a like, key: " + entry.getKey()
@@ -353,24 +355,28 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 
 			LikeCritirionEnum likeCritiriaEnum = entry.getValue().getValue();
 
-			Expression expression;
+			Expression subClause;
 			if (!LikeCritirionEnum.NONE.equals(likeCritiriaEnum)) {
 				System.out.println("put a like: " + likeCritiriaEnum
 						+ " , key: " + entry.getKey() + ", value: "
 						+ entry.getValue().getKey());
 
-				expression = cb.like(root.<String> get(entry.getKey()),
-						likeCritiriaEnum.getLike(entry.getValue().getKey()));
-				if (likeCritiriaEnum.getIgnoreCase()) {
-					expression = cb.lower(expression);
-				}
+				Path<String> path = root.<String> get(entry.getKey());
+				subClause = cb.like(likeCritiriaEnum.getIgnoreCase() ? path
+						: cb.lower(path), likeCritiriaEnum.getLike(entry
+						.getValue().getKey()));
 			} else {
 				System.out.println("put a eq, key: " + entry.getKey()
 						+ ", value: " + entry.getValue());
-				expression = cb.equal(root.get(entry.getKey()),
+				subClause = cb.equal(root.get(entry.getKey()),
 						likeCritiriaEnum.getLike(entry.getValue().getKey()));
 			}
-			cq.where(expression);
+			if (expression != null)
+				expression = cb.and(expression, subClause);
+			else
+				expression = subClause;
 		}
+		if (expression != null)
+			cq.where(expression);
 	}
 }

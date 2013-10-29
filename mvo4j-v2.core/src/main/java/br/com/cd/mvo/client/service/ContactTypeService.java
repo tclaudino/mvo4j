@@ -23,21 +23,21 @@ public class ContactTypeService implements ServiceListener<ContactType> {
 	}
 
 	public ContactType testFindLike(
-			@LikeCritirion(LikeCritirionEnum.ALL) Integer v1, String v2) {
+			@LikeCritirion(LikeCritirionEnum.ALL) String v1,
+			@LikeCritirion(LikeCritirionEnum.iSTART) String v2) {
 
 		System.out.println(this.getClass().getName() + ".testFindLike");
 
 		Entry<String, Object> entry1 = new AbstractMap.SimpleEntry<String, Object>(
-				"", v1);
+				"type", v1);
 
-		@LikeCritirion(LikeCritirionEnum.END)
 		Entry<String, Object> entry2 = new AbstractMap.SimpleEntry<String, Object>(
-				"", v2);
+				"acronym", v2);
 
 		return service.getRepository().find(entry1, entry2);
 	}
 
-	public ContactType testLocalRepository(Integer v1) {
+	public ContactType testLocalRepository(String v1) {
 
 		System.out.println(this.getClass().getName() + ".testLocalRepository");
 

@@ -1,9 +1,11 @@
 package br.com.cd.mvo.orm.support;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +21,7 @@ import br.com.cd.mvo.orm.ListenableRepository;
 import br.com.cd.mvo.orm.OrderBy;
 import br.com.cd.mvo.orm.Repository;
 import br.com.cd.mvo.orm.RepositoryListener;
+import br.com.cd.mvo.util.ThreadLocalMapUtil;
 
 public abstract class AbstractRepository<T> implements ListenableRepository<T> {
 
@@ -289,24 +292,28 @@ public abstract class AbstractRepository<T> implements ListenableRepository<T> {
 	protected final Map<String, Entry<Object, LikeCritirionEnum>> applyLikeMap(
 			Map<String, Object> map, LikeCritirionEnum likeCritiria) {
 
-		Map<String, Entry<Object, LikeCritirionEnum>> newMap = new HashMap<>();
+		Map<String, Entry<Object, LikeCritirionEnum>> newMap = new LinkedHashMap<>();
 
+		Object threadVariable = ThreadLocalMapUtil
+				.getThreadVariable("PARAMETER_ANNOTATIONS");
+
+		Annotation[] annotations = new Annotation[0];
+		if (threadVariable != null)
+			annotations = (Annotation[]) threadVariable;
+
+		int i = -1;
 		for (Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
 
-			LikeCritirionEnum likeCritirionEnum = likeCritiria;
-			LikeCritirion annotation = key.getClass().getAnnotation(
-					LikeCritirion.class);
-			if (annotation == null) {
-				annotation = value.getClass()
-						.getAnnotation(LikeCritirion.class);
-			}
-			if (annotation != null) {
-				likeCritirionEnum = annotation.value();
-			}
+			LikeCritirionEnum critirion = likeCritiria != null ? likeCritiria
+					: LikeCritirionEnum.NONE;
+			if (annotations.length > ++i)
+				if (annotations[i] instanceof LikeCritirion)
+					critirion = ((LikeCritirion) annotations[i]).value();
+
 			Entry<Object, LikeCritirionEnum> newValue = new AbstractMap.SimpleEntry<>(
-					value, likeCritirionEnum);
+					value, critirion);
 			newMap.put(key, newValue);
 		}
 
@@ -317,7 +324,7 @@ public abstract class AbstractRepository<T> implements ListenableRepository<T> {
 			Entry<String, Object> parameter,
 			@SuppressWarnings("unchecked") Entry<String, Object>... parameters) {
 
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new LinkedHashMap<>();
 		map.put(parameter.getKey(), parameter.getValue());
 
 		for (Entry<String, Object> entry : parameters) {

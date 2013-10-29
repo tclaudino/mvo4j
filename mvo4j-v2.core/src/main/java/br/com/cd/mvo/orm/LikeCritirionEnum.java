@@ -31,8 +31,9 @@ public enum LikeCritirionEnum {
 	 * @return the like
 	 */
 	public String getLike(Object bundle) {
-		return this.like.isEmpty() ? ParserUtils.parseString(bundle)
-				: StringUtils.format(this.like, bundle);
+		String lk = (this.like.isEmpty() ? ParserUtils.parseString(bundle)
+				: StringUtils.format(this.like, bundle));
+		return ignoreCase ? lk.toLowerCase() : lk;
 	}
 
 	/**
