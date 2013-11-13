@@ -32,27 +32,23 @@ public class DefaultFilterManager<T> implements FilterManager {
 
 	@Override
 	public FilterField[] getFields() {
-		return new ArrayList<FilterField>(this.getFieldList())
-				.toArray(new FilterField[this.filterFields.size()]);
+		return new ArrayList<FilterField>(this.getFieldList()).toArray(new FilterField[this.filterFields.size()]);
 	}
 
 	@Override
 	public Collection<FilterField> getSelectedFieldList() {
-		return Collections.unmodifiableCollection(this.selectedFilterFields
-				.values());
+		return Collections.unmodifiableCollection(this.selectedFilterFields.values());
 	}
 
 	@Override
 	public FilterField[] getSelectedFields() {
-		return new ArrayList<FilterField>(this.getSelectedFieldList())
-				.toArray(new FilterField[this.selectedFilterFields.size()]);
+		return new ArrayList<FilterField>(this.getSelectedFieldList()).toArray(new FilterField[this.selectedFilterFields.size()]);
 	}
 
 	@Override
 	public void selectField(String fieldName) {
 		FilterField field = filterFields.get(fieldName);
-		if (field != null)
-			this.selectedFilterFields.put(fieldName, field);
+		if (field != null) this.selectedFilterFields.put(fieldName, field);
 	}
 
 	@Override
@@ -89,12 +85,10 @@ public class DefaultFilterManager<T> implements FilterManager {
 	}
 
 	@Override
-	public FilterManager setValue(String fieldName, Object value,
-			LikeCritirionEnum likeType) {
+	public FilterManager setValue(String fieldName, Object value, LikeCritirionEnum likeType) {
 
 		FilterField field = filterFields.get(fieldName);
-		if (field != null)
-			field.setSearchValue(value);
+		if (field != null) field.setSearchValue(value);
 		return this;
 	}
 
@@ -117,34 +111,25 @@ public class DefaultFilterManager<T> implements FilterManager {
 
 		if (!map.isEmpty()) {
 
-			LoggerFactory.getLogger(FilterManager.class).info(
-					"applyFilter, mapFields: {0}", map);
+			LoggerFactory.getLogger(FilterManager.class).info("applyFilter, mapFields: {0}", map);
 
 			try {
 
 				List<T> entityList;
 				if (controller.getInitialPageSize() > -1) {
-					entityList = controller
-							.getService()
-							.getRepository()
-							.findList(map, controller.getOffset(),
-									controller.getPageSize());
+					entityList = controller.getService().getRepository().findList(map, controller.getOffset(), controller.getPageSize());
 				} else {
-					entityList = controller.getService().getRepository()
-							.findList(map);
+					entityList = controller.getService().getRepository().findList(map);
 				}
 				controller.setEntityList(entityList);
 				success = true;
 			} catch (Exception e) {
-				LoggerFactory.getLogger(FilterManager.class).error(
-						"applyFilter.INVALID_SEARCH, mapFields: {0}", map);
+				LoggerFactory.getLogger(FilterManager.class).error("applyFilter.INVALID_SEARCH, mapFields: {0}", map);
 			}
 		}
 		if (!success) {
-			controller.addTranslatedMessage(MessageLevel.WARNING,
-					ApplicationKeys.Entity.NOT_FOUND_SUMARY,
-					ApplicationKeys.Entity.NOT_FOUND_MSG,
-					new Object[] { controller.getName() });
+			controller.addTranslatedMessage(MessageLevel.WARNING, ApplicationKeys.Entity.NOT_FOUND_SUMARY,
+					ApplicationKeys.Entity.NOT_FOUND_MSG, new Object[] { controller.getName() });
 		}
 	}
 

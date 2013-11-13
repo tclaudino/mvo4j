@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import br.com.cd.mvo.orm.Repository;
 
-public interface CrudService<T> extends BeanObject {
+public interface CrudService<T> extends BeanObject<T> {
 
 	T save(final T entity);
 

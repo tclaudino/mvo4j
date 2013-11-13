@@ -10,8 +10,7 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 	private static ConfigurableApplicationContext applicationContext;
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
 		ApplicationContextHolder.applicationContext = (ConfigurableApplicationContext) applicationContext;
 	}

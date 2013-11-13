@@ -6,8 +6,7 @@ import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
 
-public class CacheManagerComponentFactory extends
-		AbstractComponentFactory<CacheManager> {
+public class CacheManagerComponentFactory extends AbstractComponentFactory<CacheManager> {
 
 	private long cacheTime = -1;
 
@@ -16,8 +15,7 @@ public class CacheManagerComponentFactory extends
 	}
 
 	@Override
-	protected CacheManager getInstanceInternal()
-			throws NoSuchBeanDefinitionException {
+	protected CacheManager getInstanceInternal() throws NoSuchBeanDefinitionException {
 
 		try {
 			return new DefaultCacheManager(getCacheTime());
@@ -33,9 +31,7 @@ public class CacheManagerComponentFactory extends
 
 	private long getCacheTime() throws ConfigurationException {
 
-		if (cacheTime == -1)
-			cacheTime = container.getApplicationConfig()
-					.getCacheManagerMaxSize();
+		if (cacheTime == -1) cacheTime = container.getApplicationConfig().getCacheManagerMaxSize();
 
 		return this.cacheTime;
 	}

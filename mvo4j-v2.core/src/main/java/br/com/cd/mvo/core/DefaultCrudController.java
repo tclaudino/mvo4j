@@ -11,8 +11,7 @@ import br.com.cd.mvo.ApplicationKeys;
 import br.com.cd.mvo.Translator;
 import br.com.cd.mvo.bean.config.ControllerMetaData;
 
-public class DefaultCrudController<T> extends DefaultController<T> implements
-		CrudController<T>, ListenableController<T> {
+public class DefaultCrudController<T> extends DefaultController<T> implements CrudController<T> {
 
 	public static enum ViewMode {
 
@@ -23,9 +22,8 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 
 	private List<T> selectedEntityList = new ArrayList<T>();
 
-	public DefaultCrudController(Application application,
-			Translator translator, DataModelFactory modelFactory,
-			CrudService<T> service, ControllerMetaData metaData) {
+	public DefaultCrudController(Application application, Translator translator, DataModelFactory modelFactory, CrudService<T> service,
+			ControllerMetaData<T> metaData) {
 		super(application, translator, modelFactory, service, metaData);
 	}
 
@@ -62,10 +60,8 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 		}
 		boolean canUpdate = true;
 		for (ControllerListener<T> listener : this.getListeners()) {
-			canUpdate = listener.beforePersist(PersistEventType.UPDATE, entity,
-					getApplication());
-			if (!canUpdate)
-				break;
+			canUpdate = listener.beforePersist(PersistEventType.UPDATE, entity, getApplication());
+			if (!canUpdate) break;
 		}
 		if (canUpdate) {
 			logger.info("toEditMode");
@@ -74,12 +70,8 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 
 			viewMode = ViewMode.EDIT;
 		} else {
-			this.addTranslatedMessage(
-					MessageLevel.WARNING,
-					getTranslator().getMessage(
-							ApplicationKeys.Publisher.AcccessDenied.SUMARY),
-					getTranslator().getMessage(
-							ApplicationKeys.Publisher.AcccessDenied.UPDATE));
+			this.addTranslatedMessage(MessageLevel.WARNING, getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.SUMARY),
+					getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.UPDATE));
 		}
 	}
 
@@ -95,10 +87,8 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 
 		boolean canInsert = true;
 		for (ControllerListener<T> listener : this.getListeners()) {
-			canInsert = listener.beforePersist(PersistEventType.NEW, entity,
-					getApplication());
-			if (!canInsert)
-				break;
+			canInsert = listener.beforePersist(PersistEventType.NEW, entity, getApplication());
+			if (!canInsert) break;
 		}
 		if (canInsert) {
 			logger.info("toNewMode");
@@ -107,12 +97,8 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 
 			viewMode = ViewMode.NEW;
 		} else {
-			this.addTranslatedMessage(
-					MessageLevel.WARNING,
-					getTranslator().getMessage(
-							ApplicationKeys.Publisher.AcccessDenied.SUMARY),
-					getTranslator().getMessage(
-							ApplicationKeys.Publisher.AcccessDenied.INSERT));
+			this.addTranslatedMessage(MessageLevel.WARNING, getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.SUMARY),
+					getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.INSERT));
 		}
 	}
 
@@ -170,8 +156,7 @@ public class DefaultCrudController<T> extends DefaultController<T> implements
 	}
 
 	@Override
-	public final void setSelectedEntities(T selectedEntity,
-			@SuppressWarnings("unchecked") T... selectedEntities) {
+	public final void setSelectedEntities(T selectedEntity, @SuppressWarnings("unchecked") T... selectedEntities) {
 		this.selectedEntityList = Arrays.asList(selectedEntities);
 		this.selectedEntityList.add(selectedEntity);
 	}

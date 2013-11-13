@@ -26,15 +26,12 @@ public class ReflectionsScanner implements Scanner {
 	}
 
 	@Override
-	public Collection<Class<?>> scan(
-			Class<? extends Annotation> annotationType, String[] packagesToScan) {
+	public Collection<Class<?>> scan(Class<? extends Annotation> annotationType, String[] packagesToScan) {
 
-		ConfigurationBuilder configuration = new ConfigurationBuilder()
-				.filterInputsBy(getFilterBuilder(packagesToScan))
-				.setUrls(getURLs()).setScanners(new TypeAnnotationsScanner());
+		ConfigurationBuilder configuration = new ConfigurationBuilder().filterInputsBy(getFilterBuilder(packagesToScan)).setUrls(getURLs())
+				.setScanners(new TypeAnnotationsScanner());
 
-		return new Reflections(configuration)
-				.getTypesAnnotatedWith(annotationType);
+		return new Reflections(configuration).getTypesAnnotatedWith(annotationType);
 	}
 
 	protected FilterBuilder getFilterBuilder(String... packagesToScan) {
@@ -52,13 +49,11 @@ public class ReflectionsScanner implements Scanner {
 		addAll(urls, ClasspathHelper.forJavaClassPath());
 		addAll(urls, ClasspathHelper.forManifest());
 
-		ServletContext sc = (ServletContext) container.getContainerConfig()
-				.getLocalContainer();
+		ServletContext sc = (ServletContext) container.getContainerConfig().getLocalContainer();
 
 		if (container.getContainerConfig().getLocalContainer() instanceof ServletContext) {
 
-			if (sc.getResourcePaths("/WEB-INF/lib") != null)
-				addAll(urls, ClasspathHelper.forWebInfLib(sc));
+			if (sc.getResourcePaths("/WEB-INF/lib") != null) addAll(urls, ClasspathHelper.forWebInfLib(sc));
 
 			if (sc.getResourcePaths("/WEB-INF/classes") != null) {
 				URL tempURL = ClasspathHelper.forWebInfClasses(sc);
@@ -72,17 +67,14 @@ public class ReflectionsScanner implements Scanner {
 	}
 
 	private void addAll(Set<URL> urls, Set<URL> tempURLs) {
-		if (tempURLs != null && tempURLs.size() > 0)
-			urls.addAll(tempURLs);
+		if (tempURLs != null && tempURLs.size() > 0) urls.addAll(tempURLs);
 	}
 
 	@Override
-	public <T> Collection<Class<? extends T>> scanSubTypesOf(Class<T> type,
-			String[] packagesToScan) {
+	public <T> Collection<Class<? extends T>> scanSubTypesOf(Class<T> type, String[] packagesToScan) {
 
-		ConfigurationBuilder configuration = new ConfigurationBuilder()
-				.filterInputsBy(getFilterBuilder(packagesToScan))
-				.setUrls(getURLs()).setScanners(new SubTypesScanner());
+		ConfigurationBuilder configuration = new ConfigurationBuilder().filterInputsBy(getFilterBuilder(packagesToScan)).setUrls(getURLs())
+				.setScanners(new SubTypesScanner());
 
 		return new Reflections(configuration).getSubTypesOf(type);
 	}

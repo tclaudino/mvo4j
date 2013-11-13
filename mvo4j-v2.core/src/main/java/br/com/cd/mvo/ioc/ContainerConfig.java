@@ -24,7 +24,6 @@ public interface ContainerConfig<D> {
 
 	ContainerListener getContainerListener();
 
-	ContainerProvider<ContainerConfig<D>> getContainerProvider()
-			throws ConfigurationException;
+	ContainerProvider<ContainerConfig<D>> getContainerProvider() throws ConfigurationException;
 
 }

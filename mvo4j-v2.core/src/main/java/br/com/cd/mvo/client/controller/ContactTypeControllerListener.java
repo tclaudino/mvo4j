@@ -6,39 +6,38 @@ import br.com.cd.mvo.client.service.ContactTypeService;
 import br.com.cd.mvo.core.Controller;
 import br.com.cd.mvo.core.ControllerListener;
 import br.com.cd.mvo.core.PersistEventType;
+import br.com.cd.mvo.web.WebCrudController;
 import br.com.cd.mvo.web.bean.WebControllerBean;
 
 @WebControllerBean(name = "contactTypeBean", path = "contactType", targetEntity = ContactType.class, entityIdType = Integer.class)
-public class ContactTypeControllerListener implements
-		ControllerListener<ContactType> {
+public class ContactTypeControllerListener implements ControllerListener<ContactType> {
 
 	private ContactTypeService service;
 	private Controller<ContactType> controler;
+	private Controller<ContactType> controlerFromCtor;
 
-	public ContactTypeControllerListener(ContactTypeService service) {
+	public ContactTypeControllerListener(WebCrudController<ContactType> controler, ContactTypeService service) {
 
 		System.out.println(this.getClass().getName() + ".<init>");
 		this.service = service;
+		this.controlerFromCtor = controler;
 	}
 
 	@Override
-	public boolean beforePersist(PersistEventType event, ContactType entity,
-			Application application) {
+	public boolean beforePersist(PersistEventType event, ContactType entity, Application application) {
 
 		System.out.println(this.getClass().getName() + ".beforePersist");
 		return true;
 	}
 
 	@Override
-	public void postPersist(PersistEventType event, ContactType entity,
-			Application application) {
+	public void postPersist(PersistEventType event, ContactType entity, Application application) {
 
 		System.out.println(this.getClass().getName() + ".postPersist");
 	}
 
 	@Override
-	public void onPersistError(PersistEventType event, ContactType entity,
-			Application application, Throwable t) {
+	public void onPersistError(PersistEventType event, ContactType entity, Application application, Throwable t) {
 
 		System.out.println(this.getClass().getName() + ".onPersistError");
 	}
@@ -46,7 +45,8 @@ public class ContactTypeControllerListener implements
 	@Override
 	public void postConstruct(Controller<ContactType> controler) {
 
-		System.out.println(this.getClass().getName() + ".postConstruct");
+		System.out.println(this.getClass().getName() + ".postConstruct -> controler.equals(controller from constructor)? '"
+				+ controler.equals(controlerFromCtor) + "'");
 		this.controler = controler;
 	}
 

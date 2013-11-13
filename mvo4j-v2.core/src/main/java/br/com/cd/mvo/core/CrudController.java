@@ -32,8 +32,7 @@ public interface CrudController<T> extends Controller<T> {
 
 	void setSelectedEntityList(List<T> selectedEntityList);
 
-	void setSelectedEntities(T selectedEntity,
-			@SuppressWarnings("unchecked") T... selectedEntities);
+	void setSelectedEntities(T selectedEntity, @SuppressWarnings("unchecked") T... selectedEntities);
 
 	void onSelectCurrentEntity();
 

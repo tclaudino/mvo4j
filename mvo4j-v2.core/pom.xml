@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- * Copyright 2009 Red Hat, Inc. * * Red Hat licenses this file to you 
-	under the Apache License, version 2.0 * (the "License"); you may not use 
-	this file except in compliance with the * License. You may obtain a copy 
-	of the License at: * * http://www.apache.org/licenses/LICENSE-2.0 * * Unless 
-	required by applicable law or agreed to in writing, software * distributed 
-	under the License is distributed on an "AS IS" BASIS, WITHOUT * WARRANTIES 
-	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
+<!-- * Copyright 2009 Red Hat, Inc. * * Red Hat licenses this file to you
+	under the Apache License, version 2.0 * (the "License"); you may not use
+	this file except in compliance with the * License. You may obtain a copy
+	of the License at: * * http://www.apache.org/licenses/LICENSE-2.0 * * Unless
+	required by applicable law or agreed to in writing, software * distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT * WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for
 	the specific language governing permissions and limitations * under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -172,10 +172,10 @@
 						-sourceclasspath ${project.build.outputDirectory}
 						-nopackagediagram
 					</additionalparam>
-					<!-- -group "Low-level data representation" ${project.groupId}.buffer* 
-						-group "Central interface for all I/O operations" ${project.groupId}.channel* 
-						-group "Client &amp; Server bootstrapping utilities" ${project.groupId}.bootstrap* 
-						-group "Reusable I/O event interceptors" ${project.groupId}.handler* -group 
+					<!-- -group "Low-level data representation" ${project.groupId}.buffer*
+						-group "Central interface for all I/O operations" ${project.groupId}.channel*
+						-group "Client &amp; Server bootstrapping utilities" ${project.groupId}.bootstrap*
+						-group "Reusable I/O event interceptors" ${project.groupId}.handler* -group
 						"Miscellaneous" ${project.groupId}.logging*:${project.groupId}.util* -->
 					<encoding>UTF-8</encoding>
 					<locale>en_US</locale>
@@ -197,6 +197,17 @@
 					<windowTitle>${project.name} Source Xref (${project.version})</windowTitle>
 				</configuration>
 			</plugin>
+
+			<!-- grunt-js| yo -->
+			<!-- <plugin> <groupId>com.github.trecloux</groupId> <artifactId>yeoman-maven-plugin</artifactId>
+				<version>0.1</version> <executions> <execution> <goals> <goal>build</goal>
+				</goals> </execution> </executions> </plugin> <plugin> <artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version> <configuration> <webResources> <resource> <directory>yo/dist</directory>
+				</resource> </webResources> </configuration> </plugin> <plugin> <artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version> <configuration> <filesets> <fileset> <directory>yo/dist</directory>
+				</fileset> <fileset> <directory>yo/.tmp</directory> </fileset> <fileset>
+				<directory>yo/app/components</directory> </fileset> <fileset> <directory>yo/node_modules</directory>
+				</fileset> </filesets> </configuration> </plugin> -->
 		</plugins>
 	</reporting>
 
@@ -368,11 +379,6 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.8</version>
-		</dependency>
-		<dependency>
-			<groupId>com.thoughtworks.paranamer</groupId>
-			<artifactId>paranamer</artifactId>
-			<version>2.6</version>
 		</dependency>
 
 	</dependencies>

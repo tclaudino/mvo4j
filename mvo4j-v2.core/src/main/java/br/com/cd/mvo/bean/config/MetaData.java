@@ -1,6 +1,6 @@
-package br.com.cd.mvo.bean;
+package br.com.cd.mvo.bean.config;
 
-public interface PropertyMap {
+public interface MetaData {
 
 	public String get(String key);
 
@@ -24,6 +24,6 @@ public interface PropertyMap {
 
 	<T> Class<T> getAsType(String key, Class<T> returnType);
 
-	<T> Class<T> getAsType(String key, Class<T> returnType,
-			Class<T> defaultValue);
+	<T> Class<T> getAsType(String key, Class<T> returnType, Class<T> defaultValue);
+
 }

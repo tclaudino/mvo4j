@@ -1,12 +1,9 @@
 package br.com.cd.mvo.web.bean.config;
 
-import java.lang.annotation.Annotation;
-
-import br.com.cd.mvo.bean.PropertyMap;
 import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.web.bean.WebControllerBean;
+import br.com.cd.mvo.bean.config.MetaData;
 
-public class WebControllerMetaData extends ControllerMetaData {
+public class WebControllerMetaData<T> extends ControllerMetaData<T> {
 
 	public static final String BEAN_NAME_SUFFIX = "WebController";
 
@@ -16,7 +13,7 @@ public class WebControllerMetaData extends ControllerMetaData {
 	public static final String EDIT_VIEW_NAME = "editViewName";
 	public static final String CREATE_VIEW_NAME = "createViewName";
 
-	public WebControllerMetaData(PropertyMap adaptee) {
+	public WebControllerMetaData(MetaData adaptee) {
 		super(adaptee);
 	}
 
@@ -34,11 +31,6 @@ public class WebControllerMetaData extends ControllerMetaData {
 
 	public String path() {
 		return this.get(WebControllerMetaData.PATH);
-	}
-
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return WebControllerBean.class;
 	}
 
 	@Override

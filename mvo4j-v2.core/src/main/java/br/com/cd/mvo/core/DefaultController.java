@@ -2,7 +2,8 @@ package br.com.cd.mvo.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -15,14 +16,13 @@ import br.com.cd.mvo.Application;
 import br.com.cd.mvo.Application.MessageLevel;
 import br.com.cd.mvo.ApplicationKeys;
 import br.com.cd.mvo.Translator;
+import br.com.cd.mvo.bean.config.BeanMetaData;
 import br.com.cd.mvo.bean.config.ControllerMetaData;
 import br.com.cd.mvo.util.ParserUtils;
 
-public class DefaultController<T> extends AbstractPageableController implements
-		ListenableController<T> {
+public class DefaultController<T> extends AbstractPageableController implements Controller<T>, Listenable<ControllerListener<T>> {
 
-	protected Logger logger = LoggerFactory
-			.getLogger(this.getClass().getName());
+	protected Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
 	protected Application application;
 
@@ -30,11 +30,10 @@ public class DefaultController<T> extends AbstractPageableController implements
 
 	private DataModelFactory modelFactory;
 
-	protected ControllerMetaData metaData;
+	protected ControllerMetaData<T> metaData;
 
-	public DefaultController(Application application, Translator translator,
-			DataModelFactory modelFactory, CrudService<T> service,
-			ControllerMetaData metaData) {
+	public DefaultController(Application application, Translator translator, DataModelFactory modelFactory, CrudService<T> service,
+			ControllerMetaData<T> metaData) {
 
 		this.application = application;
 		this.translator = translator;
@@ -52,7 +51,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 
 	protected FilterManager FilterManager = new DefaultFilterManager<T>(this);
 
-	private List<ControllerListener<T>> listeners = new LinkedList<ControllerListener<T>>();
+	private Collection<ControllerListener<T>> listeners = new LinkedHashSet<ControllerListener<T>>();
 
 	@PostConstruct
 	@Override
@@ -83,7 +82,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 	}
 
 	@Override
-	public List<ControllerListener<T>> getListeners() {
+	public Collection<ControllerListener<T>> getListeners() {
 		return listeners;
 	}
 
@@ -93,7 +92,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 	}
 
 	@Override
-	public ControllerMetaData getBeanMetaData() {
+	public BeanMetaData<T> getBeanMetaData() {
 		return metaData;
 	}
 
@@ -178,8 +177,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 		boolean canSave = true;
 		try {
 			for (ControllerListener<T> listener : this.getListeners()) {
-				canSave = listener.beforePersist(PersistEventType.NEW, entity,
-						application);
+				canSave = listener.beforePersist(PersistEventType.NEW, entity, application);
 			}
 			if (!canSave) {
 				return;
@@ -197,8 +195,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 			// TODO: message
 			logger.error(ex.getMessage(), ex);
 			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.onPersistError(PersistEventType.NEW, entity,
-						application, ex);
+				listener.onPersistError(PersistEventType.NEW, entity, application, ex);
 			}
 		}
 	}
@@ -221,8 +218,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 		boolean canSave = true;
 		try {
 			for (ControllerListener<T> listener : this.getListeners()) {
-				canSave = listener.beforePersist(PersistEventType.UPDATE,
-						entity, application);
+				canSave = listener.beforePersist(PersistEventType.UPDATE, entity, application);
 			}
 			if (!canSave) {
 				return;
@@ -230,8 +226,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 			getService().update(entity);
 
 			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.postPersist(PersistEventType.UPDATE, entity,
-						application);
+				listener.postPersist(PersistEventType.UPDATE, entity, application);
 			}
 			refreshList();
 
@@ -241,8 +236,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 			// TODO: message
 			logger.error(ex.getMessage(), ex);
 			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.onPersistError(PersistEventType.UPDATE, entity,
-						application, ex);
+				listener.onPersistError(PersistEventType.UPDATE, entity, application, ex);
 			}
 		}
 	}
@@ -273,8 +267,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 		for (T entity : entityList) {
 			try {
 				for (ControllerListener<T> listener : this.getListeners()) {
-					canDelete = listener.beforePersist(PersistEventType.EDIT,
-							entity, application);
+					canDelete = listener.beforePersist(PersistEventType.EDIT, entity, application);
 				}
 				if (!canDelete) {
 					return;
@@ -282,16 +275,14 @@ public class DefaultController<T> extends AbstractPageableController implements
 				getService().delete(entity);
 
 				for (ControllerListener<T> listener : this.getListeners()) {
-					listener.postPersist(PersistEventType.EDIT, entity,
-							application);
+					listener.postPersist(PersistEventType.EDIT, entity, application);
 				}
 			} catch (Exception ex) {
 				addErrorMessage(PersistEventType.UPDATE, ex);
 				// TODO: message
 				logger.error(ex.getMessage(), ex);
 				for (ControllerListener<T> listener : this.getListeners()) {
-					listener.onPersistError(PersistEventType.UPDATE, entity,
-							application, ex);
+					listener.onPersistError(PersistEventType.UPDATE, entity, application, ex);
 				}
 			}
 		}
@@ -307,9 +298,8 @@ public class DefaultController<T> extends AbstractPageableController implements
 		return currentEntity;
 	}
 
-	@SuppressWarnings("unchecked")
 	public final Class<T> getEntityClass() {
-		return (Class<T>) this.metaData.targetEntity();
+		return this.metaData.targetEntity();
 	}
 
 	@Override
@@ -327,9 +317,8 @@ public class DefaultController<T> extends AbstractPageableController implements
 			// TODO MESSAGE
 			logger.error("-> Exception", e);
 
-			this.addTranslatedMessage(MessageLevel.ERROR,
-					ApplicationKeys.Entity.NOT_FOUND_SUMARY,
-					ApplicationKeys.Entity.NOT_FOUND_MSG, getName());
+			this.addTranslatedMessage(MessageLevel.ERROR, ApplicationKeys.Entity.NOT_FOUND_SUMARY, ApplicationKeys.Entity.NOT_FOUND_MSG,
+					getName());
 		}
 	}
 
@@ -338,8 +327,7 @@ public class DefaultController<T> extends AbstractPageableController implements
 		if (entityList == null) {
 
 			if (getInitialPageSize() > -1) {
-				entityList = getService().getRepository().findList(getOffset(),
-						getPageSize());
+				entityList = getService().getRepository().findList(getOffset(), getPageSize());
 			} else {
 				entityList = getService().getRepository().findList();
 			}
@@ -357,11 +345,9 @@ public class DefaultController<T> extends AbstractPageableController implements
 	}
 
 	protected final String translateIfNecessary(String name, String translateKey) {
-		if (java.util.regex.Pattern.matches("\\{[A-Za-z0-9\\.]+\\}",
-				translateKey)) {
+		if (java.util.regex.Pattern.matches("\\{[A-Za-z0-9\\.]+\\}", translateKey)) {
 			translateKey = translateKey.replaceAll("[\\{\\}]", "");
-			name = ParserUtils.assertNotEquals(
-					this.getTranslator().getMessage(translateKey), name, name);
+			name = ParserUtils.assertNotEquals(this.getTranslator().getMessage(translateKey), name, name);
 		}
 		return name;
 	}
@@ -386,49 +372,36 @@ public class DefaultController<T> extends AbstractPageableController implements
 
 		switch (executeType) {
 		case NEW:
-			addTranslatedMessage(MessageLevel.INFO,
-					ApplicationKeys.PersistAction.SAVE_SUCCESS_SUMARY,
-					ApplicationKeys.PersistAction.SAVE_SUCCESS_MESSAGE,
-					getName());
+			addTranslatedMessage(MessageLevel.INFO, ApplicationKeys.PersistAction.SAVE_SUCCESS_SUMARY,
+					ApplicationKeys.PersistAction.SAVE_SUCCESS_MESSAGE, getName());
 			break;
 		case UPDATE:
-			addTranslatedMessage(MessageLevel.INFO,
-					ApplicationKeys.PersistAction.UPDATE_SUCCESS_SUMARY,
-					ApplicationKeys.PersistAction.UPDATE_SUCCESS_MESSAGE,
-					getName());
+			addTranslatedMessage(MessageLevel.INFO, ApplicationKeys.PersistAction.UPDATE_SUCCESS_SUMARY,
+					ApplicationKeys.PersistAction.UPDATE_SUCCESS_MESSAGE, getName());
 			break;
 		case EDIT:
-			addTranslatedMessage(MessageLevel.INFO,
-					ApplicationKeys.PersistAction.DELETE_SUCCESS_SUMARY,
-					ApplicationKeys.PersistAction.DELETE_SUCCESS_MESSAGE,
-					getName());
+			addTranslatedMessage(MessageLevel.INFO, ApplicationKeys.PersistAction.DELETE_SUCCESS_SUMARY,
+					ApplicationKeys.PersistAction.DELETE_SUCCESS_MESSAGE, getName());
 			break;
 		default:
 			break;
 		}
 	}
 
-	private void addErrorMessage(PersistEventType executeType,
-			Exception exception) {
+	private void addErrorMessage(PersistEventType executeType, Exception exception) {
 
 		switch (executeType) {
 		case NEW:
-			addTranslatedMessage(MessageLevel.ERROR,
-					ApplicationKeys.PersistAction.SAVE_ERROR_SUMARY,
-					ApplicationKeys.PersistAction.SAVE_ERROR_MESSAGE,
-					getName(), exception.getMessage());
+			addTranslatedMessage(MessageLevel.ERROR, ApplicationKeys.PersistAction.SAVE_ERROR_SUMARY,
+					ApplicationKeys.PersistAction.SAVE_ERROR_MESSAGE, getName(), exception.getMessage());
 			break;
 		case UPDATE:
-			addTranslatedMessage(MessageLevel.ERROR,
-					ApplicationKeys.PersistAction.UPDATE_ERROR_SUMARY,
-					ApplicationKeys.PersistAction.UPDATE_ERROR_MESSAGE,
-					getName(), exception.getMessage());
+			addTranslatedMessage(MessageLevel.ERROR, ApplicationKeys.PersistAction.UPDATE_ERROR_SUMARY,
+					ApplicationKeys.PersistAction.UPDATE_ERROR_MESSAGE, getName(), exception.getMessage());
 			break;
 		case EDIT:
-			addTranslatedMessage(MessageLevel.ERROR,
-					ApplicationKeys.PersistAction.DELETE_ERROR_SUMARY,
-					ApplicationKeys.PersistAction.DELETE_ERROR_MESSAGE,
-					getName(), exception.getMessage());
+			addTranslatedMessage(MessageLevel.ERROR, ApplicationKeys.PersistAction.DELETE_ERROR_SUMARY,
+					ApplicationKeys.PersistAction.DELETE_ERROR_MESSAGE, getName(), exception.getMessage());
 			break;
 		default:
 			break;
@@ -436,24 +409,20 @@ public class DefaultController<T> extends AbstractPageableController implements
 	}
 
 	@Override
-	public final void addTranslatedMessage(MessageLevel level,
-			String msgSumary, String msgDetail, Object... args) {
+	public final void addTranslatedMessage(MessageLevel level, String msgSumary, String msgDetail, Object... args) {
 
 		String message = this.getTranslator().getMessage(msgDetail, args);
 		switch (level) {
 		case WARNING:
-			application.addWarningMessage(
-					this.getTranslator().getMessage(msgSumary), message);
+			application.addWarningMessage(this.getTranslator().getMessage(msgSumary), message);
 			logger.warn(message);
 			break;
 		case ERROR:
-			application.addErrorMessage(
-					this.getTranslator().getMessage(msgSumary), message);
+			application.addErrorMessage(this.getTranslator().getMessage(msgSumary), message);
 			logger.error(message);
 			break;
 		case INFO:
-			application.addInfoMessage(
-					this.getTranslator().getMessage(msgSumary), message);
+			application.addInfoMessage(this.getTranslator().getMessage(msgSumary), message);
 			logger.info(message);
 			break;
 		}
@@ -482,10 +451,9 @@ public class DefaultController<T> extends AbstractPageableController implements
 		return this.metaData.initialPageSize();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public T newEntity() throws InstantiationException, IllegalAccessException {
-		return (T) metaData.targetEntity().newInstance();
+		return metaData.targetEntity().newInstance();
 	}
 
 	@Override
@@ -496,5 +464,11 @@ public class DefaultController<T> extends AbstractPageableController implements
 	@Override
 	public FilterManager getFilter() {
 		return FilterManager;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<? extends ControllerListener> getListenerType() {
+		return ControllerListener.class;
 	}
 }

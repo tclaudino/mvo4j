@@ -1,12 +1,8 @@
 package br.com.cd.mvo.bean.config;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 
-import br.com.cd.mvo.bean.PropertyMap;
-import br.com.cd.mvo.bean.PropertyMapAdapter;
-
-public abstract class BeanMetaData extends PropertyMapAdapter {
+public interface BeanMetaData<T> extends MetaData {
 
 	public static final String NAME = "name";
 	public static final String SCOPE = "scope";
@@ -20,60 +16,47 @@ public abstract class BeanMetaData extends PropertyMapAdapter {
 	public static final String PERSISTENCE_FACTORY_QUALIFIER = "persistenceFactoryQualifier";
 	public static final String PERSISTENCE_PROVIDER = "persistenceProvider";
 
-	public BeanMetaData(PropertyMap adaptee) {
-		super(adaptee);
-	}
+	public String get(String key);
 
-	public String name() {
-		return this.get(BeanMetaData.NAME);
-	}
+	public String get(String key, String defaultValue);
 
-	public String scope() {
-		return this.get(SCOPE);
-	}
+	public <R> R get(String key, Class<R> returnType);
 
-	public int initialPageSize() {
-		return this.getInt(BeanMetaData.INITIAL_PAGE_SIZE);
-	}
+	public <R> R get(String key, Class<R> returnType, R defaultValue);
 
-	public String messageBundle() {
-		return this.get(BeanMetaData.MESSAGE_BUNDLE);
-	}
+	<R> Class<R> getAsType(String key, Class<R> returnType);
 
-	public Class<?> targetEntity() {
-		return (Class<?>) this.get(BeanMetaData.TARGET_ENTITY, Class.class);
-	}
+	<R> Class<R> getAsType(String key, Class<R> returnType, Class<R> defaultValue);
 
-	public Class<Serializable> entityIdType() {
-		return (Class<Serializable>) this.getAsType(
-				BeanMetaData.ENTITY_ID_TYPE, Serializable.class);
-	}
+	int getInt(String key);
 
-	public String makeList() {
-		return this.get(MAKE_LIST);
-	}
+	int getInt(String key, int defaultValue);
 
-	public String lazyProperties() {
-		return this.get(LAZY_PROPERTIES);
-	}
+	boolean getBoolean(String key);
 
-	public String persistenceManagerQualifier() {
-		return this.get(PERSISTENCE_FACTORY_QUALIFIER);
-	}
+	boolean getBoolean(String key, boolean defaultValue);
 
-	public Class<?> persistenceProvider() {
-		return (Class<?>) this.get(BeanMetaData.PERSISTENCE_PROVIDER,
-				Class.class);
-	}
+	double getDouble(String key);
 
-	@Override
-	public String toString() {
-		return "[name()=" + name() + ", targetEntity()=" + targetEntity()
-				+ ", entityIdType=" + entityIdType() + "]";
-	}
+	double getDouble(String key, double defaultValue);
 
-	public abstract Class<? extends Annotation> annotationType();
+	Class<?> persistenceProvider();
 
-	public abstract String getBeanNameSuffix();
+	String persistenceManagerQualifier();
 
+	String lazyProperties();
+
+	String makeList();
+
+	Class<Serializable> entityIdType();
+
+	Class<T> targetEntity();
+
+	String messageBundle();
+
+	int initialPageSize();
+
+	String scope();
+
+	String name();
 }

@@ -11,8 +11,7 @@ public abstract class AbstractComponentScanner implements ComponentScanner {
 
 	protected Collection<BeanMetaDataFactory<?, ?>> metaDataFactories = new LinkedHashSet<>();
 
-	public AbstractComponentScanner(String packageToScan,
-			String... packagesToScan) {
+	public AbstractComponentScanner(String packageToScan, String... packagesToScan) {
 		List<String> asList = Arrays.asList(packagesToScan);
 		asList.add(packageToScan);
 		this.packagesToScan = asList.toArray(new String[asList.size()]);
@@ -28,8 +27,7 @@ public abstract class AbstractComponentScanner implements ComponentScanner {
 	}
 
 	public AbstractComponentScanner(List<String> packageToScan) {
-		this.packagesToScan = packageToScan.toArray(new String[packageToScan
-				.size()]);
+		this.packagesToScan = packageToScan.toArray(new String[packageToScan.size()]);
 	}
 
 	@Override

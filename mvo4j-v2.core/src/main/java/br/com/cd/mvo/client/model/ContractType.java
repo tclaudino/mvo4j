@@ -13,8 +13,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "contract_types", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "TYPE" }),
+@Table(name = "contract_types", uniqueConstraints = { @UniqueConstraint(columnNames = { "TYPE" }),
 		@UniqueConstraint(columnNames = { "ACRONYM" }) })
 public class ContractType {
 
@@ -91,8 +90,7 @@ public class ContractType {
 			return false;
 		}
 		ContractType other = (ContractType) object;
-		if ((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))) {
+		if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
 			return false;
 		}
 		return true;

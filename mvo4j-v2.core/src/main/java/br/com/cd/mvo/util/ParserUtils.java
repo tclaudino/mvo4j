@@ -7,13 +7,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 public class ParserUtils {
 
-	private static final Logger LOG = Logger.getLogger(ParserUtils.class
-			.getName());
+	static Logger looger = Logger.getLogger(ParserUtils.class);
 
 	public static <T> T parseObject(Class<T> returnType, Object value) {
 		return ParserUtils.parseObject(returnType, value, null);
@@ -21,36 +20,27 @@ public class ParserUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T parseObject(Object value, T defaultValue) {
-		return ParserUtils.parseObject((Class<T>) defaultValue.getClass(),
-				value, defaultValue);
+		return ParserUtils.parseObject((Class<T>) defaultValue.getClass(), value, defaultValue);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T parseObject(Class<T> returnType, Object value,
-			T defaultValue) {
+	public static <T> T parseObject(Class<T> returnType, Object value, T defaultValue) {
+		looger.trace(StringUtils.format("parse to '{0'} value '{1}', defaultValue '{2}'", returnType, value, defaultValue));
 		if (value != null) {
 			if (returnType.equals(String.class)) {
-				return (T) ParserUtils
-						.parseString(value, (String) defaultValue);
+				return (T) ParserUtils.parseString(value, (String) defaultValue);
 			} else if (returnType.equals(Date.class)) {
 				return (T) ParserUtils.parseDate(value, (Date) defaultValue);
 			} else if (returnType.equals(Integer.class)) {
-				return (T) new Integer(ParserUtils.parseInt(value,
-						(Integer) (defaultValue != null ? defaultValue : 0)));
+				return (T) new Integer(ParserUtils.parseInt(value, (Integer) (defaultValue != null ? defaultValue : 0)));
 			} else if (returnType.equals(Double.class)) {
-				return (T) new Double(ParserUtils.parseDouble(value,
-						(Double) (defaultValue != null ? defaultValue : 0D)));
+				return (T) new Double(ParserUtils.parseDouble(value, (Double) (defaultValue != null ? defaultValue : 0D)));
 			} else if (returnType.equals(Float.class)) {
-				return (T) new Float(ParserUtils.parseFloat(value,
-						(Float) (defaultValue != null ? defaultValue : 0F)));
+				return (T) new Float(ParserUtils.parseFloat(value, (Float) (defaultValue != null ? defaultValue : 0F)));
 			} else if (returnType.equals(Long.class)) {
-				return (T) new Long(ParserUtils.parseLong(value,
-						(Long) (defaultValue != null ? defaultValue : 0L)));
+				return (T) new Long(ParserUtils.parseLong(value, (Long) (defaultValue != null ? defaultValue : 0L)));
 			} else if (returnType.equals(Boolean.class)) {
-				return (T) new Boolean(
-						ParserUtils.parseBoolean(value,
-								(Boolean) (defaultValue != null ? defaultValue
-										: false)));
+				return (T) new Boolean(ParserUtils.parseBoolean(value, (Boolean) (defaultValue != null ? defaultValue : false)));
 			} else if (returnType.isAssignableFrom(value.getClass())) {
 				return (T) value;
 			}
@@ -59,12 +49,13 @@ public class ParserUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T[] parserAll(Class<T> returnType, String... tokens) {
-		List<T> list = new ArrayList<T>(tokens.length);
-		for (int i = 0; i < tokens.length; i++) {
-			list.add(ParserUtils.parseObject(returnType, tokens[i]));
+	public static <R, T> R[] parserAll(Class<R> returnType, T... values) {
+		looger.trace(StringUtils.format("parse to '{0}' values '{1}'", returnType, values));
+		List<R> list = new ArrayList<R>(values.length);
+		for (int i = 0; i < values.length; i++) {
+			list.add(ParserUtils.parseObject(returnType, values[i]));
 		}
-		return (T[]) list.toArray();
+		return (R[]) list.toArray();
 	}
 
 	public static String parseString(Object value) {
@@ -72,9 +63,7 @@ public class ParserUtils {
 	}
 
 	public static String parseString(Object value, String defaultValue) {
-		System.out.println(ParserUtils.class.getName()
-				+ ".parseString, value: " + value + ", default: "
-				+ defaultValue);
+		looger.trace(StringUtils.format("parsing to string value '{0}' defaultValue '{1}'", value, defaultValue));
 
 		if (value != null) {
 			if (value instanceof Date) {
@@ -92,16 +81,14 @@ public class ParserUtils {
 	}
 
 	public static String parseString(Date value, DateFormat dateFormat) {
+		looger.trace(StringUtils.format("parsing date to string value '{0}' dateFormat '{1}'", value, dateFormat));
 		if (value != null) {
-			dateFormat = dateFormat != null ? dateFormat : DateFormat
-					.getInstance();
+			dateFormat = dateFormat != null ? dateFormat : DateFormat.getInstance();
 
 			try {
 				return dateFormat.format(value);
 			} catch (Exception e) {
-				LOG.log(Level.WARNING,
-						"ParseUtils.parseDate() Exception, Value: {0}, Message: {1}",
-						new Object[] { value, e.getMessage() });
+				looger.error(StringUtils.format("can't parse date to string value '{0}' with dateFormat '{1}'", value, dateFormat), e);
 			}
 		}
 		return "";
@@ -112,24 +99,24 @@ public class ParserUtils {
 	}
 
 	public static int parseInt(Object value, int defaultValue) {
+		looger.trace(StringUtils.format("parsing to int value '{0}' defaultValue '{1}'", value, defaultValue));
 		if (value != null) {
 			String newValue = ParserUtils.parseString(value).trim();
 			if (!"".equals(newValue)) {
 				try {
 					if (value instanceof Double) {
-						return (int) Double.parseDouble(newValue);
+						return (int) ParserUtils.parseDouble(newValue);
 					}
 					if (value instanceof Float) {
-						return (int) Float.parseFloat(newValue);
+						return (int) ParserUtils.parseFloat(newValue);
 					}
 					if (value instanceof Long) {
-						return (int) Long.parseLong(newValue);
+						return (int) ParserUtils.parseLong(newValue);
 					}
-					return Integer.parseInt(newValue);
+					return new Integer(newValue);
 				} catch (Exception e) {
-					LOG.log(Level.WARNING,
-							"ParseUtils.parseInt() Exception, Value: {0}, Message: {1}",
-							new Object[] { value, e.getMessage() });
+					looger.error(StringUtils.format("can't parse to int value '{0}', returning default value '{1}'", value, defaultValue),
+							e);
 				}
 			}
 		}
@@ -141,19 +128,17 @@ public class ParserUtils {
 	}
 
 	public static boolean parseBoolean(Object value, boolean defaultValue) {
+		looger.trace(StringUtils.format("parsing to boolean value '{0}' defaultValue '{1}'", value, defaultValue));
 		if (value != null) {
-			String newValue = ParserUtils.parseString(value).trim();
-			newValue = "0".equals(newValue) ? "false"
-					: "1".equals(newValue) ? "true" : newValue;
+			String newValue = ParserUtils.parseString(value).trim().toLowerCase();
+			newValue = "0".equals(newValue) ? "false" : "1".equals(newValue) ? "true" : newValue;
 
-			if ("false".equals(newValue.toLowerCase())
-					|| "true".equals(newValue.toLowerCase())) {
+			if ("false".equals(newValue) || "true".equals(newValue)) {
 				try {
-					return Boolean.parseBoolean(newValue);
+					return new Boolean(newValue);
 				} catch (Exception e) {
-					LOG.log(Level.WARNING,
-							"ParseUtils.parseBoolean Exception, Message: {0}",
-							e.getMessage());
+					looger.error(
+							StringUtils.format("can't parse to boolean value '{0}', returning default value '{1}'", value, defaultValue), e);
 				}
 			}
 		}
@@ -168,15 +153,15 @@ public class ParserUtils {
 	}
 
 	public static double parseDouble(Object value, double defaultValue) {
+		looger.trace(StringUtils.format("parsing to double value '{0}' defaultValue '{1}'", value, defaultValue));
 		if (value != null) {
 			String newValue = ParserUtils.parseString(value).trim();
 			if (!"".equals(newValue)) {
 				try {
-					return Double.parseDouble(newValue);
+					return new Double(newValue);
 				} catch (Exception e) {
-					LOG.log(Level.WARNING,
-							"ParseUtils.parseDouble() Exception, Value: {0}, Message: {1}",
-							new Object[] { value, e.getMessage() });
+					looger.error(
+							StringUtils.format("can't parse to double value '{0}', returning default value '{1}'", value, defaultValue), e);
 				}
 			}
 		}
@@ -188,15 +173,15 @@ public class ParserUtils {
 	}
 
 	public static float parseFloat(Object value, float defaultValue) {
+		looger.trace(StringUtils.format("parsing to float value '{0}' defaultValue '{1}'", value, defaultValue));
 		if (value != null) {
 			String newValue = ParserUtils.parseString(value).trim();
 			if (!"".equals(newValue)) {
 				try {
-					return Float.parseFloat(newValue);
+					return new Float(newValue);
 				} catch (Exception e) {
-					LOG.log(Level.WARNING,
-							"ParserUtils.parseFloat() Exception, Value: {0}, Message: {1}",
-							new Object[] { value, e.getMessage() });
+					looger.error(
+							StringUtils.format("can't parse to float value '{0}', returning default value '{1}'", value, defaultValue), e);
 				}
 			}
 		}
@@ -208,15 +193,15 @@ public class ParserUtils {
 	}
 
 	public static long parseLong(Object value, long defaultValue) {
+		looger.trace(StringUtils.format("parsing to long value '{0}' defaultValue '{1}'", value, defaultValue));
 		if (value != null) {
 			String newValue = ParserUtils.parseString(value).trim();
 			if (!"".equals(newValue)) {
 				try {
-					return Long.parseLong(newValue);
+					return new Long(newValue);
 				} catch (Exception e) {
-					// LOG.log(Level.WARNING,
-					// "IdemParse.parseLong() Exception, Value: {0}, Message: {1}",
-					// new Object[] { value, e.getMessage() });
+					looger.error(StringUtils.format("can't parse to long value '{0}', returning default value '{1}'", value, defaultValue),
+							e);
 				}
 			}
 		}
@@ -232,28 +217,24 @@ public class ParserUtils {
 	}
 
 	public static Date parseDate(Object value, Date defaultValue) {
-		return ParserUtils.parseDate(value, DateFormat.getInstance(),
-				defaultValue);
+		return ParserUtils.parseDate(value, DateFormat.getInstance(), defaultValue);
 	}
 
-	public static Date parseDate(Object value, DateFormat dateFormat,
-			Date defaultValue) {
+	public static Date parseDate(Object value, DateFormat dateFormat, Date defaultValue) {
+		looger.trace(StringUtils.format("parsing to date value '{0}' defaultValue '{0}' dateFormat '{1}'", value, dateFormat, defaultValue));
 		if (value != null) {
 			if (value instanceof Date) {
 				return (Date) value;
 			}
-			dateFormat = dateFormat != null ? dateFormat : DateFormat
-					.getInstance();
+			dateFormat = dateFormat != null ? dateFormat : DateFormat.getInstance();
 
 			String newValue = ParserUtils.parseString(value);
 			if (!"".equals(newValue)) {
 				try {
 					return dateFormat.parse(newValue);
 				} catch (Exception e) {
-					LOG.log(Level.WARNING,
-							ParserUtils.class.getName()
-									+ ".parseDate() Exception, Value: {0}, Message: {1}",
-							new Object[] { value, e.getMessage() });
+					looger.error(StringUtils.format("can't parse date value '{0}' with dateFormat '{1}', returning default value '{2}'",
+							value, dateFormat, defaultValue), e);
 				}
 			}
 		}

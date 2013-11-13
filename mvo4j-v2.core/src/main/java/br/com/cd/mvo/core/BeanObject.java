@@ -2,7 +2,7 @@ package br.com.cd.mvo.core;
 
 import br.com.cd.mvo.bean.config.BeanMetaData;
 
-public interface BeanObject {
+public interface BeanObject<T> {
 
-	BeanMetaData getBeanMetaData();
+	BeanMetaData<T> getBeanMetaData();
 }

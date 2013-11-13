@@ -21,8 +21,7 @@ public interface Translator {
 
 	String getMessage(String messagePrefix, String messageKey, Object... args);
 
-	String getMessage(String messagePrefix, String messageKey, Locale locale,
-			Object... args);
+	String getMessage(String messagePrefix, String messageKey, Locale locale, Object... args);
 
 	String getBundleName();
 

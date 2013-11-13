@@ -7,8 +7,7 @@ import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
 
-public class KeyValuesProviderComponentFactory extends
-		AbstractComponentFactory<KeyValuesProvider> {
+public class KeyValuesProviderComponentFactory extends AbstractComponentFactory<KeyValuesProvider> {
 
 	private CacheManager cacheManager;
 	private long cacheTime = -1;
@@ -20,13 +19,10 @@ public class KeyValuesProviderComponentFactory extends
 	}
 
 	@Override
-	protected KeyValuesProvider getInstanceInternal()
-			throws NoSuchBeanDefinitionException {
+	protected KeyValuesProvider getInstanceInternal() throws NoSuchBeanDefinitionException {
 
 		try {
-			return new DefaultKeyValuesProvider(getCacheManager(),
-					getCacheTime(), getDefaultLocale(),
-					getSuportedLocaleLanguages());
+			return new DefaultKeyValuesProvider(getCacheManager(), getCacheTime(), getDefaultLocale(), getSuportedLocaleLanguages());
 		} catch (ConfigurationException e) {
 			throw new NoSuchBeanDefinitionException(e);
 		}
@@ -38,32 +34,26 @@ public class KeyValuesProviderComponentFactory extends
 	}
 
 	private long getCacheTime() throws ConfigurationException {
-		if (cacheTime == -1)
-			cacheTime = container.getApplicationConfig().getI18nCacheTime();
+		if (cacheTime == -1) cacheTime = container.getApplicationConfig().getI18nCacheTime();
 
 		return cacheTime;
 	}
 
 	private String[] getSuportedLocaleLanguages() throws ConfigurationException {
-		if (suportedLocaleLanguages == null)
-			suportedLocaleLanguages = container.getApplicationConfig()
-					.getSuportedLocales();
+		if (suportedLocaleLanguages == null) suportedLocaleLanguages = container.getApplicationConfig().getSuportedLocales();
 
 		return suportedLocaleLanguages;
 	}
 
 	private String getDefaultLocale() throws ConfigurationException {
-		if (defaultLocale == null)
-			defaultLocale = container.getApplicationConfig().getDefaultLocale();
+		if (defaultLocale == null) defaultLocale = container.getApplicationConfig().getDefaultLocale();
 
 		return defaultLocale;
 	}
 
 	private CacheManager getCacheManager() throws NoSuchBeanDefinitionException {
 
-		if (cacheManager == null)
-			cacheManager = container.getBean(CacheManager.BEAN_NAME,
-					CacheManager.class);
+		if (cacheManager == null) cacheManager = container.getBean(CacheManager.BEAN_NAME, CacheManager.class);
 
 		return cacheManager;
 	}

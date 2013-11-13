@@ -69,8 +69,7 @@ public class DefaultCacheManager implements CacheManager {
 				try {
 					return (List<?>) obj;
 				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.OFF,
-							e.getMessage());
+					Logger.getLogger(getClass().getName()).log(Level.OFF, e.getMessage());
 				}
 			}
 		}

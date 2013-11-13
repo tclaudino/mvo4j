@@ -1,13 +1,13 @@
 package br.com.cd.mvo.util;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class StringUtils {
 
 	public static String cammelCase(String txt) {
-		return isNullOrEmpty(txt) ? "" : txt.substring(0, 1).toLowerCase()
-				+ txt.substring(1);
+		return isNullOrEmpty(txt) ? "" : txt.substring(0, 1).toLowerCase() + txt.substring(1);
 	}
 
 	public static boolean containsAll(String value, String[] sequence) {
@@ -72,8 +72,7 @@ public class StringUtils {
 		value = value.replaceAll("//", "/");
 		value = "/".equals(value) ? "" : value;
 
-		return value.startsWith("/") ? (value.length() > 1 ? value.substring(1)
-				: "") : value;
+		return value.startsWith("/") ? (value.length() > 1 ? value.substring(1) : "") : value;
 	}
 
 	public static String removeEndSlash(String value) {
@@ -83,8 +82,7 @@ public class StringUtils {
 		value = value.replaceAll("//", "/");
 		value = "/".equals(value) ? "" : value;
 
-		return value.endsWith("/") ? ((value.length() - 1 > -1) ? value
-				.substring(0, value.length() - 1) : "") : value;
+		return value.endsWith("/") ? ((value.length() - 1 > -1) ? value.substring(0, value.length() - 1) : "") : value;
 	}
 
 	public static String addBeginInvSlash(String value) {
@@ -102,8 +100,7 @@ public class StringUtils {
 		value = value.replaceAll("\\\\", "\\");
 		value = "\\".equals(value) ? "" : value;
 
-		return value.startsWith("\\") ? (value.length() > 1 ? value
-				.substring(1) : "") : value;
+		return value.startsWith("\\") ? (value.length() > 1 ? value.substring(1) : "") : value;
 	}
 
 	public static String removeEndInvSlash(String value) {
@@ -113,28 +110,23 @@ public class StringUtils {
 		value = value.replaceAll("\\\\", "\\");
 		value = "\\".equals(value) ? "" : value;
 
-		return value.endsWith("\\") ? ((value.length() - 1 > -1) ? value
-				.substring(0, value.length() - 1) : "") : value;
+		return value.endsWith("\\") ? ((value.length() - 1 > -1) ? value.substring(0, value.length() - 1) : "") : value;
 	}
 
 	public static String getBeforeSlash(String value) {
-		value = StringUtils.removeEndSlash(StringUtils
-				.removeBeginSlash((value != null ? value : "")));
+		value = StringUtils.removeEndSlash(StringUtils.removeBeginSlash((value != null ? value : "")));
 
 		if (value.contains("/")) {
-			value = ((value.indexOf("/") > 0) ? value.substring(0,
-					value.indexOf("/")) : value).replaceAll("/", "");
+			value = ((value.indexOf("/") > 0) ? value.substring(0, value.indexOf("/")) : value).replaceAll("/", "");
 		}
 		return value;
 	}
 
 	public static String getBeforeInvSlash(String value) {
-		value = StringUtils.removeEndSlash(StringUtils
-				.removeBeginSlash((value != null ? value : "")));
+		value = StringUtils.removeEndSlash(StringUtils.removeBeginSlash((value != null ? value : "")));
 
 		if (value.contains("\\")) {
-			value = ((value.indexOf("\\") > 0) ? value.substring(0,
-					value.indexOf("\\")) : value).replaceAll("\\", "");
+			value = ((value.indexOf("\\") > 0) ? value.substring(0, value.indexOf("\\")) : value).replaceAll("\\", "");
 		}
 		return value;
 	}
@@ -152,8 +144,7 @@ public class StringUtils {
 		return arrayContains(val, array, true);
 	}
 
-	public static boolean arrayContains(String val, String[] array,
-			boolean caseSensitive) {
+	public static boolean arrayContains(String val, String[] array, boolean caseSensitive) {
 		for (String arrayValue : array) {
 			if (caseSensitive) {
 				if (arrayValue.equals(val)) {
@@ -178,33 +169,15 @@ public class StringUtils {
 	}
 
 	public static String removeHtmlTags(String text) {
-		text = java.util.regex.Pattern
-				.compile("<i>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("</i>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("<b>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("</b>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("<u>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("</u>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("<br>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("<br/>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
-		text = java.util.regex.Pattern
-				.compile("<[^>]+>", java.util.regex.Pattern.CASE_INSENSITIVE)
-				.matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("<i>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("</i>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("<b>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("</b>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("<u>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("</u>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("<br>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("<br/>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
+		text = java.util.regex.Pattern.compile("<[^>]+>", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text).replaceAll("");
 
 		return (text);
 	}
@@ -278,19 +251,15 @@ public class StringUtils {
 	}
 
 	public static String escapeUrl(String text) {
-		text = removeHtmlTags(text).replace("http://", "http")
-				.replace("https://", "https").replace("ftp://", "ftp")
-				.replace("#", "").replace("@", "").replace("?", "")
-				.replace("¿", "").replace("!", "").replace("¡", "")
-				.replace("/", "_").replace("\n", "\\n");
+		text = removeHtmlTags(text).replace("http://", "http").replace("https://", "https").replace("ftp://", "ftp").replace("#", "")
+				.replace("@", "").replace("?", "").replace("¿", "").replace("!", "").replace("¡", "").replace("/", "_")
+				.replace("\n", "\\n");
 		return text;
 	}
 
 	public static String toUrlFormat(String url) {
-		url = removeHtmlTags(url).replace("\\", "/").replace("\\", "/")
-				.replace("//", "/").replace("//", "/").replace("&", "-e-")
-				.replace("'", "").replace("`", "").replace("´", "")
-				.replace("'", "").replace("´", "");
+		url = removeHtmlTags(url).replace("\\", "/").replace("\\", "/").replace("//", "/").replace("//", "/").replace("&", "-e-")
+				.replace("'", "").replace("`", "").replace("´", "").replace("'", "").replace("´", "");
 		return escapeJavaScript(clearString(url));
 	}
 
@@ -303,26 +272,29 @@ public class StringUtils {
 	}
 
 	public static String format(String s, Object... arguments) {
+
+		String temp = "_REPLACE_" + new Date().getTime();
+
 		int i = 0;
 		while (i < arguments.length) {
 			String delimiter = "{" + i + "}";
 			while (s.contains(delimiter)) {
-				s = s.replace(delimiter, ParserUtils.parseString(arguments[i]));
+				s = s.replace(delimiter, ("" + arguments[i]).replaceAll("[{]", "{" + temp));
 			}
 			i++;
 		}
-		return s;
+		return s.replaceAll(temp, "");
 	}
 
 	private static Map<String, Double> uniqueStrings = new HashMap<>();
 
 	public static String getUniqueString(String className) {
 
-		String _className = org.apache.commons.lang3.StringUtils
-				.capitalize(className);
+		String _className = org.apache.commons.lang3.StringUtils.capitalize(className);
 
-		String classNameKey = _className.substring(_className.lastIndexOf("."))
-				.replaceAll("[$&#@.]", "_").replaceAll("__", "_");
+		int index = _className.lastIndexOf(".");
+		String classNameKey = (index > -1 ? _className.substring(_className.lastIndexOf(".")) : className).replaceAll("[$&#@.]", "_")
+				.replaceAll("__", "_");
 
 		synchronized (uniqueStrings) {
 			if (uniqueStrings.containsKey(classNameKey)) {

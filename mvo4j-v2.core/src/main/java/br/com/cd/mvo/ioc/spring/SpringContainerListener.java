@@ -9,8 +9,7 @@ public class SpringContainerListener extends DefaultContainerListener {
 
 	// private ConfigurableApplicationContext parentApplicationContext;
 
-	public SpringContainerListener(
-			ConfigurableApplicationContext parentApplicationContext) {
+	public SpringContainerListener(ConfigurableApplicationContext parentApplicationContext) {
 		// this.parentApplicationContext = parentApplicationContext;
 	}
 

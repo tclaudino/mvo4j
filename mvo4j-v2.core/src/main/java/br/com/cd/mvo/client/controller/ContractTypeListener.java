@@ -10,30 +10,26 @@ import br.com.cd.mvo.orm.Repository;
 
 public class ContractTypeListener implements ControllerListener<ContractType> {
 
-	public ContractTypeListener(Repository<ContractType> service,
-			Translator translator, Application messenger) {
+	public ContractTypeListener(Repository<ContractType> service, Translator translator, Application application) {
 
 		System.out.println(this.getClass().getName() + ".<init>");
 	}
 
 	@Override
-	public boolean beforePersist(PersistEventType event, ContractType entity,
-			Application application) {
+	public boolean beforePersist(PersistEventType event, ContractType entity, Application application) {
 
 		System.out.println(this.getClass().getName() + ".beforePersist");
 		return true;
 	}
 
 	@Override
-	public void postPersist(PersistEventType event, ContractType entity,
-			Application application) {
+	public void postPersist(PersistEventType event, ContractType entity, Application application) {
 
 		System.out.println(this.getClass().getName() + ".postPersist");
 	}
 
 	@Override
-	public void onPersistError(PersistEventType event, ContractType entity,
-			Application application, Throwable t) {
+	public void onPersistError(PersistEventType event, ContractType entity, Application application, Throwable t) {
 
 		System.out.println(this.getClass().getName() + ".onPersistError");
 	}
@@ -41,7 +37,8 @@ public class ContractTypeListener implements ControllerListener<ContractType> {
 	@Override
 	public void postConstruct(Controller<ContractType> controler) {
 
-		System.out.println(this.getClass().getName() + ".postConstruct");
+		System.out.println(this.getClass().getName() + ".postConstruct -> is ContractTypeController? '"
+				+ ContractTypeController.class.isAssignableFrom(controler.getClass()) + "'");
 	}
 
 	@Override

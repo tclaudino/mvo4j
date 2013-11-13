@@ -155,8 +155,7 @@ public class ClientContact {
 			return false;
 		}
 		ClientContact other = (ClientContact) object;
-		if ((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))) {
+		if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
 			return false;
 		}
 		return true;

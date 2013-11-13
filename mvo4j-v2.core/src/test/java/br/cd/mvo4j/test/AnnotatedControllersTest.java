@@ -31,10 +31,9 @@ import br.com.cd.mvo.ioc.ContainerProvider;
 import br.com.cd.mvo.web.WebCrudController;
 import br.com.cd.mvo.web.ioc.WebApplicationConfig;
 
-//@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/webapp/WEB-INF/applicationContext.xml" }, loader = MockServletContextWebContextLoader.class)
 @WebAppConfiguration("src/test/webapp")
-public class ControllerTest extends AbstractTestNGSpringContextTests {
+public class AnnotatedControllersTest extends AbstractTestNGSpringContextTests {
 
 	@Autowired
 	ConfigurableWebApplicationContext wac; // cached
@@ -50,17 +49,14 @@ public class ControllerTest extends AbstractTestNGSpringContextTests {
 	public void setUp() {
 
 		servletContext.setContextPath("mvo-test");
-		servletContext.setInitParameter("br.com.cd.PROVIDER_CLASS",
-				"br.com.cd.mvo.web.ioc.spring.SpringWebContainerProvider");
-		servletContext.setInitParameter("br.com.cd.PACKAGES_TO_SCAN",
-				"br.com.cd.mvo.client");
+		servletContext.setInitParameter("br.com.cd.PROVIDER_CLASS", "br.com.cd.mvo.web.ioc.spring.SpringWebContainerProvider");
+		servletContext.setInitParameter("br.com.cd.PACKAGES_TO_SCAN", "br.com.cd.mvo.client");
 
 		WebApplicationConfig config = new WebApplicationConfig(servletContext);
 
 		try {
 
-			ContainerProvider<ContainerConfig<ServletContext>> provider = config
-					.getContainerProvider();
+			ContainerProvider<ContainerConfig<ServletContext>> provider = config.getContainerProvider();
 
 			container = provider.getContainer(config);
 			container.start();
@@ -83,24 +79,22 @@ public class ControllerTest extends AbstractTestNGSpringContextTests {
 
 		ContactTypeControllerListener controller = null;
 		try {
-			controller = container.getBean("contactTypeBean",
-					ContactTypeControllerListener.class);
+			controller = container.getBean("contactTypeBean", ContactTypeControllerListener.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
 			fail(e.getMessage(), e);
 		}
-		assertTrue(
-				WebCrudController.class.isAssignableFrom(controller.getClass()),
+		assertTrue(WebCrudController.class.isAssignableFrom(controller.getClass()),
 				"Instance for ContactTypeControllerListener not is instance of 'WebCrudController'");
 
+		@SuppressWarnings("unchecked")
 		WebCrudController<ContactType> webCrudController = (WebCrudController<ContactType>) controller;
 
 		webCrudController.toNewMode();
 		ContactType entity = new ContactType("TYPE_TEST");
 		webCrudController.save(entity);
 
-		assertNotNull(webCrudController.getService().getRepository()
-				.find("type", "TYPE_TEST"));
+		assertNotNull(webCrudController.getService().getRepository().find("type", "TYPE_TEST"));
 	}
 
 	@Test(groups = "client1")
@@ -118,6 +112,7 @@ public class ControllerTest extends AbstractTestNGSpringContextTests {
 		assertTrue(CrudService.class.isAssignableFrom(service.getClass()),
 				"Instance for ContactTypeService not is instance of 'CrudService'");
 
+		@SuppressWarnings("unchecked")
 		CrudService<ContactType> crudService = (CrudService<ContactType>) service;
 
 		ContactType entity = new ContactType("TYPE_TEST");
@@ -143,16 +138,15 @@ public class ControllerTest extends AbstractTestNGSpringContextTests {
 
 		ContractTypeController controller = null;
 		try {
-			controller = container.getBean("contractTypeBean",
-					ContractTypeController.class);
+			controller = container.getBean("contractTypeBean", ContractTypeController.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
 			fail(e.getMessage(), e);
 		}
-		assertTrue(
-				WebCrudController.class.isAssignableFrom(controller.getClass()),
+		assertTrue(WebCrudController.class.isAssignableFrom(controller.getClass()),
 				"Instance for ContractTypeController not is instance of 'WebCrudController'");
 
+		@SuppressWarnings("unchecked")
 		WebCrudController<ContractType> webController = (WebCrudController<ContractType>) controller;
 
 		ContractType entity = new ContractType();
@@ -161,7 +155,7 @@ public class ControllerTest extends AbstractTestNGSpringContextTests {
 		entity.setPeriodicity(2);
 		webController.save(entity);
 
-		webController.toPreviousPage();
+		webController.toFirstPage();
 		assertNotNull(webController.getCurrentEntity());
 	}
 
@@ -171,8 +165,8 @@ public class ControllerTest extends AbstractTestNGSpringContextTests {
 	public void testContractTypeListener() {
 
 		try {
-			ContractTypeListener controller = container
-					.getBean(ContractTypeListener.class);
+			@SuppressWarnings("unused")
+			ContractTypeListener controller = container.getBean(ContractTypeListener.class);
 
 		} catch (NoSuchBeanDefinitionException e) {
 			fail(e.getMessage(), e);

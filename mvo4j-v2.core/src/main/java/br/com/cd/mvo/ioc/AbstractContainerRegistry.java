@@ -5,21 +5,19 @@ import java.util.Collection;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.ioc.scan.ComponentScanner;
 import br.com.cd.mvo.ioc.scan.ComponentScannerFactory;
-import br.com.cd.mvo.ioc.scan.ControllerListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.scan.ReflectionsScanner;
-import br.com.cd.mvo.ioc.scan.RepositoryListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.scan.Scanner;
-import br.com.cd.mvo.ioc.scan.ServiceListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.support.ApplicationComponentFactory;
 import br.com.cd.mvo.ioc.support.CacheManagerComponentFactory;
 import br.com.cd.mvo.ioc.support.DataModelComponentFactory;
 import br.com.cd.mvo.ioc.support.KeyValuesProviderComponentFactory;
 import br.com.cd.mvo.ioc.support.RepositoryBeanFactory;
+import br.com.cd.mvo.ioc.support.RepositoryListenerBeanFactory;
 import br.com.cd.mvo.ioc.support.ServiceBeanFactory;
+import br.com.cd.mvo.ioc.support.ServiceListenerBeanFactory;
 import br.com.cd.mvo.ioc.support.TranslatorComponentFactory;
 
-public abstract class AbstractContainerRegistry<C extends Container> implements
-		ContainerRegistry<C> {
+public abstract class AbstractContainerRegistry<C extends Container> implements ContainerRegistry<C> {
 
 	protected C container;
 
@@ -48,43 +46,31 @@ public abstract class AbstractContainerRegistry<C extends Container> implements
 
 	private void registerLocalComponentes() {
 
-		container
-				.registerBean(new CacheManagerComponentFactory(this.container));
-		container.registerBean(new KeyValuesProviderComponentFactory(
-				this.container));
+		container.registerBean(new CacheManagerComponentFactory(this.container));
+		container.registerBean(new KeyValuesProviderComponentFactory(this.container));
 		container.registerBean(new TranslatorComponentFactory(this.container));
 		container.registerBean(new ApplicationComponentFactory(this.container));
 		container.registerBean(new DataModelComponentFactory(this.container));
 
-		container
-				.addComponentFactory(new RepositoryBeanFactory(this.container));
+		container.addComponentFactory(new RepositoryBeanFactory(this.container));
+		container.addComponentFactory(new RepositoryListenerBeanFactory(this.container));
 		container.addComponentFactory(new ServiceBeanFactory(this.container));
+		container.addComponentFactory(new ServiceListenerBeanFactory(this.container));
 
-		container.registerBean(Proxifier.BEAN_NAME, container
-				.getApplicationConfig().getProxifierClass());
+		container.registerBean(Proxifier.BEAN_NAME, container.getApplicationConfig().getProxifierClass());
 	}
 
 	private void deepRegister() throws ConfigurationException {
 
-		ComponentScannerFactory scannerFactory = container
-				.getComponentScannerFactory();
+		ComponentScannerFactory scannerFactory = container.getComponentScannerFactory();
 
-		Collection<ComponentScanner> scanners = scannerFactory
-				.getComponentScanners();
+		Collection<ComponentScanner> scanners = scannerFactory.getComponentScanners();
 
 		for (ComponentScanner componentScanner : scanners) {
 
-			for (ComponentFactory<BeanFactory<?, ?>> cf : container
-					.getComponentFactories()) {
-				componentScanner.addMetaDataFactories(cf.getInstance()
-						.getBeanMetaDataFactory());
+			for (ComponentFactory<BeanFactory<?, ?>> cf : container.getComponentFactories()) {
+				componentScanner.addMetaDataFactories(cf.getInstance().getBeanMetaDataFactory());
 			}
-			componentScanner
-					.addMetaDataFactories(new RepositoryListenerMetaDataFactory());
-			componentScanner
-					.addMetaDataFactories(new ServiceListenerMetaDataFactory());
-			componentScanner
-					.addMetaDataFactories(new ControllerListenerMetaDataFactory());
 
 			componentScanner.scan(scanner, this.container);
 		}

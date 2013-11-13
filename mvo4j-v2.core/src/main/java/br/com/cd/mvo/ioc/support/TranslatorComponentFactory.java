@@ -7,8 +7,7 @@ import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
 
-public class TranslatorComponentFactory extends
-		AbstractComponentFactory<Translator> {
+public class TranslatorComponentFactory extends AbstractComponentFactory<Translator> {
 
 	private KeyValuesProvider keyValuesProvider;
 	private String defaultLocale;
@@ -20,12 +19,10 @@ public class TranslatorComponentFactory extends
 	}
 
 	@Override
-	protected Translator getInstanceInternal()
-			throws NoSuchBeanDefinitionException {
+	protected Translator getInstanceInternal() throws NoSuchBeanDefinitionException {
 
 		try {
-			return new DefaultTranslator(getDefaultLocale(), getBundleName(),
-					getKeyValuesProvider(), getSuportedLocaleLanguages());
+			return new DefaultTranslator(getDefaultLocale(), getBundleName(), getKeyValuesProvider(), getSuportedLocaleLanguages());
 		} catch (ConfigurationException e) {
 			throw new NoSuchBeanDefinitionException(e);
 		}
@@ -37,33 +34,26 @@ public class TranslatorComponentFactory extends
 	}
 
 	private String getDefaultLocale() throws ConfigurationException {
-		if (defaultLocale == null)
-			defaultLocale = container.getApplicationConfig().getDefaultLocale();
+		if (defaultLocale == null) defaultLocale = container.getApplicationConfig().getDefaultLocale();
 
 		return defaultLocale;
 	}
 
 	private String getBundleName() throws ConfigurationException {
-		if (bundleName == null)
-			bundleName = container.getApplicationConfig().getBundleName();
+		if (bundleName == null) bundleName = container.getApplicationConfig().getBundleName();
 
 		return bundleName;
 	}
 
 	private String[] getSuportedLocaleLanguages() throws ConfigurationException {
-		if (suportedLocaleLanguages == null)
-			suportedLocaleLanguages = container.getApplicationConfig()
-					.getSuportedLocales();
+		if (suportedLocaleLanguages == null) suportedLocaleLanguages = container.getApplicationConfig().getSuportedLocales();
 
 		return suportedLocaleLanguages;
 	}
 
-	private KeyValuesProvider getKeyValuesProvider()
-			throws NoSuchBeanDefinitionException {
+	private KeyValuesProvider getKeyValuesProvider() throws NoSuchBeanDefinitionException {
 
-		if (keyValuesProvider == null)
-			keyValuesProvider = container.getBean(KeyValuesProvider.BEAN_NAME,
-					KeyValuesProvider.class);
+		if (keyValuesProvider == null) keyValuesProvider = container.getBean(KeyValuesProvider.BEAN_NAME, KeyValuesProvider.class);
 
 		return keyValuesProvider;
 	}

@@ -13,31 +13,24 @@ import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.orm.JpaRepository;
 import br.com.cd.mvo.orm.support.AbstractRepositoryFactory;
 
-public class JpaRepositoryFactory
-		extends
-		AbstractRepositoryFactory<EntityManagerFactory, EntityManager, JpaRepository<?>> {
+public class JpaRepositoryFactory extends AbstractRepositoryFactory<EntityManagerFactory, EntityManager, JpaRepository<?>> {
 
 	public static final Class<? extends Annotation> PERSISTENCE_TYPE_ANNOTATION = Entity.class;
 	public static final Class<? extends Annotation> PERSISTENCE_IDENTIFIER_ANNOTATION = Id.class;
 
 	public JpaRepositoryFactory(Container container) {
-		super(container, PERSISTENCE_TYPE_ANNOTATION,
-				PERSISTENCE_IDENTIFIER_ANNOTATION);
+		super(container, PERSISTENCE_TYPE_ANNOTATION, PERSISTENCE_IDENTIFIER_ANNOTATION);
 	}
 
 	@Override
-	protected EntityManager createPersistenceManager(
-			EntityManagerFactory factory) throws NoSuchBeanDefinitionException {
+	protected EntityManager createPersistenceManager(EntityManagerFactory factory) throws NoSuchBeanDefinitionException {
 
 		return factory.createEntityManager();
 	}
 
 	@Override
-	public JpaRepository<?> getInstance(String persistenceManagerQualifier,
-			Class<?> entityClass, RepositoryMetaData metaData) {
+	public <T> JpaRepository<T> getInstance(RepositoryMetaData<T> metaData) {
 
-		return new JpaRepositoryImpl<>(
-				this.getPersistenceManager(persistenceManagerQualifier),
-				entityClass, metaData);
+		return new JpaRepositoryImpl<>(this.getPersistenceManager(metaData.persistenceManagerQualifier()), metaData);
 	}
 }

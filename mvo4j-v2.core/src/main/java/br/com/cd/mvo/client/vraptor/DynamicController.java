@@ -39,8 +39,7 @@ public class DynamicController {
 
 	private Result result;
 
-	public DynamicController(Container beanFactory, Application application,
-			Translator translator, Result result) {
+	public DynamicController(Container beanFactory, Application application, Translator translator, Result result) {
 		this.beanFactory = beanFactory;
 		this.application = application;
 		this.translator = translator;
@@ -52,22 +51,17 @@ public class DynamicController {
 	@PostConstruct
 	public void setServletConfig() {
 
-		ServletContext servletContext = (ServletContext) beanFactory
-				.getContainerConfig().getLocalContainer();
-		prefix = WebUtil.getInitParameter(servletContext,
-				VIEW_PREFIX_PARAM_NAME, VIEW_PREFIX_DEFAULT_VALUE);
+		ServletContext servletContext = (ServletContext) beanFactory.getContainerConfig().getLocalContainer();
+		prefix = WebUtil.getInitParameter(servletContext, VIEW_PREFIX_PARAM_NAME, VIEW_PREFIX_DEFAULT_VALUE);
 		prefix = StringUtils.addBeginSlash(StringUtils.addEndSlash(prefix));
 
-		sufix = WebUtil.getInitParameter(servletContext, VIEW_SUFIX_PARAM_NAME,
-				VIEW_SUFIX_DEFAULT_VALUE);
+		sufix = WebUtil.getInitParameter(servletContext, VIEW_SUFIX_PARAM_NAME, VIEW_SUFIX_DEFAULT_VALUE);
 
-		System.out.println("CrudController.initializing...\nprefix: " + prefix
-				+ ", sufix: " + sufix + ", contextPath: "
+		System.out.println("CrudController.initializing...\nprefix: " + prefix + ", sufix: " + sufix + ", contextPath: "
 				+ servletContext.getContextPath());
 
 		synchronized (attributesSetted) {
-			if (attributesSetted)
-				return;
+			if (attributesSetted) return;
 
 			this.attributesSetted = true;
 
@@ -81,8 +75,7 @@ public class DynamicController {
 
 	@SuppressWarnings("rawtypes")
 	@Get("/{viewName}/list/{pageNumber}/{pageSize}")
-	public void list(@PathVariable("viewName") String viewName,
-			@PathVariable("pageNumber") Integer pageNumber,
+	public void list(@PathVariable("viewName") String viewName, @PathVariable("pageNumber") Integer pageNumber,
 			@PathVariable("pageSize") Integer pageSize) {
 
 		System.out.println("CrudController.list, viewName : " + viewName);
@@ -107,18 +100,15 @@ public class DynamicController {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Get("/{viewName}/edit/{id}")
-	public void edit(@PathVariable("viewName") String viewName,
-			@PathVariable("id") Serializable entityId) {
+	public void edit(@PathVariable("viewName") String viewName, @PathVariable("id") Serializable entityId) {
 
 		System.out.println("CrudController.edit, viewName : " + viewName);
 
 		if (beanFactory.containsBean(viewName)) {
-			CrudController bean = (CrudController) beanFactory
-					.getBean(viewName);
+			CrudController bean = (CrudController) beanFactory.getBean(viewName);
 
 			bean.toEditMode();
-			if (entityId.getClass().isAssignableFrom(
-					bean.getBeanMetaData().entityIdType())) {
+			if (entityId.getClass().isAssignableFrom(bean.getBeanMetaData().entityIdType())) {
 				bean.setCurrentEntity(entityId);
 
 				System.out.println("bean: " + bean);
@@ -130,8 +120,7 @@ public class DynamicController {
 
 				return;
 			} else {
-				LoggerFactory.getLogger(DynamicController.class).error(
-						"@TODO: insert message here");
+				LoggerFactory.getLogger(DynamicController.class).error("@TODO: insert message here");
 			}
 		}
 

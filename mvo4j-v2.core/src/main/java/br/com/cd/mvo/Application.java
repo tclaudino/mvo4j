@@ -12,16 +12,13 @@ public interface Application {
 
 	public String BEAN_NAME = Application.class.getName();
 
-	ApplicationMessage.ThrowableMessage addErrorMessage(Exception ex,
-			String summary);
+	ApplicationMessage.ThrowableMessage addErrorMessage(Exception ex, String summary);
 
-	ApplicationMessage.ThrowableMessage addErrorMessage(Exception ex,
-			String summary, String clientId);
+	ApplicationMessage.ThrowableMessage addErrorMessage(Exception ex, String summary, String clientId);
 
 	ApplicationMessage addErrorMessage(String summary, String detail);
 
-	ApplicationMessage addErrorMessage(String summary, String detail,
-			String clientId);
+	ApplicationMessage addErrorMessage(String summary, String detail, String clientId);
 
 	List<ApplicationMessage> addErrorMessages(Map<String, String> messages);
 
@@ -29,13 +26,11 @@ public interface Application {
 
 	ApplicationMessage addInfoMessage(String msgSumary, String msgDetail);
 
-	ApplicationMessage addInfoMessage(String msgSumary, String msgDetail,
-			String clientId);
+	ApplicationMessage addInfoMessage(String msgSumary, String msgDetail, String clientId);
 
 	ApplicationMessage addWarningMessage(String msgSumary, String msgDetail);
 
-	ApplicationMessage addWarningMessage(String msgSumary, String msgDetail,
-			String clientId);
+	ApplicationMessage addWarningMessage(String msgSumary, String msgDetail, String clientId);
 
 	List<ApplicationMessage> addWarningMessages(Map<String, String> messages);
 
@@ -43,8 +38,7 @@ public interface Application {
 
 	ApplicationMessage addSuccessMessage(String msgSumary, String msgDetail);
 
-	ApplicationMessage addSuccessMessage(String msgSumary, String msgDetail,
-			String clientId);
+	ApplicationMessage addSuccessMessage(String msgSumary, String msgDetail, String clientId);
 
 	List<ApplicationMessage> getAllMessages();
 

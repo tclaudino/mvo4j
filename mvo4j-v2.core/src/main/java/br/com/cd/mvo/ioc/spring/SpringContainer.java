@@ -33,9 +33,7 @@ public class SpringContainer extends AbstractContainer {
 	private Map<String, BeanDefinition> beanDefinitionList = new TreeMap<>();
 	private SpringContainerRegistry registry = new SpringContainerRegistry(this);
 
-	public SpringContainer(
-			ConfigurableApplicationContext parentApplicationContext,
-			ContainerConfig<?> applicationConfig) {
+	public SpringContainer(ConfigurableApplicationContext parentApplicationContext, ContainerConfig<?> applicationConfig) {
 		super(applicationConfig);
 		this.applicationContext = parentApplicationContext;
 	}
@@ -72,8 +70,7 @@ public class SpringContainer extends AbstractContainer {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T getBean(String beanName, Class<T> beanType)
-			throws NoSuchBeanDefinitionException {
+	public <T> T getBean(String beanName, Class<T> beanType) throws NoSuchBeanDefinitionException {
 
 		Object bean;
 		try {
@@ -90,8 +87,7 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	public <T> Collection<T> getBeansOfType(Class<T> beanType)
-			throws NoSuchBeanDefinitionException {
+	public <T> Collection<T> getBeansOfType(Class<T> beanType) throws NoSuchBeanDefinitionException {
 		try {
 			return applicationContext.getBeansOfType(beanType).values();
 		} catch (BeansException e) {
@@ -100,8 +96,7 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	public <T> T getBean(Class<T> beanType)
-			throws NoSuchBeanDefinitionException {
+	public <T> T getBean(Class<T> beanType) throws NoSuchBeanDefinitionException {
 		try {
 			return applicationContext.getBean(beanType);
 		} catch (BeansException e) {
@@ -113,8 +108,7 @@ public class SpringContainer extends AbstractContainer {
 	public void registerSingleton(String beanName, Object singletonObject) {
 
 		if (applicationContext.isActive()) {
-			applicationContext.getBeanFactory().registerSingleton(beanName,
-					singletonObject);
+			applicationContext.getBeanFactory().registerSingleton(beanName, singletonObject);
 		} else {
 			this.singletonObjects.put(beanName, singletonObject);
 		}
@@ -126,11 +120,9 @@ public class SpringContainer extends AbstractContainer {
 	}
 
 	@Override
-	protected void doRegisterBean(String beanName, String scope,
-			Class<?> beanType) {
+	protected void doRegisterBean(String beanName, String scope, Class<?> beanType) {
 
-		AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(
-				beanType);
+		AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(beanType);
 		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
 		definition.setPrimary(true);
 		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -138,17 +130,15 @@ public class SpringContainer extends AbstractContainer {
 		ScopeMetadata scopeMetadata = new ScopeMetadata();
 		scopeMetadata.setScopeName(scope);
 
-		BeanDefinitionHolder definitionHolder = applyScopeOn(
-				new BeanDefinitionHolder(definition, beanName), scopeMetadata);
+		BeanDefinitionHolder definitionHolder = applyScopeOn(new BeanDefinitionHolder(definition, beanName), scopeMetadata);
 		doRegisterBean(definitionHolder);
 	}
 
 	private void doRegisterBean(BeanDefinitionHolder definitionHolder) {
 
 		if (applicationContext.isActive()) {
-			BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder,
-					(BeanDefinitionRegistry) applicationContext
-							.getBeanFactory());
+			BeanDefinitionReaderUtils
+					.registerBeanDefinition(definitionHolder, (BeanDefinitionRegistry) applicationContext.getBeanFactory());
 		} else {
 			beanDefinitionHolderList.add(definitionHolder);
 		}
@@ -156,31 +146,27 @@ public class SpringContainer extends AbstractContainer {
 		/*
 		 * ConstructorArgumentValues constructorArgumentValues = new
 		 * ConstructorArgumentValues();
-		 * 
+		 *
 		 * ConstructorArgumentValues.ValueHolder holder = new
 		 * DymanicValueHolder();
-		 * 
+		 *
 		 * constructorArgumentValues.addGenericArgumentValue(holder);
-		 * 
+		 *
 		 * definition.setConstructorArgumentValues(constructorArgumentValues);
 		 */
 	}
 
-	private BeanDefinitionHolder applyScopeOn(BeanDefinitionHolder definition,
-			ScopeMetadata scopeMetadata) {
+	private BeanDefinitionHolder applyScopeOn(BeanDefinitionHolder definition, ScopeMetadata scopeMetadata) {
 		String scope = scopeMetadata.getScopeName();
 		ScopedProxyMode proxyMode = scopeMetadata.getScopedProxyMode();
 		definition.getBeanDefinition().setScope(scope);
-		if (BeanDefinition.SCOPE_SINGLETON.equals(scope)
-				|| BeanDefinition.SCOPE_PROTOTYPE.equals(scope)
+		if (BeanDefinition.SCOPE_SINGLETON.equals(scope) || BeanDefinition.SCOPE_PROTOTYPE.equals(scope)
 				|| proxyMode.equals(ScopedProxyMode.NO)) {
 			return definition;
 		} else {
-			boolean proxyTargetClass = proxyMode
-					.equals(ScopedProxyMode.TARGET_CLASS);
-			return ScopedProxyUtils.createScopedProxy(definition,
-					(BeanDefinitionRegistry) applicationContext
-							.getBeanFactory(), proxyTargetClass);
+			boolean proxyTargetClass = proxyMode.equals(ScopedProxyMode.TARGET_CLASS);
+			return ScopedProxyUtils.createScopedProxy(definition, (BeanDefinitionRegistry) applicationContext.getBeanFactory(),
+					proxyTargetClass);
 		}
 	}
 
@@ -192,8 +178,7 @@ public class SpringContainer extends AbstractContainer {
 		// Ordered.LOWEST_PRECEDENCE);
 
 		if (applicationContext.isActive()) {
-			((BeanDefinitionRegistry) applicationContext.getBeanFactory())
-					.registerBeanDefinition(beanName, definition);
+			((BeanDefinitionRegistry) applicationContext.getBeanFactory()).registerBeanDefinition(beanName, definition);
 		} else {
 			beanDefinitionList.put(beanName, definition);
 		}
@@ -208,20 +193,15 @@ public class SpringContainer extends AbstractContainer {
 	@Override
 	protected void doDeepRegister() {
 
-		for (Map.Entry<String, BeanDefinition> entry : this.beanDefinitionList
-				.entrySet()) {
-			((BeanDefinitionRegistry) applicationContext.getBeanFactory())
-					.registerBeanDefinition(entry.getKey(), entry.getValue());
+		for (Map.Entry<String, BeanDefinition> entry : this.beanDefinitionList.entrySet()) {
+			((BeanDefinitionRegistry) applicationContext.getBeanFactory()).registerBeanDefinition(entry.getKey(), entry.getValue());
 		}
 		for (Map.Entry<String, Object> entry : this.singletonObjects.entrySet()) {
-			applicationContext.getBeanFactory().registerSingleton(
-					entry.getKey(), entry.getValue());
+			applicationContext.getBeanFactory().registerSingleton(entry.getKey(), entry.getValue());
 		}
 		for (BeanDefinitionHolder beanDefinitionHolder : this.beanDefinitionHolderList) {
-			BeanDefinitionReaderUtils.registerBeanDefinition(
-					beanDefinitionHolder,
-					(BeanDefinitionRegistry) applicationContext
-							.getBeanFactory());
+			BeanDefinitionReaderUtils.registerBeanDefinition(beanDefinitionHolder,
+					(BeanDefinitionRegistry) applicationContext.getBeanFactory());
 		}
 	}
 }

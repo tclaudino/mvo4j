@@ -7,7 +7,7 @@ import br.com.cd.mvo.Application;
 import br.com.cd.mvo.Application.MessageLevel;
 import br.com.cd.mvo.Translator;
 
-public interface Controller<T> extends PageableController, BeanObject {
+public interface Controller<T> extends PageableController, BeanObject<T> {
 
 	CrudService<T> getService();
 
@@ -55,6 +55,5 @@ public interface Controller<T> extends PageableController, BeanObject {
 
 	FilterManager getFilter();
 
-	void addTranslatedMessage(MessageLevel level, String msgSumary,
-			String msgDetail, Object... args);
+	void addTranslatedMessage(MessageLevel level, String msgSumary, String msgDetail, Object... args);
 }

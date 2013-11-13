@@ -23,14 +23,12 @@ import br.com.cd.mvo.orm.OrderBy;
 import br.com.cd.mvo.orm.support.AbstractSQLRepository;
 import br.com.cd.mvo.util.ParserUtils;
 
-public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
-		JpaRepository<T> {
+public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements JpaRepository<T> {
 
 	private final EntityManager em;
 
-	public JpaRepositoryImpl(EntityManager em, Class<T> entityClass,
-			RepositoryMetaData metaData) {
-		super(entityClass, metaData);
+	public JpaRepositoryImpl(EntityManager em, RepositoryMetaData<T> metaData) {
+		super(metaData);
 		this.em = em;
 	}
 
@@ -67,8 +65,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	@Override
 	public T find(Map<String, Object> map, LikeCritirionEnum likeCritiria) {
 
-		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this
-				.applyLikeMap(map, likeCritiria);
+		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this.applyLikeMap(map, likeCritiria);
 
 		CriteriaQuery<T> criteria = createCriteriaQuery();
 		like(em.getCriteriaBuilder(), criteria, newMap);
@@ -77,25 +74,20 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	}
 
 	@Override
-	public List<T> findList(Integer firstResult, Integer maxResults,
-			OrderBy orderBy) {
+	public List<T> findList(Integer firstResult, Integer maxResults, OrderBy orderBy) {
 
-		CriteriaQuery<T> cq = orderBy != null ? createCriteriaQuery(orderBy)
-				: createCriteriaQuery();
+		CriteriaQuery<T> cq = orderBy != null ? createCriteriaQuery(orderBy) : createCriteriaQuery();
 		return findList(cq, firstResult, maxResults);
 	}
 
 	@Override
-	public List<T> findList(Map<String, Object> map,
-			LikeCritirionEnum likeCritiria, Integer firstResult,
-			Integer maxResults, OrderBy orderBy) {
+	public List<T> findList(Map<String, Object> map, LikeCritirionEnum likeCritiria, Integer firstResult, Integer maxResults,
+			OrderBy orderBy) {
 
 		CriteriaQuery<T> cq = createCriteriaQuery();
-		if (orderBy != null)
-			addOrder(em.getCriteriaBuilder(), cq, orderBy);
+		if (orderBy != null) addOrder(em.getCriteriaBuilder(), cq, orderBy);
 
-		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this
-				.applyLikeMap(map, likeCritiria);
+		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this.applyLikeMap(map, likeCritiria);
 
 		like(em.getCriteriaBuilder(), cq, newMap);
 
@@ -109,14 +101,12 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	}
 
 	@Override
-	public Long getListCount(Map<String, Object> map,
-			LikeCritirionEnum likeCritiria) {
+	public Long getListCount(Map<String, Object> map, LikeCritirionEnum likeCritiria) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this
-				.applyLikeMap(map, likeCritiria);
+		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this.applyLikeMap(map, likeCritiria);
 
 		like(cb, cq, newMap);
 
@@ -133,8 +123,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	public T find(CriteriaBuilder cb, OrderBy orderBy) {
 
 		CriteriaQuery<T> cq = createCriteriaQuery();
-		if (orderBy != null)
-			addOrder(em.getCriteriaBuilder(), cq, orderBy);
+		if (orderBy != null) addOrder(em.getCriteriaBuilder(), cq, orderBy);
 
 		return this.find(cq);
 	}
@@ -146,8 +135,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	}
 
 	@Override
-	public List<T> findList(CriteriaBuilder cb, Integer firstResult,
-			Integer maxResults) {
+	public List<T> findList(CriteriaBuilder cb, Integer firstResult, Integer maxResults) {
 
 		return this.findList(cb, null, firstResult, maxResults);
 	}
@@ -159,12 +147,10 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	}
 
 	@Override
-	public List<T> findList(CriteriaBuilder cb, OrderBy orderBy,
-			Integer firstResult, Integer maxResults) {
+	public List<T> findList(CriteriaBuilder cb, OrderBy orderBy, Integer firstResult, Integer maxResults) {
 
 		CriteriaQuery<T> cq = createCriteriaQuery();
-		if (orderBy != null)
-			addOrder(em.getCriteriaBuilder(), cq, orderBy);
+		if (orderBy != null) addOrder(em.getCriteriaBuilder(), cq, orderBy);
 
 		return this.findList(cq, firstResult, maxResults);
 	}
@@ -193,8 +179,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	}
 
 	@Override
-	public CriteriaQuery<T> createCriteriaQuery(CriteriaBuilder cb,
-			OrderBy orderBy) {
+	public CriteriaQuery<T> createCriteriaQuery(CriteriaBuilder cb, OrderBy orderBy) {
 
 		CriteriaQuery<T> cq = this.createCriteriaQuery(cb);
 		addOrder(cb, cq, orderBy);
@@ -214,14 +199,13 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 			T toResult = resultList.get(0);
 			ArrayList<T> list = new ArrayList<>();
 			list.add(toResult);
-			listener.onRead(list);
+			getListener().onRead(list);
 			return toResult;
 		}
 		return null;
 	}
 
-	protected final List<T> findList(final CriteriaQuery<T> criteriaQuery,
-			final int firstResult, final int maxResults) {
+	protected final List<T> findList(final CriteriaQuery<T> criteriaQuery, final int firstResult, final int maxResults) {
 
 		Root<T> root = criteriaQuery.from(this.entityClass);
 		criteriaQuery.select(root);
@@ -236,15 +220,13 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 		}
 		List<T> toResult = query.getResultList();
 		if (!toResult.isEmpty()) {
-			listener.onRead(toResult);
+			getListener().onRead(toResult);
 		}
 		return toResult;
 	}
 
 	@Override
-	protected final T findByQuery(
-			final String queryString,
-			final boolean isNativeQuery,
+	protected final T findByQuery(final String queryString, final boolean isNativeQuery,
 			@SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
 
 		Query query;
@@ -256,8 +238,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 
 		for (Entry<String, Object> parameter : parameters) {
 			if (parameter.getValue().getClass().isArray()) {
-				query.setParameter(parameter.getKey(),
-						(Object[]) parameter.getValue());
+				query.setParameter(parameter.getKey(), (Object[]) parameter.getValue());
 			} else {
 				query.setParameter(parameter.getKey(), parameter.getValue());
 			}
@@ -269,19 +250,15 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 			T toResult = resultList.get(0);
 			ArrayList<T> list = new ArrayList<>();
 			list.add(toResult);
-			listener.onRead(list);
+			getListener().onRead(list);
 			return toResult;
 		}
 		return null;
 	}
 
 	@Override
-	protected final List<T> findListByQuery(
-			final String queryString,
-			final Integer firstResult,
-			final Integer maxResults,
-			final boolean isNativeQuery,
-			@SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+	protected final List<T> findListByQuery(final String queryString, final Integer firstResult, final Integer maxResults,
+			final boolean isNativeQuery, @SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
 
 		Query query;
 		if (isNativeQuery) {
@@ -292,8 +269,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 
 		for (Entry<String, Object> parameter : parameters) {
 			if (parameter.getValue().getClass().isArray()) {
-				query.setParameter(parameter.getKey(),
-						(Object[]) parameter.getValue());
+				query.setParameter(parameter.getKey(), (Object[]) parameter.getValue());
 			} else {
 				query.setParameter(parameter.getKey(), parameter.getValue());
 			}
@@ -308,13 +284,12 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 		@SuppressWarnings("unchecked")
 		List<T> toResult = (List<T>) query.getResultList();
 		if (!toResult.isEmpty()) {
-			listener.onRead(toResult);
+			getListener().onRead(toResult);
 		}
 		return toResult;
 	}
 
-	protected final Long getListCount(final CriteriaBuilder cb,
-			final CriteriaQuery<Long> cq) {
+	protected final Long getListCount(final CriteriaBuilder cb, final CriteriaQuery<Long> cq) {
 
 		Root<T> root = cq.from(this.entityClass);
 		cq.select(cb.count(root));
@@ -324,8 +299,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 		return ParserUtils.parseLong(query.getSingleResult());
 	}
 
-	protected void addOrder(CriteriaBuilder cb, CriteriaQuery<T> cq,
-			OrderBy orderBy) {
+	protected void addOrder(CriteriaBuilder cb, CriteriaQuery<T> cq, OrderBy orderBy) {
 		Root<T> root = cq.from(this.entityClass);
 
 		switch (orderBy.getOrderDirection()) {
@@ -339,44 +313,35 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void like(CriteriaBuilder cb, CriteriaQuery<?> cq,
-			Map<String, Entry<Object, LikeCritirionEnum>> map) {
+	protected void like(CriteriaBuilder cb, CriteriaQuery<?> cq, Map<String, Entry<Object, LikeCritirionEnum>> map) {
 
 		Root<T> root = cq.from(this.entityClass);
 
 		Expression expression = null;
-		for (Iterator<Entry<String, Entry<Object, LikeCritirionEnum>>> iterator = map
-				.entrySet().iterator(); iterator.hasNext();) {
+		for (Iterator<Entry<String, Entry<Object, LikeCritirionEnum>>> iterator = map.entrySet().iterator(); iterator.hasNext();) {
 
-			Entry<String, Entry<Object, LikeCritirionEnum>> entry = iterator
-					.next();
-			System.out.println("put a like, key: " + entry.getKey()
-					+ ", value: " + entry.getValue());
+			Entry<String, Entry<Object, LikeCritirionEnum>> entry = iterator.next();
+			System.out.println("put a like, key: " + entry.getKey() + ", value: " + entry.getValue());
 
 			LikeCritirionEnum likeCritiriaEnum = entry.getValue().getValue();
 
 			Expression subClause;
 			if (!LikeCritirionEnum.NONE.equals(likeCritiriaEnum)) {
-				System.out.println("put a like: " + likeCritiriaEnum
-						+ " , key: " + entry.getKey() + ", value: "
+				System.out.println("put a like: " + likeCritiriaEnum + " , key: " + entry.getKey() + ", value: "
 						+ entry.getValue().getKey());
 
 				Path<String> path = root.<String> get(entry.getKey());
-				subClause = cb.like(likeCritiriaEnum.getIgnoreCase() ? path
-						: cb.lower(path), likeCritiriaEnum.getLike(entry
-						.getValue().getKey()));
-			} else {
-				System.out.println("put a eq, key: " + entry.getKey()
-						+ ", value: " + entry.getValue());
-				subClause = cb.equal(root.get(entry.getKey()),
+				subClause = cb.like(likeCritiriaEnum.getIgnoreCase() ? path : cb.lower(path),
 						likeCritiriaEnum.getLike(entry.getValue().getKey()));
+			} else {
+				System.out.println("put a eq, key: " + entry.getKey() + ", value: " + entry.getValue());
+				subClause = cb.equal(root.get(entry.getKey()), likeCritiriaEnum.getLike(entry.getValue().getKey()));
 			}
 			if (expression != null)
 				expression = cb.and(expression, subClause);
 			else
 				expression = subClause;
 		}
-		if (expression != null)
-			cq.where(expression);
+		if (expression != null) cq.where(expression);
 	}
 }

@@ -15,8 +15,7 @@ public class OrderBy {
 		this.orderDirection = direction;
 	}
 
-	public static OrderBy orderBy(String orderField,
-			OrderByDirection orderDirection) {
+	public static OrderBy orderBy(String orderField, OrderByDirection orderDirection) {
 		return new OrderBy(orderField, orderDirection);
 	}
 

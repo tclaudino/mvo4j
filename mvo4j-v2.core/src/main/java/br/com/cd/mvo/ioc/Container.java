@@ -21,21 +21,17 @@ public interface Container {
 
 	Object getBean(String beanName) throws NoSuchBeanDefinitionException;
 
-	<T> T getBean(String beanName, Class<T> beanType)
-			throws NoSuchBeanDefinitionException;
+	<T> T getBean(String beanName, Class<T> beanType) throws NoSuchBeanDefinitionException;
 
-	<T> Collection<T> getBeansOfType(Class<T> beanType)
-			throws NoSuchBeanDefinitionException;
+	<T> Collection<T> getBeansOfType(Class<T> beanType) throws NoSuchBeanDefinitionException;
 
 	void registerBean(String beanName, Class<?> beanType);
 
-	void registerBean(BeanMetaDataWrapper<?> beanManager)
-			throws ConfigurationException, NoSuchBeanDefinitionException;
+	void registerBean(BeanMetaDataWrapper<?> beanManager) throws ConfigurationException, NoSuchBeanDefinitionException;
 
 	void registerSingleton(String beanName, Object singletonObject);
 
-	void addComponentFactory(
-			ComponentFactory<BeanFactory<?, ?>> componentFactory);
+	void addComponentFactory(ComponentFactory<BeanFactory<?, ?>> componentFactory);
 
 	<F extends BeanFactory<?, ?>> void addComponentFactory(F beanFactoy);
 
@@ -51,15 +47,12 @@ public interface Container {
 
 	ApplicationConfig getApplicationConfig();
 
-	ComponentScannerFactory getComponentScannerFactory()
-			throws ConfigurationException;
+	ComponentScannerFactory getComponentScannerFactory() throws ConfigurationException;
 
 	@SuppressWarnings("rawtypes")
-	RepositoryFactory getPersistenceManagerFactory()
-			throws ConfigurationException;
+	RepositoryFactory getPersistenceManagerFactory() throws ConfigurationException;
 
 	@SuppressWarnings("rawtypes")
-	<P extends RepositoryFactory> P getPersistenceManagerFactory(
-			String beanName, Class<P> impl);
+	<P extends RepositoryFactory> P getPersistenceManagerFactory(String beanName, Class<P> impl);
 
 }

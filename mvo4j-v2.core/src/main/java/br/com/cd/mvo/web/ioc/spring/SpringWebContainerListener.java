@@ -10,8 +10,7 @@ public class SpringWebContainerListener extends WebContainerListener {
 
 	private ConfigurableWebApplicationContext parentApplicationContext;
 
-	public SpringWebContainerListener(
-			ConfigurableWebApplicationContext parentApplicationContext) {
+	public SpringWebContainerListener(ConfigurableWebApplicationContext parentApplicationContext) {
 		this.parentApplicationContext = parentApplicationContext;
 	}
 
@@ -20,9 +19,7 @@ public class SpringWebContainerListener extends WebContainerListener {
 
 		super.configure(container);
 
-		WebApplicationContextUtils
-				.registerWebApplicationScopes(parentApplicationContext
-						.getBeanFactory());
+		WebApplicationContextUtils.registerWebApplicationScopes(parentApplicationContext.getBeanFactory());
 	}
 
 	@Override

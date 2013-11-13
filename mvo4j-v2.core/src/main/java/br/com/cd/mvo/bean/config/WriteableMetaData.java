@@ -1,13 +1,16 @@
-package br.com.cd.mvo.bean;
+package br.com.cd.mvo.bean.config;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import br.com.cd.mvo.util.ParserUtils;
 
-public class WriteablePropertyMap implements PropertyMap {
+public class WriteableMetaData implements MetaData {
+
+	Logger looger = LoggerFactory.getLogger(BeanMetaData.class);
 
 	private Map<String, Object> map = new HashMap<String, Object>();
 
@@ -28,8 +31,7 @@ public class WriteablePropertyMap implements PropertyMap {
 
 	@Override
 	public <T> T get(String key, Class<T> returnType, T defaultValue) {
-		return ParserUtils.parseObject(returnType, this.map.get(key),
-				defaultValue);
+		return ParserUtils.parseObject(returnType, this.map.get(key), defaultValue);
 	}
 
 	@Override
@@ -68,16 +70,14 @@ public class WriteablePropertyMap implements PropertyMap {
 	}
 
 	@Override
-	public <T> Class<T> getAsType(String key, Class<T> returnType,
-			Class<T> defaultValue) {
+	public <T> Class<T> getAsType(String key, Class<T> returnType, Class<T> defaultValue) {
 		Object value = this.map.get(key);
 		try {
 			@SuppressWarnings("unchecked")
 			Class<T> result = (Class<T>) value;
 			return result != null ? result : defaultValue;
 		} catch (Exception e) {
-			LoggerFactory.getLogger(PropertyMap.class).error(
-					"Can't convert '" + value + "' to '" + returnType + "'", e);
+			looger.error("Can't convert '" + value + "' to '" + returnType + "'", e);
 			return defaultValue;
 		}
 	}

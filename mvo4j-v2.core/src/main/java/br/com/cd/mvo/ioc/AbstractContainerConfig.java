@@ -39,8 +39,7 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	@Override
 	public boolean getInitBooleanParameter(String key, boolean defaultValue) {
 
-		return ParserUtils.parseBoolean(this.getInitParameter(key),
-				defaultValue);
+		return ParserUtils.parseBoolean(this.getInitParameter(key), defaultValue);
 	}
 
 	@Override
@@ -58,8 +57,7 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	@Override
 	public <T> T getInitParameter(String key, T defaultValue) {
 
-		return ParserUtils
-				.parseObject(this.getInitParameter(key), defaultValue);
+		return ParserUtils.parseObject(this.getInitParameter(key), defaultValue);
 	}
 
 	@Override
@@ -69,24 +67,18 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	}
 
 	@Override
-	public <T> T getInitParameter(String key, Class<T> resultType,
-			T defaultValue) {
+	public <T> T getInitParameter(String key, Class<T> resultType, T defaultValue) {
 
-		return ParserUtils.parseObject(resultType, this.getInitParameter(key),
-				defaultValue);
+		return ParserUtils.parseObject(resultType, this.getInitParameter(key), defaultValue);
 	}
 
 	@Override
-	public ContainerProvider<ContainerConfig<D>> getContainerProvider()
-			throws ConfigurationException {
+	public ContainerProvider<ContainerConfig<D>> getContainerProvider() throws ConfigurationException {
 
-		String className = this.getInitParameter(
-				ConfigParamKeys.PROVIDER_CLASS,
-				ConfigParamKeys.DefaultValues.PROVIDER_CLASS);
+		String className = this.getInitParameter(ConfigParamKeys.PROVIDER_CLASS, ConfigParamKeys.DefaultValues.PROVIDER_CLASS);
 
-		Class<? extends ContainerProvider<?>> providerType = (className != null && className
-				.isEmpty()) ? getContainerProvider(className) : this
-				.getDefaultProvider();
+		Class<? extends ContainerProvider<?>> providerType = (className != null && className.isEmpty()) ? getContainerProvider(className)
+				: this.getDefaultProvider();
 
 		ContainerProvider<ContainerConfig<D>> provider = tryInstance(providerType);
 
@@ -94,31 +86,26 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Class<? extends ContainerProvider<?>> getContainerProvider(
-			String className) throws ConfigurationException {
+	private Class<? extends ContainerProvider<?>> getContainerProvider(String className) throws ConfigurationException {
 
 		try {
-			return (Class<? extends ContainerProvider<?>>) Class
-					.forName(className);
+			return (Class<? extends ContainerProvider<?>>) Class.forName(className);
 		} catch (Exception e) {
 			throw new ConfigurationException(e);
 		}
 	}
 
-	private Class<? extends ContainerProvider<?>> getDefaultProvider()
-			throws ConfigurationException {
+	private Class<? extends ContainerProvider<?>> getDefaultProvider() throws ConfigurationException {
 
 		return getContainerProvider(ConfigParamKeys.DefaultValues.PROVIDER_CLASS);
 	}
 
 	@SuppressWarnings("unchecked")
-	private ContainerProvider<ContainerConfig<D>> tryInstance(
-			Class<? extends ContainerProvider<?>> providerType)
+	private ContainerProvider<ContainerConfig<D>> tryInstance(Class<? extends ContainerProvider<?>> providerType)
 			throws ConfigurationException {
 
 		try {
-			return (ContainerProvider<ContainerConfig<D>>) providerType
-					.newInstance();
+			return (ContainerProvider<ContainerConfig<D>>) providerType.newInstance();
 		} catch (Exception e) {
 			throw new ConfigurationException(e);
 		}

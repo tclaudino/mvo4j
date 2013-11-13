@@ -28,11 +28,9 @@ public class ContextLoaderListener implements ServletContextListener {
 
 		this.servletContext = contextEvent.getServletContext();
 		try {
-			ContainerConfig<ServletContext> applicationConfig = new WebApplicationConfig(
-					servletContext);
+			ContainerConfig<ServletContext> applicationConfig = new WebApplicationConfig(servletContext);
 
-			ContainerProvider<ContainerConfig<ServletContext>> provider = applicationConfig
-					.getContainerProvider();
+			ContainerProvider<ContainerConfig<ServletContext>> provider = applicationConfig.getContainerProvider();
 
 			container = provider.getContainer(applicationConfig);
 			container.start();

@@ -23,8 +23,7 @@ public class DefaultTranslator implements Translator {
 	protected KeyValuesProvider keyValuesProvider;
 	protected Translator parent;
 
-	public DefaultTranslator(String defaultLocale, String bundleName,
-			KeyValuesProvider keyValuesProvider,
+	public DefaultTranslator(String defaultLocale, String bundleName, KeyValuesProvider keyValuesProvider,
 			String... suportedLocaleLanguages) {
 		this.keyValuesProvider = keyValuesProvider;
 		this.bundleName = bundleName;
@@ -33,24 +32,19 @@ public class DefaultTranslator implements Translator {
 		this.setDefaultLocale(defaultLocale);
 	}
 
-	public DefaultTranslator(String bundleName,
-			KeyValuesProvider keyValuesProvider, Translator parent) {
-		this(parent.getCurrentLocale().getLanguage(), bundleName,
-				keyValuesProvider);
+	public DefaultTranslator(String bundleName, KeyValuesProvider keyValuesProvider, Translator parent) {
+		this(parent.getCurrentLocale().getLanguage(), bundleName, keyValuesProvider);
 		this.parent = parent;
 		this.suportedLocales = parent.getSupportedLocales();
 	}
 
 	private void setDefaultLocale(String language) {
-		LoggerFactory.getLogger(Translator.class).info(
-				"registering default locale to language '{0}'", language);
+		LoggerFactory.getLogger(Translator.class).info("registering default locale to language '{0}'", language);
 
 		try {
 			this.currentLocale = new Locale(language);
 		} catch (Exception e) {
-			LoggerFactory.getLogger(Translator.class).error(
-					"Error to registry suported locale to language '{0}'",
-					language, e);
+			LoggerFactory.getLogger(Translator.class).error("Error to registry suported locale to language '{0}'", language, e);
 		}
 	}
 
@@ -60,17 +54,12 @@ public class DefaultTranslator implements Translator {
 			this.suportedLocales = new ArrayList<Locale>();
 
 			for (String language : languages) {
-				LoggerFactory.getLogger(Translator.class).info(
-						"registering suported locale to language '{0}'",
-						language);
+				LoggerFactory.getLogger(Translator.class).info("registering suported locale to language '{0}'", language);
 
 				try {
 					this.suportedLocales.add(new Locale(language));
 				} catch (Exception e) {
-					LoggerFactory
-							.getLogger(Translator.class)
-							.error("Error to registry suported locale to language '{0}'",
-									language, e);
+					LoggerFactory.getLogger(Translator.class).error("Error to registry suported locale to language '{0}'", language, e);
 				}
 			}
 		}
@@ -83,11 +72,10 @@ public class DefaultTranslator implements Translator {
 
 	@Override
 	public Locale getCurrentLocale() {
-		if (this.currentLocale == null)
-			if (parent != null)
-				this.currentLocale = parent.getCurrentLocale();
-			else
-				this.currentLocale = this.keyValuesProvider.getDefaultLocale();
+		if (this.currentLocale == null) if (parent != null)
+			this.currentLocale = parent.getCurrentLocale();
+		else
+			this.currentLocale = this.keyValuesProvider.getDefaultLocale();
 
 		return this.currentLocale;
 	}
@@ -99,12 +87,10 @@ public class DefaultTranslator implements Translator {
 
 	@Override
 	public List<Locale> getSupportedLocales() {
-		if (this.suportedLocales == null)
-			if (parent != null)
-				this.suportedLocales = parent.getSupportedLocales();
-			else
-				this.suportedLocales = this.keyValuesProvider
-						.getSupportedLocales();
+		if (this.suportedLocales == null) if (parent != null)
+			this.suportedLocales = parent.getSupportedLocales();
+		else
+			this.suportedLocales = this.keyValuesProvider.getSupportedLocales();
 
 		return this.suportedLocales;
 	}
@@ -121,8 +107,7 @@ public class DefaultTranslator implements Translator {
 
 	@Override
 	public String getMessage(String messageKey, Locale locale) {
-		Map<String, String> i18n = keyValuesProvider.getKeyValues(
-				this.getBundleName(), locale);
+		Map<String, String> i18n = keyValuesProvider.getKeyValues(this.getBundleName(), locale);
 		if (i18n != null) {
 			if (!"".equals(messageKey)) {
 				if (i18n.containsKey(messageKey)) {
@@ -133,15 +118,13 @@ public class DefaultTranslator implements Translator {
 			}
 		}
 
-		if (logger.isDebugEnabled())
-			return "[" + messageKey + "]";
+		if (logger.isDebugEnabled()) return "[" + messageKey + "]";
 
 		return messageKey;
 	}
 
 	@Override
-	public String getMessage(String messagePrefix, String messageKey,
-			Locale locale) {
+	public String getMessage(String messagePrefix, String messageKey, Locale locale) {
 		messageKey = ParserUtils.parseString(messageKey);
 		messagePrefix = ParserUtils.parseString(messagePrefix);
 		if (!messagePrefix.isEmpty()) {
@@ -156,8 +139,7 @@ public class DefaultTranslator implements Translator {
 	}
 
 	@Override
-	public String getMessage(String messagePrefix, String messageKey,
-			Object... args) {
+	public String getMessage(String messagePrefix, String messageKey, Object... args) {
 		return getMessage(messagePrefix, messageKey, getCurrentLocale(), args);
 	}
 
@@ -167,10 +149,8 @@ public class DefaultTranslator implements Translator {
 	}
 
 	@Override
-	public String getMessage(String messagePrefix, String messageKey,
-			Locale locale, Object... args) {
-		return StringUtils.format(
-				getMessage(messagePrefix, messageKey, locale), i18n(args));
+	public String getMessage(String messagePrefix, String messageKey, Locale locale, Object... args) {
+		return StringUtils.format(getMessage(messagePrefix, messageKey, locale), i18n(args));
 	}
 
 	private Object[] i18n(Object... parameters) {
@@ -183,10 +163,8 @@ public class DefaultTranslator implements Translator {
 		return parameters;
 	}
 
-	public static String getMessage(Translator translator, String messageKey,
-			Object... args) {
-		return translator != null ? translator.getMessage(messageKey, args)
-				: messageKey;
+	public static String getMessage(Translator translator, String messageKey, Object... args) {
+		return translator != null ? translator.getMessage(messageKey, args) : messageKey;
 	}
 
 	private ApplicationKeys keys = new ApplicationKeys();

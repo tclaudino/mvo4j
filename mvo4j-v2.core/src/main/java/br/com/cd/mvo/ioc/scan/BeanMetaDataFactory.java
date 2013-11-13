@@ -3,24 +3,23 @@ package br.com.cd.mvo.ioc.scan;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
-import br.com.cd.mvo.bean.WriteablePropertyMap;
-import br.com.cd.mvo.bean.config.BeanMetaData;
+import br.com.cd.mvo.ApplicationConfig;
+import br.com.cd.mvo.bean.config.DefaultBeanMetaData;
+import br.com.cd.mvo.bean.config.WriteableMetaData;
 import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
-import br.com.cd.mvo.core.BeanObject;
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.ioc.Container;
 
-public interface BeanMetaDataFactory<M extends BeanMetaData, A extends Annotation> {
+@SuppressWarnings("rawtypes")
+public interface BeanMetaDataFactory<M extends DefaultBeanMetaData, A extends Annotation> {
 
-	Class<? extends BeanObject> getBeanObjectType();
+	Class<?> getBeanObjectType();
 
 	Class<A> getBeanAnnotationType();
 
-	WriteablePropertyMap newDefaultPropertyMap(Container container);
+	WriteableMetaData newDefaultPropertyMap(ApplicationConfig applicationConfig);
 
-	BeanMetaDataWrapper<M> createBeanMetaData(WriteablePropertyMap propertyMap,
-			Class<?> beanType, Container container,
-			boolean readAnnotationAttributes) throws ConfigurationException;
+	BeanMetaDataWrapper<M> createBeanMetaData(WriteableMetaData propertyMap, Class<?> beanType, boolean readAnnotationAttributes)
+			throws ConfigurationException;
 
 	Collection<Class<?>> scan(Scanner scanner, String[] packagesToScan);
 

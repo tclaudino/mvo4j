@@ -21,8 +21,7 @@ import javassist.bytecode.annotation.StringMemberValue;
 public class MemberValueFactory {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Object getMemberValue(MemberValue memberValue)
-			throws ClassNotFoundException {
+	public static Object getMemberValue(MemberValue memberValue) throws ClassNotFoundException {
 
 		boolean isArray = (memberValue instanceof ArrayMemberValue);
 
@@ -56,8 +55,7 @@ public class MemberValueFactory {
 			return ((DoubleMemberValue) memberValue).getValue();
 		} else if (memberValue.getClass().isEnum()) {
 
-			return Enum.valueOf((Class) Class
-					.forName(((EnumMemberValue) memberValue).getType()),
+			return Enum.valueOf((Class) Class.forName(((EnumMemberValue) memberValue).getType()),
 					((EnumMemberValue) memberValue).getValue());
 		} else if (memberValue instanceof FloatMemberValue) {
 

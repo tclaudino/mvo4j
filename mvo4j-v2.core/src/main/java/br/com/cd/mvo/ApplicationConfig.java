@@ -15,6 +15,7 @@ import br.com.cd.mvo.ioc.Proxifier;
 import br.com.cd.mvo.ioc.scan.AnnotatedComponentScanner;
 import br.com.cd.mvo.ioc.scan.ComponentScannerFactory;
 import br.com.cd.mvo.ioc.scan.EntityComponentScanner;
+import br.com.cd.mvo.ioc.scan.ListenerComponentScanner;
 import br.com.cd.mvo.orm.RepositoryFactory;
 import br.com.cd.mvo.util.ParserUtils;
 
@@ -30,8 +31,7 @@ public class ApplicationConfig {
 		this.packagesToScan.addAll(Arrays.asList(packagesToScan));
 	}
 
-	public void setPackagesToScan(String packageToScan,
-			String... packagesToScan) {
+	public void setPackagesToScan(String packageToScan, String... packagesToScan) {
 		this.packagesToScan = new ArrayList<String>();
 		this.packagesToScan.add(packageToScan);
 		this.packagesToScan.addAll(Arrays.asList(packagesToScan));
@@ -53,8 +53,7 @@ public class ApplicationConfig {
 		setRepositoryFactoryClass(loadClass(className, RepositoryFactory.class));
 	}
 
-	public void setRepositoryFactoryClass(
-			@SuppressWarnings("rawtypes") Class<RepositoryFactory> classType) {
+	public void setRepositoryFactoryClass(@SuppressWarnings("rawtypes") Class<RepositoryFactory> classType) {
 		this.repositoryFactoryClass = classType;
 	}
 
@@ -85,11 +84,8 @@ public class ApplicationConfig {
 		return this.get(ConfigParamKeys.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME);
 	}
 
-	public void setPersistenceManagerFactoryBeanName(
-			String persistenceManagerFactoryBeanName) {
-		this.parameters.put(
-				ConfigParamKeys.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME,
-				persistenceManagerFactoryBeanName);
+	public void setPersistenceManagerFactoryBeanName(String persistenceManagerFactoryBeanName) {
+		this.parameters.put(ConfigParamKeys.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME, persistenceManagerFactoryBeanName);
 	}
 
 	public String getDefaultLocale() {
@@ -105,8 +101,7 @@ public class ApplicationConfig {
 	}
 
 	public void setSuportedLocales(Collection<String> suportedLocales) {
-		this.setSuportedLocales(suportedLocales
-				.toArray(new String[suportedLocales.size()]));
+		this.setSuportedLocales(suportedLocales.toArray(new String[suportedLocales.size()]));
 	}
 
 	public void setSuportedLocales(String... suportedLocales) {
@@ -153,41 +148,30 @@ public class ApplicationConfig {
 		this.parameters.put(ConfigParamKeys.DEFAULT_SCOPE_NAME, scopeName);
 	}
 
-	public ComponentScannerFactory getComponentScannerFactory(
-			Container container) throws ConfigurationException {
+	public ComponentScannerFactory getComponentScannerFactory(Container container) throws ConfigurationException {
 
-		ComponentScannerFactory beanDiscoveryFactory;
+		ComponentScannerFactory scannerFactory;
 		try {
-			beanDiscoveryFactory = container.getBean(
-					ComponentScannerFactory.BEAN_NAME,
-					ComponentScannerFactory.class);
+			scannerFactory = container.getBean(ComponentScannerFactory.BEAN_NAME, ComponentScannerFactory.class);
 		} catch (NoSuchBeanDefinitionException e) {
 
-			String packagesToScan = container.getContainerConfig()
-					.getInitParameter(ConfigParamKeys.PACKAGES_TO_SCAN);
+			String packagesToScan = container.getContainerConfig().getInitParameter(ConfigParamKeys.PACKAGES_TO_SCAN);
 			if (packagesToScan.isEmpty()) {
-				throw new ConfigurationException("No parameter '"
-						+ ConfigParamKeys.PACKAGES_TO_SCAN + "' configured");
+				throw new ConfigurationException("No parameter '" + ConfigParamKeys.PACKAGES_TO_SCAN + "' configured");
 			}
 
-			beanDiscoveryFactory = new ComponentScannerFactory(
-					packagesToScan.split(","));
-			beanDiscoveryFactory
-					.addComponentScanner(new AnnotatedComponentScanner(
-							packagesToScan.split(",")));
-			beanDiscoveryFactory
-					.addComponentScanner(new EntityComponentScanner(
-							packagesToScan.split(",")));
+			scannerFactory = new ComponentScannerFactory(packagesToScan.split(","));
+			scannerFactory.addComponentScanner(new AnnotatedComponentScanner(packagesToScan.split(",")));
+			scannerFactory.addComponentScanner(new EntityComponentScanner(packagesToScan.split(",")));
+			scannerFactory.addComponentScanner(new ListenerComponentScanner(packagesToScan.split(",")));
 
-			container.registerSingleton(ComponentScannerFactory.BEAN_NAME,
-					beanDiscoveryFactory);
+			container.registerSingleton(ComponentScannerFactory.BEAN_NAME, scannerFactory);
 		}
 
-		return beanDiscoveryFactory;
+		return scannerFactory;
 	}
 
-	public static ApplicationConfig get(ContainerConfig<?> config)
-			throws ConfigurationException {
+	public static ApplicationConfig get(ContainerConfig<?> config) throws ConfigurationException {
 
 		ApplicationConfig applicationConfig = new ApplicationConfig();
 		applicationConfig.merge(config);
@@ -197,67 +181,39 @@ public class ApplicationConfig {
 
 	public void merge(ContainerConfig<?> config) throws ConfigurationException {
 
-		String defaultLocale = config.getInitParameter(
-				ConfigParamKeys.DEFAULT_LOCALE,
-				ConfigParamKeys.DefaultValues.DEFAULT_LOCALE);
-		if (!defaultLocale.isEmpty())
-			this.setDefaultLocale(defaultLocale);
+		String defaultLocale = config.getInitParameter(ConfigParamKeys.DEFAULT_LOCALE, ConfigParamKeys.DefaultValues.DEFAULT_LOCALE);
+		if (!defaultLocale.isEmpty()) this.setDefaultLocale(defaultLocale);
 
-		String suportedLocales = config.getInitParameter(
-				ConfigParamKeys.SUPORTED_LOCALES,
-				ConfigParamKeys.DefaultValues.SUPORTED_LOCALES);
-		if (!suportedLocales.isEmpty())
-			this.setSuportedLocales(suportedLocales.split(","));
+		String suportedLocales = config.getInitParameter(ConfigParamKeys.SUPORTED_LOCALES, ConfigParamKeys.DefaultValues.SUPORTED_LOCALES);
+		if (!suportedLocales.isEmpty()) this.setSuportedLocales(suportedLocales.split(","));
 
-		String bundleName = config.getInitParameter(
-				ConfigParamKeys.BUNDLE_NAME,
-				ConfigParamKeys.DefaultValues.BUNDLE_NAME);
-		if (!bundleName.isEmpty())
-			this.setBundleName(bundleName);
+		String bundleName = config.getInitParameter(ConfigParamKeys.BUNDLE_NAME, ConfigParamKeys.DefaultValues.BUNDLE_NAME);
+		if (!bundleName.isEmpty()) this.setBundleName(bundleName);
 
-		long cacheMaxTime = config.getInitParameter(
-				ConfigParamKeys.CACHE_MANAGER_MAX_SIZE,
+		long cacheMaxTime = config.getInitParameter(ConfigParamKeys.CACHE_MANAGER_MAX_SIZE,
 				ConfigParamKeys.DefaultValues.CACHE_MANAGER_MAX_SIZE);
-		if (cacheMaxTime > 0)
-			this.setCacheManagerMaxSize(cacheMaxTime);
+		if (cacheMaxTime > 0) this.setCacheManagerMaxSize(cacheMaxTime);
 
-		long cacheTime = config.getInitParameter(
-				ConfigParamKeys.I18N_CACHE_TIME,
-				ConfigParamKeys.DefaultValues.I18N_CACHE_TIME);
-		if (cacheTime > 0)
-			this.setI18nCacheTime(cacheTime);
+		long cacheTime = config.getInitParameter(ConfigParamKeys.I18N_CACHE_TIME, ConfigParamKeys.DefaultValues.I18N_CACHE_TIME);
+		if (cacheTime > 0) this.setI18nCacheTime(cacheTime);
 
-		int pageSize = config.getInitParameter(
-				ConfigParamKeys.INITIAL_PAGESIZE,
-				ConfigParamKeys.DefaultValues.INITIAL_PAGESIZE);
-		if (pageSize > 0)
-			this.setInitialPageSize(pageSize);
+		int pageSize = config.getInitParameter(ConfigParamKeys.INITIAL_PAGESIZE, ConfigParamKeys.DefaultValues.INITIAL_PAGESIZE);
+		if (pageSize > 0) this.setInitialPageSize(pageSize);
 
-		String persistenceFactoryBeanName = config
-				.getInitParameter(
-						ConfigParamKeys.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME,
-						ConfigParamKeys.DefaultValues.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME);
-		if (!persistenceFactoryBeanName.isEmpty())
-			this.setPersistenceManagerFactoryBeanName(persistenceFactoryBeanName);
+		String persistenceFactoryBeanName = config.getInitParameter(ConfigParamKeys.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME,
+				ConfigParamKeys.DefaultValues.PERSISTENCE_MANAGER_FACTORY_BEAN_NAME);
+		if (!persistenceFactoryBeanName.isEmpty()) this.setPersistenceManagerFactoryBeanName(persistenceFactoryBeanName);
 
-		String className = config.getInitParameter(
-				ConfigParamKeys.REPOSITORY_FACTORY_CLASS,
+		String className = config.getInitParameter(ConfigParamKeys.REPOSITORY_FACTORY_CLASS,
 				ConfigParamKeys.DefaultValues.REPOSITORY_FACTORY_CLASS);
-		if (!className.isEmpty())
-			this.setRepositoryFactoryClass(className);
+		if (!className.isEmpty()) this.setRepositoryFactoryClass(className);
 
-		String scope = config.getInitParameter(
-				ConfigParamKeys.DEFAULT_SCOPE_NAME,
-				ConfigParamKeys.DefaultValues.SCOPE_NAME);
-		if (!scope.isEmpty())
-			this.setDefaultScopeName(scope);
+		String scope = config.getInitParameter(ConfigParamKeys.DEFAULT_SCOPE_NAME, ConfigParamKeys.DefaultValues.SCOPE_NAME);
+		if (!scope.isEmpty()) this.setDefaultScopeName(scope);
 
-		String beanInstantiationStrategy = config
-				.getInitParameter(
-						ConfigParamKeys.BEAN_INSTANTIATION_STRATEGY_CLASS,
-						ConfigParamKeys.DefaultValues.BEAN_INSTANTIATION_STRATEGY_CLASS);
-		if (!beanInstantiationStrategy.isEmpty())
-			this.setProxifierClass(beanInstantiationStrategy);
+		String beanInstantiationStrategy = config.getInitParameter(ConfigParamKeys.BEAN_INSTANTIATION_STRATEGY_CLASS,
+				ConfigParamKeys.DefaultValues.BEAN_INSTANTIATION_STRATEGY_CLASS);
+		if (!beanInstantiationStrategy.isEmpty()) this.setProxifierClass(beanInstantiationStrategy);
 
 	}
 
@@ -266,7 +222,6 @@ public class ApplicationConfig {
 	}
 
 	public <T> T get(String parameterName, Class<T> parameterType) {
-		return ParserUtils.parseObject(parameterType,
-				parameters.get(parameterName));
+		return ParserUtils.parseObject(parameterType, parameters.get(parameterName));
 	}
 }

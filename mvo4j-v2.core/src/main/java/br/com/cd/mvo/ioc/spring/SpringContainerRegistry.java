@@ -11,8 +11,7 @@ import org.springframework.core.Ordered;
 
 import br.com.cd.mvo.ioc.AbstractContainerRegistry;
 
-public class SpringContainerRegistry extends
-		AbstractContainerRegistry<SpringContainer> {
+public class SpringContainerRegistry extends AbstractContainerRegistry<SpringContainer> {
 
 	public SpringContainerRegistry(SpringContainer container) {
 		super(container);
@@ -31,12 +30,9 @@ public class SpringContainerRegistry extends
 	@Override
 	protected void configure() {
 
-		AnnotationConfigUtils
-				.registerAnnotationConfigProcessors((BeanDefinitionRegistry) container.applicationContext
-						.getBeanFactory());
-		AopConfigUtils
-				.registerAspectJAnnotationAutoProxyCreatorIfNecessary((BeanDefinitionRegistry) container.applicationContext
-						.getBeanFactory());
+		AnnotationConfigUtils.registerAnnotationConfigProcessors((BeanDefinitionRegistry) container.applicationContext.getBeanFactory());
+		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary((BeanDefinitionRegistry) container.applicationContext
+				.getBeanFactory());
 
 		// container.applicationContext.addBeanFactoryPostProcessor(this);
 		this.registerCustomComponents();
@@ -46,32 +42,21 @@ public class SpringContainerRegistry extends
 
 	private void registerCustomComponents() {
 
-		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) container.applicationContext
-				.getBeanFactory();
+		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) container.applicationContext.getBeanFactory();
 		beanFactory
-				.setAutowireCandidateResolver(new GenericAutowireCandidateResolver(
-						container, beanFactory.getAutowireCandidateResolver()));
-		beanFactory
-				.setInstantiationStrategy(new BeanObjectInstantiationStrategy(
-						container));
+				.setAutowireCandidateResolver(new GenericAutowireCandidateResolver(container, beanFactory.getAutowireCandidateResolver()));
+		beanFactory.setInstantiationStrategy(new BeanObjectInstantiationStrategy(container));
 	}
 
 	private void registerCustomInjectionProcessor() {
-		RootBeanDefinition definition = new RootBeanDefinition(
-				InjectionBeanPostProcessor.class);
+		RootBeanDefinition definition = new RootBeanDefinition(InjectionBeanPostProcessor.class);
 		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-		definition.getPropertyValues().addPropertyValue("order",
-				Ordered.LOWEST_PRECEDENCE);
+		definition.getPropertyValues().addPropertyValue("order", Ordered.LOWEST_PRECEDENCE);
 
-		((BeanDefinitionRegistry) container.applicationContext.getBeanFactory())
-				.registerBeanDefinition(
-						AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME,
-						definition);
+		((BeanDefinitionRegistry) container.applicationContext.getBeanFactory()).registerBeanDefinition(
+				AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME, definition);
 
-		container.applicationContext
-				.getBeanFactory()
-				.addBeanPostProcessor(
-						(BeanPostProcessor) container
-								.getBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
+		container.applicationContext.getBeanFactory().addBeanPostProcessor(
+				(BeanPostProcessor) container.getBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
 	}
 }

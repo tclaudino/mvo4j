@@ -4,59 +4,49 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import br.com.cd.mvo.ConfigParamKeys;
-import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
 import br.com.cd.mvo.bean.config.ServiceMetaData;
+import br.com.cd.mvo.bean.config.WriteableMetaData;
 import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanObjectListener;
 import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.CrudService;
-import br.com.cd.mvo.core.ServiceListener;
-import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.core.CrudServiceListener;
 import br.com.cd.mvo.util.GenericsUtils;
 
-public class ServiceListenerMetaDataFactory extends
-		AbstractBeanMetaDataFactory<ServiceMetaData.ListenerMetaData, NoScan> {
+@SuppressWarnings("rawtypes")
+public class ServiceListenerMetaDataFactory extends AbstractBeanMetaDataFactory<ServiceMetaData.ListenerMetaData<?>, NoScan> {
 
 	public ServiceListenerMetaDataFactory() {
-		super(CrudService.class);
+		super(CrudServiceListener.class);
 	}
 
 	@Override
-	public ServiceMetaData.ListenerMetaData doCreateBeanMetaData(
-			WriteablePropertyMap propertyMap) {
+	public ServiceMetaData.ListenerMetaData doCreateBeanMetaData(WriteableMetaData propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE,
-				ConfigParamKeys.DefaultValues.SCOPE_SESSION_NAME);
+		propertyMap.add(BeanMetaData.SCOPE, ConfigParamKeys.DefaultValues.SCOPE_SINGLETON_NAME);
 
-		ServiceMetaData.ListenerMetaData beanConfig = new ServiceMetaData.ListenerMetaData(
-				propertyMap);
+		ServiceMetaData.ListenerMetaData beanConfig = new ServiceMetaData.ListenerMetaData(propertyMap);
 
 		return beanConfig;
 	}
 
 	@Override
-	public BeanMetaDataWrapper<ServiceMetaData.ListenerMetaData> createBeanMetaData(
-			WriteablePropertyMap propertyMap, Class<?> beanType,
-			Container container, boolean readAnnotationAttributes)
-			throws ConfigurationException {
+	public BeanMetaDataWrapper<ServiceMetaData.ListenerMetaData<?>> createBeanMetaData(WriteableMetaData propertyMap, Class<?> beanType,
+			boolean readAnnotationAttributes) throws ConfigurationException {
 
-		if (ServiceListener.class.isAssignableFrom(beanType)) {
+		if (BeanObjectListener.class.isAssignableFrom(beanType)) {
 
-			Class<?> targetEntity = GenericsUtils.getTypesFor(beanType,
-					ServiceListener.class).get(0);
+			Class<?> targetEntity = GenericsUtils.getTypeFor(beanType, BeanObjectListener.class);
 			propertyMap.add(BeanMetaData.TARGET_ENTITY, targetEntity);
 		}
 
-		return super
-				.createBeanMetaData(propertyMap, beanType, container, false);
+		return super.createBeanMetaData(propertyMap, beanType, false);
 	}
 
 	@Override
 	public Collection<Class<?>> scan(Scanner scanner, String[] packagesToScan) {
 
-		@SuppressWarnings("rawtypes")
-		Collection<Class<? extends ServiceListener>> subTypes = scanner
-				.scanSubTypesOf(ServiceListener.class, packagesToScan);
+		Collection<Class<? extends BeanObjectListener>> subTypes = scanner.scanSubTypesOf(BeanObjectListener.class, packagesToScan);
 
 		Collection<Class<?>> result = new HashSet<>();
 		result.addAll(subTypes);

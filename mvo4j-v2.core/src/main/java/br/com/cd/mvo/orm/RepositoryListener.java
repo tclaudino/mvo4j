@@ -2,16 +2,14 @@ package br.com.cd.mvo.orm;
 
 import java.util.List;
 
-public interface RepositoryListener<T> {
+import br.com.cd.mvo.core.BeanObjectListener;
+
+public interface RepositoryListener<T> extends BeanObjectListener<Repository<T>> {
 
 	public enum ActionListenerEventType {
 
 		BEFORE, AFTER;
 	}
-
-	void postConstruct(Repository<T> repository);
-
-	void preDestroy(Repository<T> repository);
 
 	void onRead(final List<T> entity);
 

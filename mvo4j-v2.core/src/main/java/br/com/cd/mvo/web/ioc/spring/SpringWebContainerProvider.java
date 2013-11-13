@@ -9,12 +9,10 @@ import br.com.cd.mvo.ioc.ContainerProvider;
 import br.com.cd.mvo.ioc.spring.SpringContainer;
 import br.com.cd.mvo.web.ioc.WebApplicationConfig;
 
-public class SpringWebContainerProvider implements
-		ContainerProvider<WebApplicationConfig> {
+public class SpringWebContainerProvider implements ContainerProvider<WebApplicationConfig> {
 
 	@Override
-	public Container getContainer(WebApplicationConfig config)
-			throws ConfigurationException {
+	public Container getContainer(WebApplicationConfig config) throws ConfigurationException {
 
 		ConfigurableWebApplicationContext applicationContext = getApplicationContext(config);
 
@@ -25,8 +23,7 @@ public class SpringWebContainerProvider implements
 		return container;
 	}
 
-	private ConfigurableWebApplicationContext getApplicationContext(
-			WebApplicationConfig config) {
+	private ConfigurableWebApplicationContext getApplicationContext(WebApplicationConfig config) {
 
 		ConfigurableWebApplicationContext applicationContext = (ConfigurableWebApplicationContext) WebApplicationContextUtils
 				.getRequiredWebApplicationContext(config.getLocalContainer());

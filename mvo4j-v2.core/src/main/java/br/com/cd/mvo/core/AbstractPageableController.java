@@ -56,16 +56,14 @@ public abstract class AbstractPageableController implements PageableController {
 	@Override
 	public final void setPageSize(Integer pageSize) {
 
-		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-				"pageSize: {0}", new Object[] { pageSize });
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "pageSize: {0}", new Object[] { pageSize });
 
 		this.pageSize = pageSize;
 	}
 
 	@Override
 	public final void setPageNumber(Integer pageNumber) {
-		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-				"pageNumber: {0}", new Object[] { pageNumber });
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "pageNumber: {0}", new Object[] { pageNumber });
 
 		this.pageNumber = pageNumber;
 	}
@@ -77,10 +75,8 @@ public abstract class AbstractPageableController implements PageableController {
 
 	@Override
 	public Integer getPagesCount() {
-		return recordsCount > 1 && getPageSize() > 0
-				&& recordsCount > getPageSize() ? (ParserUtils.parseInt(Math
-				.ceil(recordsCount / ParserUtils.parseDouble(getPageSize()))))
-				: 1;
+		return recordsCount > 1 && getPageSize() > 0 && recordsCount > getPageSize() ? (ParserUtils.parseInt(Math.ceil(recordsCount
+				/ ParserUtils.parseDouble(getPageSize())))) : 1;
 	}
 
 	@Override
@@ -98,16 +94,14 @@ public abstract class AbstractPageableController implements PageableController {
 
 	@Override
 	public String getPageStatus() {
-		return getPagerCallback().getTranslator().getMessage(
-				ApplicationKeys.Pagination.STATUS,
+		return getPagerCallback().getTranslator().getMessage(ApplicationKeys.Pagination.STATUS,
 				new Object[] { getPageNumber(), getPagesCount() });
 	}
 
 	@Override
 	public final void toFirstPage() {
 		if (isHasPreviousPage()) {
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-					"firstPage");
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "firstPage");
 
 			pageNumber = 1;
 
@@ -118,8 +112,7 @@ public abstract class AbstractPageableController implements PageableController {
 	@Override
 	public final void toPreviousPage() {
 		if (isHasPreviousPage()) {
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-					"previousPage");
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "previousPage");
 
 			pageNumber--;
 
@@ -135,8 +128,7 @@ public abstract class AbstractPageableController implements PageableController {
 	@Override
 	public final void toNextPage() {
 		if (isHasNextPage()) {
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-					"nextPage");
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "nextPage");
 
 			pageNumber++;
 
@@ -147,8 +139,7 @@ public abstract class AbstractPageableController implements PageableController {
 	@Override
 	public final void toLastPage() {
 		if (isHasNextPage()) {
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-					"lastPage");
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "lastPage");
 
 			pageNumber = getPagesCount();
 			refreshPage();
@@ -162,8 +153,7 @@ public abstract class AbstractPageableController implements PageableController {
 
 	@Override
 	public final void refreshPage() {
-		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-				"refreshPage");
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "refreshPage");
 
 		getPagerCallback().onRefresh();
 	}

@@ -14,13 +14,11 @@ import java.util.logging.Logger;
 
 public class ReflectionUtils {
 
-	private static final Logger LOG = Logger.getLogger(ReflectionUtils.class
-			.getName());
+	private static final Logger LOG = Logger.getLogger(ReflectionUtils.class.getName());
 
 	public static String getString(Object toInvoke, String attrName) {
 		try {
-			return ParserUtils.parseString(ReflectionUtils.getObject(toInvoke,
-					attrName));
+			return ParserUtils.parseString(ReflectionUtils.getObject(toInvoke, attrName));
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, e.getMessage() + ", attrName: " + attrName, e);
 		}
@@ -35,8 +33,7 @@ public class ReflectionUtils {
 		return ParserUtils.parseBoolean(getString(toInvoke, attrName));
 	}
 
-	public static Object getObject(Object toInvoke, String attrName)
-			throws Exception {
+	public static Object getObject(Object toInvoke, String attrName) throws Exception {
 		@SuppressWarnings("rawtypes")
 		Class klass = toInvoke.getClass();
 
@@ -58,22 +55,17 @@ public class ReflectionUtils {
 	}
 
 	public static int getInt(Object toInvoke, Method method, Object... args) {
-		return ParserUtils.parseInt(ReflectionUtils.getString(toInvoke, method,
-				args));
+		return ParserUtils.parseInt(ReflectionUtils.getString(toInvoke, method, args));
 	}
 
-	public static boolean getBoolean(Object toInvoke, Method method,
-			Object... args) {
-		return ParserUtils.parseBoolean(ReflectionUtils.getString(toInvoke,
-				method, args));
+	public static boolean getBoolean(Object toInvoke, Method method, Object... args) {
+		return ParserUtils.parseBoolean(ReflectionUtils.getString(toInvoke, method, args));
 	}
 
-	public static String getString(Object toInvoke, Method method,
-			Object... args) {
+	public static String getString(Object toInvoke, Method method, Object... args) {
 
 		try {
-			return ParserUtils.parseString(ReflectionUtils.getObject(toInvoke,
-					method, args));
+			return ParserUtils.parseString(ReflectionUtils.getObject(toInvoke, method, args));
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, e.getMessage() + ", method: " + method, e);
 		}
@@ -81,13 +73,11 @@ public class ReflectionUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T getObject(Class<T> returnType, Object toInvoke,
-			Method method, Object... args) throws Exception {
+	public static <T> T getObject(Class<T> returnType, Object toInvoke, Method method, Object... args) throws Exception {
 		return (T) ReflectionUtils.getObject(toInvoke, method, args);
 	}
 
-	public static Object getObject(Object toInvoke, Method method,
-			Object... args) throws Exception {
+	public static Object getObject(Object toInvoke, Method method, Object... args) throws Exception {
 		return method.invoke(toInvoke, args);
 	}
 
@@ -115,12 +105,10 @@ public class ReflectionUtils {
 	private final static int METHOD_CLASS_GETDECLAREDFIELDS = 0x06;
 
 	@SuppressWarnings("unchecked")
-	public static <T> Constructor<T> doPrivilegedGetDeclaredConstructor(
-			Class<T> clazz, Class<?>... parameterTypes)
+	public static <T> Constructor<T> doPrivilegedGetDeclaredConstructor(Class<T> clazz, Class<?>... parameterTypes)
 			throws NoSuchMethodException {
 		Object obj = AccessController
-				.doPrivileged(new PrivilegedActionForClass(clazz,
-						parameterTypes, METHOD_CLASS_GETDECLAREDCONSTRUCTOR));
+				.doPrivileged(new PrivilegedActionForClass(clazz, parameterTypes, METHOD_CLASS_GETDECLAREDCONSTRUCTOR));
 		if (obj instanceof NoSuchMethodException) {
 			throw (NoSuchMethodException) obj;
 		}
@@ -128,20 +116,15 @@ public class ReflectionUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Constructor<T>[] doPrivilegedGetDeclaredConstructors(
-			Class<T> clazz) {
-		Object obj = AccessController
-				.doPrivileged(new PrivilegedActionForClass(clazz, null,
-						METHOD_CLASS_GETDECLAREDCONSTRUCTORS));
+	public static <T> Constructor<T>[] doPrivilegedGetDeclaredConstructors(Class<T> clazz) {
+		Object obj = AccessController.doPrivileged(new PrivilegedActionForClass(clazz, null, METHOD_CLASS_GETDECLAREDCONSTRUCTORS));
 		return (Constructor<T>[]) obj;
 	}
 
-	public static <T> Method doPrivilegedGetDeclaredMethod(Class<T> clazz,
-			String name, Class<?>... parameterTypes)
+	public static <T> Method doPrivilegedGetDeclaredMethod(Class<T> clazz, String name, Class<?>... parameterTypes)
 			throws NoSuchMethodException {
-		Object obj = AccessController
-				.doPrivileged(new PrivilegedActionForClass(clazz, new Object[] {
-						name, parameterTypes }, METHOD_CLASS_GETDECLAREDMETHOD));
+		Object obj = AccessController.doPrivileged(new PrivilegedActionForClass(clazz, new Object[] { name, parameterTypes },
+				METHOD_CLASS_GETDECLAREDMETHOD));
 		if (obj instanceof NoSuchMethodException) {
 			throw (NoSuchMethodException) obj;
 		}
@@ -149,17 +132,12 @@ public class ReflectionUtils {
 	}
 
 	public static <T> Method[] doPrivilegedGetDeclaredMethods(Class<T> clazz) {
-		Object obj = AccessController
-				.doPrivileged(new PrivilegedActionForClass(clazz, null,
-						METHOD_CLASS_GETDECLAREDMETHODS));
+		Object obj = AccessController.doPrivileged(new PrivilegedActionForClass(clazz, null, METHOD_CLASS_GETDECLAREDMETHODS));
 		return (Method[]) obj;
 	}
 
-	public static <T> Field doPrivilegedGetDeclaredField(Class<T> clazz,
-			String name) throws NoSuchFieldException {
-		Object obj = AccessController
-				.doPrivileged(new PrivilegedActionForClass(clazz, name,
-						METHOD_CLASS_GETDECLAREDFIELD));
+	public static <T> Field doPrivilegedGetDeclaredField(Class<T> clazz, String name) throws NoSuchFieldException {
+		Object obj = AccessController.doPrivileged(new PrivilegedActionForClass(clazz, name, METHOD_CLASS_GETDECLAREDFIELD));
 		if (obj instanceof NoSuchFieldException) {
 			throw (NoSuchFieldException) obj;
 		}
@@ -167,22 +145,18 @@ public class ReflectionUtils {
 	}
 
 	public static <T> Field[] doPrivilegedGetDeclaredFields(Class<T> clazz) {
-		Object obj = AccessController
-				.doPrivileged(new PrivilegedActionForClass(clazz, null,
-						METHOD_CLASS_GETDECLAREDFIELDS));
+		Object obj = AccessController.doPrivileged(new PrivilegedActionForClass(clazz, null, METHOD_CLASS_GETDECLAREDFIELDS));
 		return (Field[]) obj;
 	}
 
-	protected static class PrivilegedActionForClass implements
-			PrivilegedAction<Object> {
+	protected static class PrivilegedActionForClass implements PrivilegedAction<Object> {
 		Class<?> clazz;
 
 		Object parameters;
 
 		int method;
 
-		protected PrivilegedActionForClass(Class<?> clazz, Object parameters,
-				int method) {
+		protected PrivilegedActionForClass(Class<?> clazz, Object parameters, int method) {
 			this.clazz = clazz;
 			this.parameters = parameters;
 			this.method = method;
@@ -192,8 +166,7 @@ public class ReflectionUtils {
 			try {
 				switch (method) {
 				case METHOD_CLASS_GETDECLAREDCONSTRUCTOR:
-					return clazz
-							.getDeclaredConstructor((Class<?>[]) parameters);
+					return clazz.getDeclaredConstructor((Class<?>[]) parameters);
 				case METHOD_CLASS_GETDECLAREDCONSTRUCTORS:
 					return clazz.getDeclaredConstructors();
 				case METHOD_CLASS_GETDECLAREDMETHOD:
@@ -208,8 +181,7 @@ public class ReflectionUtils {
 					return clazz.getDeclaredFields();
 
 				default:
-					return new IllegalArgumentException(
-							"unknown security method: " + method);
+					return new IllegalArgumentException("unknown security method: " + method);
 				}
 			} catch (Exception exception) {
 				return exception;
@@ -231,20 +203,16 @@ public class ReflectionUtils {
 
 	public static boolean isSameSignature(Method methodA, Method methodB) {
 
-		if (methodA == null || methodB == null)
-			return false;
-		if (!methodA.getName().equals(methodB.getName()))
-			return false;
+		if (methodA == null || methodB == null) return false;
+		if (!methodA.getName().equals(methodB.getName())) return false;
 
 		Class<?>[] parameterTypesA = methodA.getParameterTypes();
 		Class<?>[] parameterTypesB = methodB.getParameterTypes();
 
-		if (parameterTypesA.length != parameterTypesB.length)
-			return false;
+		if (parameterTypesA.length != parameterTypesB.length) return false;
 
 		for (int i = 0; i < parameterTypesA.length; i++) {
-			if (!parameterTypesA[i].equals(parameterTypesB[i]))
-				return false;
+			if (!parameterTypesA[i].equals(parameterTypesB[i])) return false;
 		}
 
 		return true;
@@ -255,8 +223,7 @@ public class ReflectionUtils {
 	public static boolean containsMethod(Method[] methods, Method method) {
 
 		Boolean result = cachedMethods.get(method);
-		if (result != null)
-			return result;
+		if (result != null) return result;
 
 		for (Method m : methods) {
 			if (isSameSignature(m, method)) {

@@ -26,8 +26,7 @@ public class ThreadLocalMapUtil {
 		return THREAD_VARIABLES.get().get(name);
 	}
 
-	public static Object getThreadVariable(String name,
-			InitialValue initialValue) {
+	public static Object getThreadVariable(String name, InitialValue initialValue) {
 		Object o = THREAD_VARIABLES.get().get(name);
 		if (o == null) {
 			THREAD_VARIABLES.get().put(name, initialValue.create());

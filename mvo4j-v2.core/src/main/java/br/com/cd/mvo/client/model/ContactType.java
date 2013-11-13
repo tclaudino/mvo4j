@@ -19,8 +19,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "contact_types", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "TYPE" }),
+@Table(name = "contact_types", uniqueConstraints = { @UniqueConstraint(columnNames = { "TYPE" }),
 		@UniqueConstraint(columnNames = { "ACRONYM" }) })
 public class ContactType {
 
@@ -96,8 +95,7 @@ public class ContactType {
 			return false;
 		}
 		ContactType other = (ContactType) object;
-		if ((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))) {
+		if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
 			return false;
 		}
 		return true;

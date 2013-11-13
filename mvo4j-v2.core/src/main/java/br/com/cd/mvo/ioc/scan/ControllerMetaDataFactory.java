@@ -1,25 +1,19 @@
 package br.com.cd.mvo.ioc.scan;
 
-import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.bean.ControllerBean;
-import br.com.cd.mvo.bean.WriteablePropertyMap;
-import br.com.cd.mvo.bean.config.BeanMetaData;
 import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.core.CrudController;
+import br.com.cd.mvo.bean.config.WriteableMetaData;
+import br.com.cd.mvo.core.Controller;
 
-public class ControllerMetaDataFactory extends
-		AbstractBeanMetaDataFactory<ControllerMetaData, ControllerBean> {
+public class ControllerMetaDataFactory extends AbstractBeanMetaDataFactory<ControllerMetaData<?>, ControllerBean> {
 
 	public ControllerMetaDataFactory() {
-		super(CrudController.class);
+		super(Controller.class);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public ControllerMetaData doCreateBeanMetaData(
-			WriteablePropertyMap propertyMap) {
-
-		propertyMap.add(BeanMetaData.SCOPE,
-				ConfigParamKeys.DefaultValues.SCOPE_SESSION_NAME);
+	public ControllerMetaData doCreateBeanMetaData(WriteableMetaData propertyMap) {
 
 		ControllerMetaData beanConfig = new ControllerMetaData(propertyMap);
 

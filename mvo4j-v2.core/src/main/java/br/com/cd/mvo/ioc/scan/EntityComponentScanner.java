@@ -3,18 +3,19 @@ package br.com.cd.mvo.ioc.scan;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
-import br.com.cd.mvo.bean.WriteablePropertyMap;
 import br.com.cd.mvo.bean.config.BeanMetaData;
+import br.com.cd.mvo.bean.config.DefaultBeanMetaData;
+import br.com.cd.mvo.bean.config.WriteableMetaData;
 import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.ioc.NoProxy;
 import br.com.cd.mvo.ioc.Proxifier;
 
 public class EntityComponentScanner extends AbstractComponentScanner {
 
-	public EntityComponentScanner(String packageToScan,
-			String... packagesToScan) {
+	public EntityComponentScanner(String packageToScan, String... packagesToScan) {
 		super(packageToScan, packagesToScan);
 	}
 
@@ -22,25 +23,19 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 		super(packagesToScan);
 	}
 
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void scan(Scanner scanner, Container container)
-			throws ConfigurationException {
+	public void scan(Scanner scanner, Container container) throws ConfigurationException {
 
-		Collection<Class<?>> entities = scanner.scan(container
-				.getPersistenceManagerFactory().getEntityAnnotation(),
-				packagesToScan);
+		Collection<Class<?>> entities = scanner.scan(container.getPersistenceManagerFactory().getEntityAnnotation(), packagesToScan);
 
-		Proxifier proxifier = container.getBean(Proxifier.BEAN_NAME,
-				Proxifier.class);
+		Proxifier proxifier = container.getBean(Proxifier.BEAN_NAME, Proxifier.class);
 
-		for (Class<?> entity : entities) {
+		for (Class<?> targetEntity : entities) {
 
 			Class<?> entityId = null;
-			for (Field field : entity.getDeclaredFields()) {
-				if (field.isAnnotationPresent(container
-						.getPersistenceManagerFactory()
-						.getEntityIdentifierAnnotation())) {
+			for (Field field : targetEntity.getDeclaredFields()) {
+				if (field.isAnnotationPresent(container.getPersistenceManagerFactory().getEntityIdentifierAnnotation())) {
 					entityId = field.getType();
 					break;
 				}
@@ -49,36 +44,26 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 				continue;
 			}
 
-			// for (ComponentFactory<BeanFactory<?, ?>> compFactory : container
-			// .getComponentFactories()) {
-			// BeanFactory<?, ?> bf = compFactory.getInstance();
-			// BeanMetaDataFactory<?, ?> bmf = bf.getBeanMetaDataFactory();
-
 			for (BeanMetaDataFactory<?, ?> bmf : this.metaDataFactories) {
 
-				if (bmf.getBeanAnnotationType().equals(NoScan.class)) {
-					continue;
-				}
+				if (bmf.getBeanAnnotationType().equals(NoScan.class)) continue;
 
-				WriteablePropertyMap propertyMap = bmf
-						.newDefaultPropertyMap(container);
+				BeanMetaDataWrapper<?> existentMetaData = BeanMetaDataWrapper.getBeanMetaData(container, bmf, targetEntity);
+				if (existentMetaData != null) continue;
 
-				propertyMap.add(BeanMetaData.TARGET_ENTITY, entity);
+				WriteableMetaData propertyMap = bmf.newDefaultPropertyMap(container.getApplicationConfig());
+
+				propertyMap.add(BeanMetaData.TARGET_ENTITY, targetEntity);
 				propertyMap.add(BeanMetaData.ENTITY_ID_TYPE, entityId);
 
-				String className = entity.getSimpleName()
-						+ entity.getPackage().getName().hashCode()
+				String className = targetEntity.getSimpleName() + targetEntity.getPackage().getName().hashCode()
 						+ bmf.getBeanObjectType().getSimpleName();
 
-				Class<?> proxyClass = proxifier.proxify(className,
-						EmptyBeanObject.class);
+				Class<? extends ScannedEntityBeanObject> proxyClass = proxifier.proxify(className, ScannedEntityBeanObject.class);
 
-				BeanMetaDataWrapper<?> metaDataWrapper = bmf
-						.createBeanMetaData(propertyMap, proxyClass, container,
-								false);
+				BeanMetaDataWrapper<? extends DefaultBeanMetaData> metaDataWrapper = bmf.createBeanMetaData(propertyMap, proxyClass, false);
 
-				String beanMetaDataName = BeanMetaDataWrapper
-						.generateBeanMetaDataName(metaDataWrapper);
+				String beanMetaDataName = BeanMetaDataWrapper.generateBeanMetaDataName(metaDataWrapper, false);
 
 				if (!container.containsBean(beanMetaDataName)) {
 
@@ -93,11 +78,18 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 		return 1;
 	}
 
-	public static class EmptyBeanObject implements BeanObject {
+	public static class ScannedEntityBeanObject<T> implements BeanObject<T> {
+
+		private BeanMetaData<T> metaData;
+
+		public ScannedEntityBeanObject(BeanMetaData<T> metaData) {
+			this.metaData = metaData;
+		}
 
 		@Override
-		public BeanMetaData getBeanMetaData() {
-			return null;
+		@NoProxy
+		public BeanMetaData<T> getBeanMetaData() {
+			return metaData;
 		}
 	}
 

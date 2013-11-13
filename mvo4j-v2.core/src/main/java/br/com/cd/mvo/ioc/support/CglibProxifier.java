@@ -1,118 +1,103 @@
 package br.com.cd.mvo.ioc.support;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
-import br.com.cd.mvo.ioc.Proxifier;
+
+import org.apache.commons.lang3.ClassUtils;
+
+import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.ioc.MethodInvokeCallback;
 import br.com.cd.mvo.util.ReflectionUtils;
-import br.com.cd.mvo.util.ThreadLocalMapUtil;
 import br.com.cd.mvo.util.cglib.CglibUtils;
 
-public class CglibProxifier implements Proxifier {
-
-	private static boolean isCandidateMethod(Method method) {
-
-		return Modifier.isPublic(method.getModifiers())
-				&& !Modifier.isFinal(method.getModifiers())
-				&& !Modifier.isNative(method.getModifiers())
-				&& !Modifier.isStatic(method.getModifiers())
-				&& !Modifier.isStrict(method.getModifiers())
-				&& !Modifier.isVolatile(method.getModifiers())
-				&& !ReflectionUtils.getJavaObjectMethods().contains(
-						method.getName());
-	}
+public class CglibProxifier extends AbstractProxifier {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T proxify(final String classNameSuffix,
-			final Class<T> targetBean, final Object bean, Object... parameters) {
+	public <T> T proxify(final String classNameSuffix, final Class<T> targetBean, final Object bean, Constructor<?> ctor,
+			final MethodInvokeCallback miCallback, Object... parameters) throws ConfigurationException {
 
 		Set<Class<?>> allInterfaces = new HashSet<>();
+
 		allInterfaces.addAll(Arrays.asList(targetBean.getInterfaces()));
-		allInterfaces.addAll(Arrays.asList(bean.getClass().getInterfaces()));
+		allInterfaces.addAll(ClassUtils.getAllInterfaces(bean.getClass()));
 
-		Enhancer enhancer = CglibUtils.createEnhancer(classNameSuffix,
-				targetBean, new MethodInterceptor() {
+		Class<?> classToProxy = targetBean;
+		if (Factory.class.isAssignableFrom(targetBean)) {
+			classToProxy = targetBean.getSuperclass();
+			// allInterfaces.remove(Factory.class);
+		}
 
-					@Override
-					public Object intercept(Object object, Method method,
-							Object[] args, MethodProxy methodProxy)
-							throws Throwable {
+		MethodInterceptor interceptor = new MethodInterceptor() {
 
-						if (isCandidateMethod(method)
-								&& ReflectionUtils.containsMethod(bean
-										.getClass().getMethods(), method)) {
+			@Override
+			public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 
-							Object invoke = method.invoke(bean, args);
-							return invoke;
-						}
-						applySetParameterAnnotations(method);
-						Object invoke = methodProxy.invokeSuper(object, args);
-						applyUnsetParameterAnnotations(method);
+				if ((miCallback == null || miCallback.isCandidateMethod(method))
+						&& ReflectionUtils.containsMethod(bean.getClass().getMethods(), method)) {
+
+					if (miCallback != null && miCallback.beforeInvoke(method)) {
+						Object invoke = method.invoke(bean, args);
+						if (miCallback != null) miCallback.afterInvoke(method);
 						return invoke;
 					}
-				}, allInterfaces.toArray(new Class[allInterfaces.size()]));
-
-		if (parameters.length > 0) {
-
-			Class<?>[] parameterTypes = new Class[parameters.length];
-
-			for (int i = 0; i < parameters.length; i++) {
-
-				parameterTypes[i] = parameters[i].getClass();
-				if (parameters[i] instanceof net.sf.cglib.proxy.Factory)
-					parameterTypes[i] = parameters[i].getClass()
-							.getSuperclass();
+				}
+				if (miCallback != null) miCallback.beforeInvoke(method);
+				Object invoke = methodProxy.invokeSuper(object, args);
+				if (miCallback != null) miCallback.afterInvoke(method);
+				return invoke;
 			}
-			return (T) enhancer.create(parameterTypes, parameters);
+		};
+
+		Enhancer enhancer = CglibUtils.createEnhancer(classNameSuffix, classToProxy, interceptor,
+				allInterfaces.toArray(new Class[allInterfaces.size()]));
+
+		Object proxyObj;
+		if (parameters.length == 0) {
+			proxyObj = enhancer.create();
+		} else {
+
+			Class<?>[] parameterTypes;
+			if (ctor == null) {
+				parameterTypes = new Class[parameters.length];
+
+				for (int i = 0; i < parameters.length; i++) {
+
+					parameterTypes[i] = parameters[i].getClass();
+					if (parameters[i] instanceof net.sf.cglib.proxy.Factory) parameterTypes[i] = parameters[i].getClass().getSuperclass();
+				}
+			} else {
+				parameterTypes = ctor.getParameterTypes();
+			}
+			proxyObj = enhancer.create(parameterTypes, parameters);
 		}
-		return (T) enhancer.create();
+		return (T) proxyObj;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Class<T> proxify(final String classNameSuffix,
-			Class<T> targetBean) {
+	public <T> Class<T> proxify(final String classNameSuffix, Class<T> targetBean) throws ConfigurationException {
 
-		Enhancer enhancer = CglibUtils.createEnhancer(classNameSuffix,
-				targetBean, null);
+		Class<?> classToProxy = targetBean;
+		if (Factory.class.isAssignableFrom(targetBean)) {
+			classToProxy = targetBean.getSuperclass();
+		}
+
+		Enhancer enhancer = CglibUtils.createEnhancer(classNameSuffix, classToProxy, null);
 
 		enhancer.setCallbackType(NoOp.class);
 
-		return (Class<T>) enhancer.createClass();
-	}
+		classToProxy = enhancer.createClass();
 
-	private void applyUnsetParameterAnnotations(Method method) {
-
-		ThreadLocalMapUtil.removeThreadVariable("PARAMETER_ANNOTATIONS");
-	}
-
-	private void applySetParameterAnnotations(Method method) {
-
-		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-		if (parameterAnnotations.length > 0
-				&& parameterAnnotations[0].length > 0)
-			ThreadLocalMapUtil.setThreadVariable("PARAMETER_ANNOTATIONS",
-					joinAnnotations(method.getParameterAnnotations()));
-	}
-
-	private Annotation[] joinAnnotations(Annotation[][] annotationsArray) {
-
-		List<Annotation> list = new LinkedList<>();
-		for (Annotation[] annotations : annotationsArray) {
-			if (annotations.length > 0)
-				list.addAll(Arrays.asList(annotations));
-		}
-		return list.toArray(new Annotation[list.size()]);
+		return (Class<T>) classToProxy;
 	}
 }

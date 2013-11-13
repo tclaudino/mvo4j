@@ -1,6 +1,7 @@
 package br.com.cd.mvo.ioc;
 
 import br.com.cd.mvo.ioc.support.ControllerBeanFactory;
+import br.com.cd.mvo.ioc.support.ControllerListenerBeanFactory;
 
 public class DefaultContainerListener implements ContainerListener {
 
@@ -14,5 +15,6 @@ public class DefaultContainerListener implements ContainerListener {
 	public void deepRegister(Container container) {
 
 		container.addComponentFactory(new ControllerBeanFactory(container));
+		container.addComponentFactory(new ControllerListenerBeanFactory(container));
 	}
 }

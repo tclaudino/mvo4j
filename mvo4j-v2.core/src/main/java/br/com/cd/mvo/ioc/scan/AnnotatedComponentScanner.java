@@ -2,15 +2,14 @@ package br.com.cd.mvo.ioc.scan;
 
 import java.util.Collection;
 
-import br.com.cd.mvo.bean.WriteablePropertyMap;
+import br.com.cd.mvo.bean.config.WriteableMetaData;
 import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
 
 public class AnnotatedComponentScanner extends AbstractComponentScanner {
 
-	public AnnotatedComponentScanner(String packageToScan,
-			String... packagesToScan) {
+	public AnnotatedComponentScanner(String packageToScan, String... packagesToScan) {
 		super(packageToScan, packagesToScan);
 	}
 
@@ -19,29 +18,25 @@ public class AnnotatedComponentScanner extends AbstractComponentScanner {
 	}
 
 	@Override
-	public void scan(Scanner scanner, Container container)
-			throws ConfigurationException {
-
-		// for (ComponentFactory<BeanFactory<?, ?>> compFactory : container
-		// .getComponentFactories()) {
-		// BeanFactory<?, ?> bf = compFactory.getInstance();
-		// BeanMetaDataFactory<?, ?> bmf = bf.getBeanMetaDataFactory();
+	public void scan(Scanner scanner, Container container) throws ConfigurationException {
 
 		for (BeanMetaDataFactory<?, ?> bmf : this.metaDataFactories) {
+
+			if (bmf.getBeanAnnotationType().equals(NoScan.class)) continue;
 
 			Collection<Class<?>> beanTypes = bmf.scan(scanner, packagesToScan);
 
 			for (Class<?> beanType : beanTypes) {
 
-				if (beanType.isAnnotationPresent(NoScan.class))
-					continue;
+				if (beanType.isAnnotationPresent(NoScan.class)) continue;
 
-				WriteablePropertyMap propertyMap = bmf
-						.newDefaultPropertyMap(container);
+				WriteableMetaData propertyMap = bmf.newDefaultPropertyMap(container.getApplicationConfig());
 
-				BeanMetaDataWrapper<?> metaDataWrapper = bmf
-						.createBeanMetaData(propertyMap, beanType, container,
-								true);
+				BeanMetaDataWrapper<?> metaDataWrapper = bmf.createBeanMetaData(propertyMap, beanType, true);
+
+				BeanMetaDataWrapper<?> existentMetaData = BeanMetaDataWrapper.getBeanMetaData(container, bmf, metaDataWrapper
+						.getBeanMetaData().targetEntity());
+				if (existentMetaData != null) continue;
 
 				container.registerBean(metaDataWrapper);
 			}

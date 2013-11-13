@@ -11,12 +11,10 @@ import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.ContainerProvider;
 import br.com.cd.mvo.ioc.LocalPropertyContainerConfig;
 
-public class SpringContainerProvider implements
-		ContainerProvider<LocalPropertyContainerConfig> {
+public class SpringContainerProvider implements ContainerProvider<LocalPropertyContainerConfig> {
 
 	@Override
-	public Container getContainer(LocalPropertyContainerConfig config)
-			throws ConfigurationException {
+	public Container getContainer(LocalPropertyContainerConfig config) throws ConfigurationException {
 
 		ConfigurableApplicationContext applicationContext = getApplicationContext(config);
 
@@ -27,19 +25,15 @@ public class SpringContainerProvider implements
 		return container;
 	}
 
-	private ConfigurableApplicationContext getApplicationContext(
-			LocalPropertyContainerConfig contextConfig) {
+	private ConfigurableApplicationContext getApplicationContext(LocalPropertyContainerConfig contextConfig) {
 
-		ConfigurableApplicationContext applicationContext = ApplicationContextHolder
-				.getApplicationContext();
+		ConfigurableApplicationContext applicationContext = ApplicationContextHolder.getApplicationContext();
 
-		if (applicationContext != null)
-			return new GenericApplicationContext(applicationContext);
+		if (applicationContext != null) return new GenericApplicationContext(applicationContext);
 
 		if (DefaultSpringLocator.class.getResource("/applicationContext.xml") != null) {
 			// logger.info("Using an XmlWebApplicationContext, searching for applicationContext.xml");
-			GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
-					"classpath:applicationContext.xml");
+			GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("classpath:applicationContext.xml");
 			return ctx;
 		}
 		// logger.info("No application context found");

@@ -37,8 +37,7 @@ public interface FilterManager {
 
 	FilterManager setValue(String fieldName, Object value);
 
-	FilterManager setValue(String fieldName, Object value,
-			LikeCritirionEnum likeType);
+	FilterManager setValue(String fieldName, Object value, LikeCritirionEnum likeType);
 
 	Map<String, Object> getFilterMap();
 

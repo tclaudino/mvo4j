@@ -7,8 +7,7 @@ import java.util.TreeSet;
 
 public class ComponentScannerFactory {
 
-	public static final String BEAN_NAME = ComponentScannerFactory.class
-			.getName();
+	public static final String BEAN_NAME = ComponentScannerFactory.class.getName();
 
 	private String[] packagesToScan;
 	private Collection<ComponentScanner> scanners = new TreeSet<>();
@@ -22,16 +21,15 @@ public class ComponentScannerFactory {
 	}
 
 	public void setPackagesToScan(Collection<String> packagesToScan) {
-		this.setPackagesToScan(packagesToScan.toArray(new String[packagesToScan
-				.size()]));
+		this.setPackagesToScan(packagesToScan.toArray(new String[packagesToScan.size()]));
 	}
 
 	public void setPackagesToScan(String... packagesToScan) {
 		this.packagesToScan = packagesToScan;
 	}
 
-	public void addComponentScanner(ComponentScanner discovery) {
-		this.scanners.add(discovery);
+	public void addComponentScanner(ComponentScanner scanner) {
+		this.scanners.add(scanner);
 	}
 
 	public Collection<ComponentScanner> getComponentScanners() {

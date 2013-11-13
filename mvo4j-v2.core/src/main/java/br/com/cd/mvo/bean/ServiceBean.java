@@ -1,5 +1,6 @@
 package br.com.cd.mvo.bean;
 
+import java.io.Serializable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -16,6 +17,8 @@ public @interface ServiceBean {
 	String name();
 
 	Class<?> targetEntity();
+
+	Class<? extends Serializable> entityIdType();
 
 	String scope() default "singleton";
 

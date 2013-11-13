@@ -1,24 +1,25 @@
 package br.com.cd.mvo.core;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import br.com.cd.mvo.bean.config.BeanMetaData;
 import br.com.cd.mvo.bean.config.ServiceMetaData;
 import br.com.cd.mvo.orm.Repository;
 
-public class DefaultCrudService<T> implements ListenableCrudService<T> {
+public class DefaultCrudService<T> implements CrudService<T>, Listenable<CrudServiceListener<T>> {
 
 	private final Repository<T> repository;
 
-	protected ServiceMetaData metaData;
+	protected ServiceMetaData<T> metaData;
 
-	private List<ServiceListener<T>> listeners = new LinkedList<ServiceListener<T>>();
+	private Collection<CrudServiceListener<T>> listeners = new LinkedHashSet<CrudServiceListener<T>>();
 
-	public DefaultCrudService(Repository<T> repository, ServiceMetaData metaData) {
+	public DefaultCrudService(Repository<T> repository, ServiceMetaData<T> metaData) {
 		this.repository = repository;
 		this.metaData = metaData;
 	}
@@ -55,33 +56,39 @@ public class DefaultCrudService<T> implements ListenableCrudService<T> {
 	@PostConstruct
 	@Override
 	public void afterPropertiesSet() {
-		for (ServiceListener<T> listener : this.getListeners()) {
+		for (CrudServiceListener<T> listener : this.getListeners()) {
 			listener.postConstruct(this);
 		}
 	}
 
 	@Override
-	public ServiceMetaData getBeanMetaData() {
+	public BeanMetaData<T> getBeanMetaData() {
 		return metaData;
 	}
 
 	@PreDestroy
 	@Override
 	public final void destroy() {
-		for (ServiceListener<T> listener : this.getListeners()) {
+		for (CrudServiceListener<T> listener : this.getListeners()) {
 			listener.preDestroy(this);
 		}
 	}
 
 	@Override
-	public List<ServiceListener<T>> getListeners() {
+	public Collection<CrudServiceListener<T>> getListeners() {
 		return listeners;
 	}
 
 	@Override
-	public void addListener(ServiceListener<T> listener) {
+	public void addListener(CrudServiceListener<T> listener) {
 
 		this.listeners.add(listener);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<? extends CrudServiceListener> getListenerType() {
+		return CrudServiceListener.class;
 	}
 
 }

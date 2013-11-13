@@ -4,13 +4,11 @@ import java.lang.annotation.Annotation;
 
 import br.com.cd.mvo.bean.config.RepositoryMetaData;
 
-public interface RepositoryFactory<F, B, R extends ListenableRepository<?>> {
+public interface RepositoryFactory<F, B, R extends Repository<?>> {
 
-	public static final String BEAN_NAME_PREFIX = RepositoryFactory.class
-			.getName();
+	public static final String BEAN_NAME_PREFIX = RepositoryFactory.class.getName();
 
-	public abstract R getInstance(String persistenceManagerQualifier,
-			Class<?> entityClass, RepositoryMetaData metaData);
+	public abstract <T> R getInstance(RepositoryMetaData<T> metaData);
 
 	B getPersistenceManager(String persistenceManagerFactoryBeanName);
 

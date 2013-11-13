@@ -5,8 +5,7 @@ import br.com.cd.mvo.ioc.Container;
 
 public interface ComponentScanner extends Comparable<ComponentScanner> {
 
-	void scan(Scanner scanner, Container container)
-			throws ConfigurationException;
+	void scan(Scanner scanner, Container container) throws ConfigurationException;
 
 	int getOrder();
 

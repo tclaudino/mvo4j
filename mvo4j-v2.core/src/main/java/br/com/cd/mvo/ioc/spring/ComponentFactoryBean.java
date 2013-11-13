@@ -18,8 +18,7 @@ public class ComponentFactoryBean<T> implements FactoryBean<T> {
 		try {
 			return componentFactory.getInstance();
 		} catch (NoSuchBeanDefinitionException e) {
-			throw new org.springframework.beans.factory.NoSuchBeanDefinitionException(
-					this.getObjectType());
+			throw new org.springframework.beans.factory.NoSuchBeanDefinitionException(this.getObjectType());
 		}
 	}
 

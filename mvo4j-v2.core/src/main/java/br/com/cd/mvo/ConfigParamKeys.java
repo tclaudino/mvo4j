@@ -36,15 +36,12 @@ public class ConfigParamKeys {
 		public static final String DEFAULT_LOCALE = "en_US";
 		public static final String SUPORTED_LOCALES = "en_US,pt_BR";
 		public static final String BUNDLE_NAME = "i18n";
-		public static final String REPOSITORY_FACTORY_CLASS = JpaRepositoryFactory.class
-				.getName();
+		public static final String REPOSITORY_FACTORY_CLASS = JpaRepositoryFactory.class.getName();
 		public static final int INITIAL_PAGESIZE = 10;
 		public static final String PERSISTENCE_MANAGER_FACTORY_BEAN_NAME = "entityManagerFactory";
 		public static final String SCOPE_NAME = "singleton";
-		public static final String PROVIDER_CLASS = SpringWebContainerProvider.class
-				.getName();
-		public static final String BEAN_INSTANTIATION_STRATEGY_CLASS = CglibProxifier.class
-				.getName();
+		public static final String PROVIDER_CLASS = SpringWebContainerProvider.class.getName();
+		public static final String BEAN_INSTANTIATION_STRATEGY_CLASS = CglibProxifier.class.getName();
 		public static final String SCOPE_SINGLETON_NAME = "singleton";
 		public static final String SCOPE_REQUEST_NAME = "request";
 		public static final String SCOPE_APPLICATION_NAME = "application";

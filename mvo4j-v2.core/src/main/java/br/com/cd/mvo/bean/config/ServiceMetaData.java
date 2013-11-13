@@ -1,21 +1,14 @@
 package br.com.cd.mvo.bean.config;
 
-import java.lang.annotation.Annotation;
+import br.com.cd.mvo.core.BeanObjectListener;
 
-import br.com.cd.mvo.bean.PropertyMap;
-import br.com.cd.mvo.bean.ServiceBean;
-
-public class ServiceMetaData extends BeanMetaData {
+public class ServiceMetaData<T> extends DefaultBeanMetaData<T> {
 
 	public static final String BEAN_NAME_SUFFIX = "Service";
 
-	public ServiceMetaData(PropertyMap adaptee) {
-		super(adaptee);
-	}
-
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return ServiceBean.class;
+	@SuppressWarnings("unchecked")
+	public ServiceMetaData(MetaData adaptee) {
+		super(adaptee.get(TARGET_ENTITY, Class.class), adaptee);
 	}
 
 	@Override
@@ -23,19 +16,18 @@ public class ServiceMetaData extends BeanMetaData {
 		return ServiceMetaData.BEAN_NAME_SUFFIX;
 	}
 
-	public static class ListenerMetaData extends ServiceMetaData {
+	public static class ListenerMetaData<T> extends ServiceMetaData<T> {
 
-		public static final String BEAN_NAME_SUFFIX = ServiceMetaData.BEAN_NAME_SUFFIX
-				+ "Listener";
-
-		public ListenerMetaData(PropertyMap adaptee) {
+		public ListenerMetaData(MetaData adaptee) {
 			super(adaptee);
 		}
 
 		@Override
 		public String getBeanNameSuffix() {
-			return ListenerMetaData.BEAN_NAME_SUFFIX;
+			return ServiceMetaData.BEAN_NAME_SUFFIX + BeanObjectListener.BEAN_NAME_SUFFIX;
+			// return BeanObjectListener.BEAN_NAME_SUFFIX;
 		}
+
 	}
 
 }

@@ -6,12 +6,12 @@ import java.util.Map.Entry;
 import br.com.cd.mvo.bean.ServiceBean;
 import br.com.cd.mvo.client.model.ContactType;
 import br.com.cd.mvo.core.CrudService;
-import br.com.cd.mvo.core.ServiceListener;
+import br.com.cd.mvo.core.CrudServiceListener;
 import br.com.cd.mvo.orm.LikeCritirion;
 import br.com.cd.mvo.orm.LikeCritirionEnum;
 
-@ServiceBean(targetEntity = ContactType.class, name = "contactTypeService")
-public class ContactTypeService implements ServiceListener<ContactType> {
+@ServiceBean(targetEntity = ContactType.class, name = "contactTypeService", entityIdType = Integer.class)
+public class ContactTypeService implements CrudServiceListener<ContactType> {
 
 	private ContactTypeRepository repository;
 	private CrudService<ContactType> service;
@@ -22,17 +22,13 @@ public class ContactTypeService implements ServiceListener<ContactType> {
 		this.repository = repository;
 	}
 
-	public ContactType testFindLike(
-			@LikeCritirion(LikeCritirionEnum.ALL) String v1,
-			@LikeCritirion(LikeCritirionEnum.iSTART) String v2) {
+	public ContactType testFindLike(@LikeCritirion(LikeCritirionEnum.ALL) String v1, @LikeCritirion(LikeCritirionEnum.iSTART) String v2) {
 
 		System.out.println(this.getClass().getName() + ".testFindLike");
 
-		Entry<String, Object> entry1 = new AbstractMap.SimpleEntry<String, Object>(
-				"type", v1);
+		Entry<String, Object> entry1 = new AbstractMap.SimpleEntry<String, Object>("type", v1);
 
-		Entry<String, Object> entry2 = new AbstractMap.SimpleEntry<String, Object>(
-				"acronym", v2);
+		Entry<String, Object> entry2 = new AbstractMap.SimpleEntry<String, Object>("acronym", v2);
 
 		return service.getRepository().find(entry1, entry2);
 	}

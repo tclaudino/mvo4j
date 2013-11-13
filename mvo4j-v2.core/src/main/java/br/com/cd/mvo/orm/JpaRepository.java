@@ -16,13 +16,11 @@ public interface JpaRepository<T> extends SQLRepository<T> {
 
 	List<T> findList(final CriteriaBuilder cb);
 
-	List<T> findList(final CriteriaBuilder cb, final Integer firstResult,
-			Integer maxResults);
+	List<T> findList(final CriteriaBuilder cb, final Integer firstResult, Integer maxResults);
 
 	List<T> findList(final CriteriaBuilder cb, final OrderBy orderBy);
 
-	List<T> findList(final CriteriaBuilder cb, final OrderBy orderBy,
-			final Integer firstResult, final Integer maxResults);
+	List<T> findList(final CriteriaBuilder cb, final OrderBy orderBy, final Integer firstResult, final Integer maxResults);
 
 	Long getListCount(final CriteriaBuilder cb);
 
@@ -32,6 +30,5 @@ public interface JpaRepository<T> extends SQLRepository<T> {
 
 	CriteriaQuery<T> createCriteriaQuery(final OrderBy orderBy);
 
-	CriteriaQuery<T> createCriteriaQuery(final CriteriaBuilder cb,
-			OrderBy orderBy);
+	CriteriaQuery<T> createCriteriaQuery(final CriteriaBuilder cb, OrderBy orderBy);
 }

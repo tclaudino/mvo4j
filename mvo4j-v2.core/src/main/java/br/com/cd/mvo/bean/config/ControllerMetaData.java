@@ -1,21 +1,14 @@
 package br.com.cd.mvo.bean.config;
 
-import java.lang.annotation.Annotation;
+import br.com.cd.mvo.core.BeanObjectListener;
 
-import br.com.cd.mvo.bean.ControllerBean;
-import br.com.cd.mvo.bean.PropertyMap;
-
-public class ControllerMetaData extends BeanMetaData {
+public class ControllerMetaData<T> extends DefaultBeanMetaData<T> {
 
 	public static final String BEAN_NAME_SUFFIX = "Controller";
 
-	public ControllerMetaData(PropertyMap adaptee) {
-		super(adaptee);
-	}
-
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return ControllerBean.class;
+	@SuppressWarnings("unchecked")
+	public ControllerMetaData(MetaData adaptee) {
+		super(adaptee.get(TARGET_ENTITY, Class.class), adaptee);
 	}
 
 	@Override
@@ -25,18 +18,17 @@ public class ControllerMetaData extends BeanMetaData {
 
 	// RelationMap[] relationMaps() default {};
 
-	public static class ListenerMetaData extends ControllerMetaData {
+	public static class ListenerMetaData<T> extends ControllerMetaData<T> {
 
-		public static final String BEAN_NAME_SUFFIX = ControllerMetaData.BEAN_NAME_SUFFIX
-				+ "Listener";
-
-		public ListenerMetaData(PropertyMap adaptee) {
+		public ListenerMetaData(MetaData adaptee) {
 			super(adaptee);
 		}
 
 		@Override
 		public String getBeanNameSuffix() {
-			return ListenerMetaData.BEAN_NAME_SUFFIX;
+			return ControllerMetaData.BEAN_NAME_SUFFIX + BeanObjectListener.BEAN_NAME_SUFFIX;
+			// return BeanObjectListener.BEAN_NAME_SUFFIX;
 		}
+
 	}
 }

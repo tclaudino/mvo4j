@@ -92,8 +92,7 @@ public class ContactEmail {
 			return false;
 		}
 		ContactEmail other = (ContactEmail) object;
-		if ((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))) {
+		if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
 			return false;
 		}
 		return true;

@@ -5,8 +5,7 @@ import br.com.cd.mvo.util.StringUtils;
 
 public enum LikeCritirionEnum {
 
-	START("%{0}"), iSTART("%{0}", true), END("{0}%"), iEND("{0}%", true), ALL(
-			"%{0}%"), iALL("%{0}%", true), NONE("");
+	START("%{0}"), iSTART("%{0}", true), END("{0}%"), iEND("{0}%", true), ALL("%{0}%"), iALL("%{0}%", true), NONE("");
 
 	String like;
 	Boolean ignoreCase = false;
@@ -31,8 +30,7 @@ public enum LikeCritirionEnum {
 	 * @return the like
 	 */
 	public String getLike(Object bundle) {
-		String lk = (this.like.isEmpty() ? ParserUtils.parseString(bundle)
-				: StringUtils.format(this.like, bundle));
+		String lk = (this.like.isEmpty() ? ParserUtils.parseString(bundle) : StringUtils.format(this.like, bundle));
 		return ignoreCase ? lk.toLowerCase() : lk;
 	}
 

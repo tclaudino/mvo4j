@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
+
 import br.com.cd.mvo.ApplicationConfig;
 import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.ConfigurationException;
@@ -14,6 +16,8 @@ import br.com.cd.mvo.orm.RepositoryFactory;
 import br.com.cd.mvo.orm.support.AbstractRepositoryFactory;
 
 public abstract class AbstractContainer implements Container {
+
+	protected static Logger looger = Logger.getLogger(Container.class);
 
 	protected ContainerConfig<?> containerConfig;
 
@@ -26,8 +30,7 @@ public abstract class AbstractContainer implements Container {
 		this.containerConfig = containerConfig;
 	}
 
-	protected abstract void doRegisterBean(String beanName, String scope,
-			Class<?> beanType);
+	protected abstract void doRegisterBean(String beanName, String scope, Class<?> beanType);
 
 	protected abstract <T> Object newSingletonFactoryBean(ComponentFactory<T> cf);
 
@@ -43,18 +46,14 @@ public abstract class AbstractContainer implements Container {
 				if (applicationConfig == null) {
 					try {
 						try {
-							applicationConfig = this.getBean(
-									ApplicationConfig.BEAN_NAME,
-									ApplicationConfig.class);
+							applicationConfig = this.getBean(ApplicationConfig.BEAN_NAME, ApplicationConfig.class);
 
 							applicationConfig.merge(this.containerConfig);
 						} catch (NoSuchBeanDefinitionException e) {
 
-							applicationConfig = ApplicationConfig
-									.get(this.containerConfig);
+							applicationConfig = ApplicationConfig.get(this.containerConfig);
 
-							this.registerSingleton(ApplicationConfig.BEAN_NAME,
-									applicationConfig);
+							this.registerSingleton(ApplicationConfig.BEAN_NAME, applicationConfig);
 						}
 					} catch (ConfigurationException e) {
 						throw new RuntimeException(e);
@@ -71,22 +70,19 @@ public abstract class AbstractContainer implements Container {
 	}
 
 	@Override
-	public ComponentScannerFactory getComponentScannerFactory()
-			throws ConfigurationException {
+	public ComponentScannerFactory getComponentScannerFactory() throws ConfigurationException {
 		return getApplicationConfig().getComponentScannerFactory(this);
 	}
 
 	@Override
-	public void addComponentFactory(
-			ComponentFactory<BeanFactory<?, ?>> componentFactoy) {
+	public void addComponentFactory(ComponentFactory<BeanFactory<?, ?>> componentFactoy) {
 		this.componentFactories.add(componentFactoy);
 	}
 
 	@Override
 	public <F extends BeanFactory<?, ?>> void addComponentFactory(F beanFactoy) {
 
-		this.addComponentFactory(new BeanFactoryComponentFactory<BeanFactory<?, ?>>(
-				this, beanFactoy));
+		this.addComponentFactory(new BeanFactoryComponentFactory<BeanFactory<?, ?>>(this, beanFactoy));
 	}
 
 	@Override
@@ -97,13 +93,11 @@ public abstract class AbstractContainer implements Container {
 	@Override
 	public <T> void registerBean(ComponentFactory<T> cf) {
 
-		this.registerSingleton(cf.getComponentType().getName(),
-				this.newSingletonFactoryBean(cf));
+		this.registerSingleton(cf.getComponentType().getName(), this.newSingletonFactoryBean(cf));
 	}
 
 	@Override
-	public void registerBean(BeanMetaDataWrapper<?> metaDataWrapper)
-			throws ConfigurationException, NoSuchBeanDefinitionException {
+	public void registerBean(BeanMetaDataWrapper<?> metaDataWrapper) throws ConfigurationException, NoSuchBeanDefinitionException {
 
 		for (ComponentFactory<BeanFactory<?, ?>> cf : componentFactories) {
 
@@ -111,31 +105,38 @@ public abstract class AbstractContainer implements Container {
 			BeanFactory bf = cf.getInstance();
 			if (bf.isCandidate(metaDataWrapper.getBeanMetaData())) {
 
-				Class<?> proxyClass = metaDataWrapper.getTargetBean();
+				try {
+					this.doRegisterBean(metaDataWrapper.getBeanMetaData().name(), metaDataWrapper.getBeanMetaData().scope(),
+							metaDataWrapper.getTargetBean());
 
-				this.doRegisterBean(metaDataWrapper.getBeanMetaData().name(),
-						metaDataWrapper.getBeanMetaData().scope(), proxyClass);
+					this.registerSingleton(metaDataWrapper.getTargetBean().getName(), metaDataWrapper);
 
-				this.registerSingleton(proxyClass.getName(), metaDataWrapper);
+					this.registerSingleton(BeanMetaDataWrapper.generateBeanFactoryName(metaDataWrapper), bf);
 
-				this.registerSingleton(BeanMetaDataWrapper
-						.generateBeanMetaDataName(metaDataWrapper), bf);
+					this.registerSingleton(BeanMetaDataWrapper.generateBeanMetaDataName(metaDataWrapper, false), metaDataWrapper);
 
-				this.registerSingleton(BeanMetaDataWrapper
-						.generateBeanMetaDataName(metaDataWrapper
-								.getBeanMetaData().getClass(), metaDataWrapper
-								.getBeanMetaData().targetEntity()),
-						metaDataWrapper);
+					this.registerSingleton(BeanMetaDataWrapper.generateBeanMetaDataName(metaDataWrapper.getBeanMetaData().getClass(),
+							metaDataWrapper.getBeanMetaData().targetEntity()), metaDataWrapper);
 
-				break;
+					this.registerSingleton(BeanMetaDataWrapper.generateBeanMetaDataName(metaDataWrapper.getTargetBean(), metaDataWrapper
+							.getBeanMetaData().targetEntity()), metaDataWrapper);
+
+				} catch (Exception e) {
+
+					return;
+				}
+
+				return;
 			}
 		}
+		// TODO: LOG
+		System.out.println("ComponentFactory not found for " + metaDataWrapper.getTargetBean() + " with targetEntity "
+				+ metaDataWrapper.getBeanMetaData().targetEntity());
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <P extends RepositoryFactory> P getPersistenceManagerFactory(
-			String beanName, Class<P> impl) {
+	public <P extends RepositoryFactory> P getPersistenceManagerFactory(String beanName, Class<P> impl) {
 
 		P bean;
 		try {
@@ -149,15 +150,11 @@ public abstract class AbstractContainer implements Container {
 
 	@Override
 	@SuppressWarnings({ "rawtypes" })
-	public RepositoryFactory getPersistenceManagerFactory()
-			throws ConfigurationException {
+	public RepositoryFactory getPersistenceManagerFactory() throws ConfigurationException {
 
-		Class<? extends RepositoryFactory> type = this.getApplicationConfig()
-				.getRepositoryFactoryClass();
+		Class<? extends RepositoryFactory> type = this.getApplicationConfig().getRepositoryFactoryClass();
 
-		String beanName = AbstractRepositoryFactory
-				.getBeanName(getApplicationConfig()
-						.getPersistenceManagerFactoryBeanName());
+		String beanName = AbstractRepositoryFactory.getBeanName(getApplicationConfig().getPersistenceManagerFactoryBeanName());
 
 		return this.getPersistenceManagerFactory(beanName, type);
 	}
