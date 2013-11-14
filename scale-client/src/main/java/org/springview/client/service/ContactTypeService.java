@@ -8,7 +8,7 @@ import br.com.cd.scaleframework.core.orm.dynamic.ServiceBean;
 @ServiceBean(targetEntity = ContactType.class, name = "contactTypeService")
 public class ContactTypeService {
 
-	public ContactTypeService(ContactTypeRepository repository) {
+	public ContactTypeService(Repository repository) {
 		System.out.println("\ncreating proxy instance for '"
 				+ this.getClass().getName() + "', repository: " + repository);
 
