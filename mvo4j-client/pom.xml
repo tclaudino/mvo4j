@@ -1,0 +1,357 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>br.com.cd</groupId>
+	<artifactId>mvo4j-client</artifactId>
+	<packaging>war</packaging>
+	<version>1.0-SNAPSHOT</version>
+
+	<name>mvo4j</name>
+	<description>mvo4j's framework lets you create a web application without programming any code in C layer of the MVC pattern.</description>
+	<url>http://>mvo4j.confiancadigital.com.br</url>
+
+	<developers>
+		<developer>
+			<id>its</id>
+			<name>Isaac Taborda da Silva</name>
+			<email>isaac.silva@confiancadigital.com.com</email>
+			<organization>Confiança Digital</organization>
+			<organizationUrl>http://www.confiancadigital.com.br</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-3</timezone>
+		</developer>
+	</developers>
+
+	<organization>
+		<name>Confiança Digital</name>
+		<url>http://www.confiancadigital.com.br</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<distribution>repo</distribution>
+			<name>Apache License, Version 2.0</name>
+			<url>http://apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>http://github.com/itaborda/mvo4j</url>
+		<connection>scm:git:git://github.com/itaborda/mvo4j</connection>
+		<developerConnection>scm:git:git@github.com:itaborda/mvo4j.git</developerConnection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- <spring.version>3.2.3.RELEASE</spring.version> -->
+		<spring.version>3.1.1.RELEASE</spring.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<compilerVersion>1.7</compilerVersion>
+					<fork>true</fork>
+					<source>1.7</source>
+					<target>1.7</target>
+					<debug>true</debug>
+					<optimize>true</optimize>
+					<showDeprecation>true</showDeprecation>
+					<showWarnings>true</showWarnings>
+					<compilerArgument>-Xlint:-options</compilerArgument>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<useFile>false</useFile>
+					<trimStackTrace>false</trimStackTrace>
+					<argLine>-Xms256m -Xmx2048m -XX:PermSize=512m</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<port>8080</port>
+					<path>/${project.build.finalName}</path>
+					<additionalConfigFilesDir>${basedir}/src/main/tomcat/conf</additionalConfigFilesDir>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+						<version>1.6.1</version>
+					</dependency>
+					<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>5.1.26</version>
+					</dependency>
+					<!-- <executions> <execution> <id>package</id> <phase>package</phase>
+						<goals> <goal>deploy</goal> </goals> </execution> </executions> -->
+				</dependencies>
+			</plugin>
+		</plugins>
+
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<doclet>org.jboss.apiviz.APIviz</doclet>
+					<docletArtifact>
+						<groupId>org.jboss.apiviz</groupId>
+						<artifactId>apiviz</artifactId>
+						<version>1.3.2.GA</version>
+					</docletArtifact>
+					<attach>false</attach>
+					<stylesheetfile>${basedir}/src/javadoc/stylesheet.css</stylesheetfile>
+					<javadocDirectory>${basedir}/src/javadoc</javadocDirectory>
+					<docfilessubdirs>true</docfilessubdirs>
+					<useStandardDocletOptions>true</useStandardDocletOptions>
+					<outputDirectory>${project.build.directory}/api</outputDirectory>
+					<reportOutputDirectory>${project.build.directory}/api</reportOutputDirectory>
+					<destDir>api</destDir>
+					<charset>UTF-8</charset>
+					<docencoding>UTF-8</docencoding>
+					<breakiterator>true</breakiterator>
+					<version>true</version>
+					<author>true</author>
+					<keywords>true</keywords>
+					<overview>${basedir}/src/javadoc/overview.html</overview>
+					<doctitle>${project.name} API Reference (${project.version})</doctitle>
+					<windowtitle>${project.name} API Reference (${project.version})</windowtitle>
+					<additionalparam>
+						-link http://java.sun.com/javase/6/docs/api/
+						-link
+						http://code.google.com/apis/protocolbuffers/docs/reference/java/
+						-link
+						http://java.sun.com/products/servlet/2.5/docs/servlet-2_5-mr2/
+						-link http://www.osgi.org/javadoc/r4v41/
+						-link
+						http://www.slf4j.org/apidocs/
+						-link
+						http://commons.apache.org/logging/commons-logging-1.1.1/apidocs/
+						-link http://logging.apache.org/log4j/1.2/apidocs/
+
+						-sourceclasspath ${project.build.outputDirectory}
+						-nopackagediagram
+					</additionalparam>
+					<!-- -group "Low-level data representation" ${project.groupId}.buffer*
+						-group "Central interface for all I/O operations" ${project.groupId}.channel*
+						-group "Client &amp; Server bootstrapping utilities" ${project.groupId}.bootstrap*
+						-group "Reusable I/O event interceptors" ${project.groupId}.handler* -group
+						"Miscellaneous" ${project.groupId}.logging*:${project.groupId}.util* -->
+					<encoding>UTF-8</encoding>
+					<locale>en_US</locale>
+					<excludePackageNames>${project.groupId}.example*:${project.groupId}.util.internal*</excludePackageNames>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<inputEncoding>UTF-8</inputEncoding>
+					<outputEncoding>UTF-8</outputEncoding>
+					<linkJavadoc>true</linkJavadoc>
+					<destDir>${project.build.directory}/xref</destDir>
+					<javadocDir>${project.build.directory}/api</javadocDir>
+					<stylesheet>${basedir}/src/javadoc/xref/stylesheet.css</stylesheet>
+					<docTitle>${project.name} Source Xref (${project.version})</docTitle>
+					<windowTitle>${project.name} Source Xref (${project.version})</windowTitle>
+				</configuration>
+			</plugin>
+
+			<!-- grunt-js| yo -->
+			<!-- <plugin> <groupId>com.github.trecloux</groupId> <artifactId>yeoman-maven-plugin</artifactId>
+				<version>0.1</version> <executions> <execution> <goals> <goal>build</goal>
+				</goals> </execution> </executions> </plugin> <plugin> <artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version> <configuration> <webResources> <resource> <directory>yo/dist</directory>
+				</resource> </webResources> </configuration> </plugin> <plugin> <artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version> <configuration> <filesets> <fileset> <directory>yo/dist</directory>
+				</fileset> <fileset> <directory>yo/.tmp</directory> </fileset> <fileset>
+				<directory>yo/app/components</directory> </fileset> <fileset> <directory>yo/node_modules</directory>
+				</fileset> </filesets> </configuration> </plugin> -->
+		</plugins>
+	</reporting>
+
+	<repositories>
+		<repository>
+			<id>spring-maven-milestone</id>
+			<name>Springframework Maven Repository</name>
+			<url>http://maven.springframework.org/milestone</url>
+		</repository>
+		<repository>
+			<id>spring-milestone</id>
+			<name>Spring Portfolio Milestone Repository</name>
+			<url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
+		</repository>
+		<repository>
+			<id>reflections-repo</id>
+			<name>Reflections Maven2 Repository</name>
+			<url>http://reflections.googlecode.com/svn/repo</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>6.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.com.cd</groupId>
+			<artifactId>mvo4j-v2.core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>4.2.6.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<!-- JSon -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.8.2</version>
+		</dependency>
+
+		<!-- Tiles -->
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-api</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-core</artifactId>
+			<version>2.2.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>jcl-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-jsp</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-servlet</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-template</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+
+		<!-- Log -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+
+		<!-- Testing Dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-ejb_3.1_spec</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jpa_2.0_spec</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jta_1.1_spec</artifactId>
+			<version>1.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-servlet_3.0_spec</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-validation_1.0_spec</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

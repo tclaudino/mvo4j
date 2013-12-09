@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:util="http://www.springframework.org/schema/util"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+          http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+          http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- local config -->
+	<bean id="jdbcProps"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:database.properties" />
+	</bean>
+	<!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="#{jdbcProps['database.driver']}"
+		/> <property name="url" value="#{jdbcProps['database.url']}" /> <property
+		name="username" value="#{jdbcProps['database.user']}" /> <property name="password"
+		value="#{jdbcProps['database.pass']}" /> </bean> -->
+
+	<jee:jndi-lookup id="mvoDataSource" jndi-name="jdbc/mvo"
+		lookup-on-startup="false" proxy-interface="javax.sql.DataSource" />
+
+	<util:map id="jpaPropertyMap">
+		<!-- <entry key="eclipselink.weaving" value="false" /> -->
+		<entry key="hibernate.hbm2ddl.auto" value="none" />
+		<entry key="hibernate.show_sql" value="true" />
+		<entry key="hibernate.format_sql" value="true" />
+		<entry key="hibernate.dialect" value="#{jdbcProps['database.dialect']}" />
+		<!-- <entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.EhCacheRegionFactory"
+			/> <entry key="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider"
+			/> <entry key="hibernate.cache.use_second_level_cache" value="true" /> -->
+		<entry key="hibernate.cache.use_query_cache" value="false" />
+		<entry key="hibernate.generate_statistics" value="true" />
+	</util:map>
+
+	<bean id="jpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+		p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform"
+		p:showSql="true">
+	</bean>
+	<!-- <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter"
+		p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform"
+		p:showSql="true" /> -->
+
+</beans>
