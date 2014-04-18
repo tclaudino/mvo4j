@@ -1,17 +1,17 @@
 package br.com.cd.mvo.orm;
 
-import java.util.List;
+import java.util.Collection;
 
 import br.com.cd.mvo.core.BeanObjectListener;
 
-public interface RepositoryListener<T> extends BeanObjectListener<Repository<T>> {
+public interface RepositoryListener<T> extends BeanObjectListener<Repository<T, ?>> {
 
 	public enum ActionListenerEventType {
 
 		BEFORE, AFTER;
 	}
 
-	void onRead(final List<T> entity);
+	void onRead(final Collection<T> entity);
 
 	boolean onSave(final T entity, ActionListenerEventType eventType);
 

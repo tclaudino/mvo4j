@@ -1,7 +1,8 @@
 package br.com.cd.mvo.orm;
 
-import br.com.cd.mvo.util.ParserUtils;
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.util.ParserUtils;
+import br.com.cd.util.StringUtils;
+
 
 public enum LikeCritirionEnum {
 
