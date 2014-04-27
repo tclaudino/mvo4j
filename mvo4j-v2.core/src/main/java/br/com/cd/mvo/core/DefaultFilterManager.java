@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
 import br.com.cd.mvo.Application.MessageLevel;
 import br.com.cd.mvo.ApplicationKeys;
+import br.com.cd.mvo.Controller;
+import br.com.cd.mvo.FilterManager;
 import br.com.cd.mvo.orm.LikeCritirionEnum;
 
 public class DefaultFilterManager<T> implements FilterManager {
@@ -48,7 +49,8 @@ public class DefaultFilterManager<T> implements FilterManager {
 	@Override
 	public void selectField(String fieldName) {
 		FilterField field = filterFields.get(fieldName);
-		if (field != null) this.selectedFilterFields.put(fieldName, field);
+		if (field != null)
+			this.selectedFilterFields.put(fieldName, field);
 	}
 
 	@Override
@@ -88,7 +90,8 @@ public class DefaultFilterManager<T> implements FilterManager {
 	public FilterManager setValue(String fieldName, Object value, LikeCritirionEnum likeType) {
 
 		FilterField field = filterFields.get(fieldName);
-		if (field != null) field.setSearchValue(value);
+		if (field != null)
+			field.setSearchValue(value);
 		return this;
 	}
 
@@ -115,7 +118,7 @@ public class DefaultFilterManager<T> implements FilterManager {
 
 			try {
 
-				List<T> entityList;
+				Collection<T> entityList;
 				if (controller.getInitialPageSize() > -1) {
 					entityList = controller.getService().getRepository().findList(map, controller.getOffset(), controller.getPageSize());
 				} else {

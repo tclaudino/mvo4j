@@ -3,6 +3,8 @@ package br.com.cd.mvo;
 import java.util.List;
 import java.util.Map;
 
+import br.com.cd.mvo.core.ApplicationMessage;
+
 public interface Application {
 
 	public enum MessageLevel {

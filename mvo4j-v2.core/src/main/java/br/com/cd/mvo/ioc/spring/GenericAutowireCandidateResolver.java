@@ -8,13 +8,13 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.support.AutowireCandidateResolver;
 
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanMetaData;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.util.StringUtils;
-import br.com.cd.mvo.util.ThreadLocalMapUtil;
+import br.com.cd.util.StringUtils;
+import br.com.cd.util.ThreadLocalMapUtil;
 
 public class GenericAutowireCandidateResolver implements AutowireCandidateResolver {
 
@@ -31,7 +31,8 @@ public class GenericAutowireCandidateResolver implements AutowireCandidateResolv
 	@Override
 	public Object getSuggestedValue(DependencyDescriptor descriptor) {
 
-		if (descriptor.getMethodParameter() == null) return delegate.getSuggestedValue(descriptor);
+		if (descriptor.getMethodParameter() == null)
+			return delegate.getSuggestedValue(descriptor);
 
 		looger.debug("...............................................................................");
 		Type genericParameterType = descriptor.getMethodParameter().getGenericParameterType();
@@ -72,15 +73,11 @@ public class GenericAutowireCandidateResolver implements AutowireCandidateResolv
 		boolean isMetaData = BeanMetaData.class.isAssignableFrom(descriptor.getMethodParameter().getParameterType());
 
 		if (metaData == null && isMetaData) {
-			// String beanNameSufix =
-			// ParserUtils.parseString(ThreadLocalMapUtil.getThreadVariable(BeanMetaData.BEAN_METADATA_NAME_SULFIX));
-			// String beanName =
-			// descriptor.getMethodParameter().getDeclaringClass().getName() +
-			// beanNameSufix;
 			String beanName = descriptor.getMethodParameter().getDeclaringClass().getName();
 			looger.debug(StringUtils.format("depency's type is metadata. attempt lookup metaData from beanName '{0}'", beanName));
 
-			if (metaData == null && container.containsBean(beanName)) metaData = container.getBean(beanName, BeanMetaDataWrapper.class);
+			if (metaData == null && container.containsBean(beanName))
+				metaData = container.getBean(beanName, BeanMetaDataWrapper.class);
 		}
 
 		return metaData;
@@ -95,7 +92,8 @@ public class GenericAutowireCandidateResolver implements AutowireCandidateResolv
 			final Type type = typeArguments[0];
 
 			Class<?> targetEntity = type.getClass();
-			if (type instanceof Class) targetEntity = (Class<?>) type;
+			if (type instanceof Class)
+				targetEntity = (Class<?>) type;
 
 			looger.debug(StringUtils.format("found generic argument '{0}'. lookup for metaData...", targetEntity));
 
@@ -115,7 +113,8 @@ public class GenericAutowireCandidateResolver implements AutowireCandidateResolv
 		boolean isMetaData = BeanMetaData.class.isAssignableFrom(descriptor.getMethodParameter().getParameterType());
 		looger.debug(StringUtils.format("getting bean from metaData '{0}'. Will be return himself if depency's type is metadata '{1}'",
 				metaDataWrapper.getBeanMetaData(), isMetaData));
-		if (isMetaData) return metaDataWrapper.getBeanMetaData();
+		if (isMetaData)
+			return metaDataWrapper.getBeanMetaData();
 
 		Object threadVariable = ThreadLocalMapUtil.getThreadVariable(BeanMetaDataWrapper.generateBeanName(metaDataWrapper));
 		if (threadVariable != null && descriptor.getMethodParameter().getParameterType().isAssignableFrom(threadVariable.getClass())) {
@@ -134,7 +133,7 @@ public class GenericAutowireCandidateResolver implements AutowireCandidateResolv
 
 			BeanObject<?> instance = bf.getInstance(metaDataWrapper.getBeanMetaData());
 
-			// bf.postConstruct(instance, metaDataWrapper);
+			bf.postConstruct(instance, metaDataWrapper);
 
 			// to prevent circular bean creation in autowire dependency
 			// resolver.

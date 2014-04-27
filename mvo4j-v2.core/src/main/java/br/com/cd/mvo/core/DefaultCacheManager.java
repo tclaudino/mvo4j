@@ -1,4 +1,4 @@
-package br.com.cd.mvo;
+package br.com.cd.mvo.core;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import br.com.cd.mvo.CacheManager;
 
 public class DefaultCacheManager implements CacheManager {
 

@@ -1,38 +1,33 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
-import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.ioc.scan.ControllerListenerMetaDataFactory;
-import br.com.cd.mvo.ioc.scan.NoScan;
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.mvo.core.DefaultBeanMetaData;
+import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
+import br.com.cd.mvo.ioc.scan.SubTypeScan;
 
-public class ControllerListenerBeanFactory extends AbstractBeanFactory<ControllerMetaData.ListenerMetaData<?>, NoScan> {
+public class NullInstanceBeanFactory<M extends DefaultBeanMetaData<?>> extends AbstractBeanFactory<M, SubTypeScan> {
 
-	public ControllerListenerBeanFactory(Container container) {
-		super(container, new ControllerListenerMetaDataFactory());
+	public NullInstanceBeanFactory(Container container, BeanMetaDataFactory<M, SubTypeScan> metaDataFactory) {
+		super(container, metaDataFactory);
 	}
 
 	@Override
-	public BeanObject<?> getInstance(ControllerMetaData.ListenerMetaData<?> metaData) throws ConfigurationException {
+	public BeanObject<?> getInstance(M metaData) throws ConfigurationException {
 
-		looger.debug("...............................................................................");
-		looger.debug(StringUtils.format("creating controller listener bean from metaData '{0}'...", metaData));
-		looger.debug(StringUtils.format("lookup from beanName '{0}'", metaData.name()));
-
-		BeanObject<?> bean = container.getBean(metaData.name(), BeanObject.class);
-
-		looger.debug(StringUtils.format("found bean '{0}'. returning...", bean));
-		looger.debug("...............................................................................");
-		return bean;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void postConstruct(BeanObject<?> bean, BeanMetaDataWrapper<?> metaDataWrapper) {
 
 		// only to prevent super;
+	}
+
+	@Override
+	public MethodInvokeCallback proxify(BeanObject<?> bean, M metaData) throws ConfigurationException {
+
+		throw new UnsupportedOperationException();
 	}
 
 }

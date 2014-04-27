@@ -14,11 +14,13 @@ import br.com.cd.mvo.orm.LikeCritirionEnum;
 public class ContactTypeService implements CrudServiceListener<ContactType> {
 
 	private ContactTypeRepository repository;
+	private CrudService<ContactType> serviceFromCtor;
 	private CrudService<ContactType> service;
 
-	public ContactTypeService(ContactTypeRepository repository) {
+	public ContactTypeService(CrudService<ContactType> service, ContactTypeRepository repository) {
 
 		System.out.println(this.getClass().getName() + ".<init>");
+		this.serviceFromCtor = service;
 		this.repository = repository;
 	}
 
@@ -43,7 +45,8 @@ public class ContactTypeService implements CrudServiceListener<ContactType> {
 	@Override
 	public void postConstruct(CrudService<ContactType> service) {
 
-		System.out.println(this.getClass().getName() + ".postConstruct");
+		System.out.println(this.getClass().getName() + ".postConstruct -> repository.equals(repository from constructor)? '"
+				+ service.equals(serviceFromCtor) + "'");
 		this.service = service;
 	}
 

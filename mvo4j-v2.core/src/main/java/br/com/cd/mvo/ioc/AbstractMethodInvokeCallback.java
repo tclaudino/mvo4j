@@ -1,11 +1,9 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import br.com.cd.mvo.ioc.MethodInvokeCallback;
-import br.com.cd.mvo.ioc.NoProxy;
-import br.com.cd.mvo.util.ReflectionUtils;
+import br.com.cd.util.ReflectionUtils;
 
 public abstract class AbstractMethodInvokeCallback implements MethodInvokeCallback {
 
@@ -19,13 +17,16 @@ public abstract class AbstractMethodInvokeCallback implements MethodInvokeCallba
 	}
 
 	@Override
-	public boolean beforeInvoke(Method method) {
+	public Object beforeInvoke(Object target, Method method, InvokeCallback invokeCallback, Object... args) throws Throwable {
 
-		return !method.isAnnotationPresent(NoProxy.class);
+		if (!method.isAnnotationPresent(NoProxy.class))
+			return invokeCallback.invoke();
+
+		return invokeCallback.invokeSuper();
 	}
 
 	@Override
-	public void afterInvoke(Method method) {
+	public void afterInvoke(Object target, Method method, Object result, Object... args) throws Throwable {
 
 		// nothing
 	}

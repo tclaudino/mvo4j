@@ -1,4 +1,4 @@
-package br.com.cd.mvo;
+package br.com.cd.mvo.core;
 
 import java.util.List;
 import java.util.Locale;

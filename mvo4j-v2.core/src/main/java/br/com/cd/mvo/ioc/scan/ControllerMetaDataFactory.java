@@ -1,9 +1,9 @@
 package br.com.cd.mvo.ioc.scan;
 
-import br.com.cd.mvo.bean.ControllerBean;
-import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.bean.config.WriteableMetaData;
-import br.com.cd.mvo.core.Controller;
+import br.com.cd.mvo.Controller;
+import br.com.cd.mvo.ControllerBean;
+import br.com.cd.mvo.core.ControllerMetaData;
+import br.com.cd.mvo.core.WriteableMetaData;
 
 public class ControllerMetaDataFactory extends AbstractBeanMetaDataFactory<ControllerMetaData<?>, ControllerBean> {
 

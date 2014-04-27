@@ -1,11 +1,9 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
-import br.com.cd.mvo.ioc.ComponentFactory;
-import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.util.GenericsUtils;
-import br.com.cd.mvo.util.ParserUtils;
-import br.com.cd.mvo.util.ThreadLocalMapUtil;
+import br.com.cd.util.GenericsUtils;
+import br.com.cd.util.ParserUtils;
+import br.com.cd.util.ThreadLocalMapUtil;
+
 
 public abstract class AbstractComponentFactory<T> implements ComponentFactory<T> {
 

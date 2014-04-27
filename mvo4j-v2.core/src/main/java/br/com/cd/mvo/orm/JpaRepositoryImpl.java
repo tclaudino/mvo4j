@@ -186,39 +186,6 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T, EntityManager
 		return cq;
 	}
 
-	protected final T find(final CriteriaQuery<T> criteriaQuery) {
-
-		Root<T> root = criteriaQuery.from(this.entityClass);
-		criteriaQuery.select(root);
-
-		TypedQuery<T> query = em.createQuery(criteriaQuery);
-
-		T toResult = null;
-		List<T> resultList = query.getResultList();
-		if (!resultList.isEmpty()) {
-			toResult = resultList.get(0);
-		}
-
-		return toResult;
-	}
-
-	protected final Collection<T> findList(final CriteriaQuery<T> criteriaQuery, final int firstResult, final int maxResults) {
-
-		Root<T> root = criteriaQuery.from(this.entityClass);
-		criteriaQuery.select(root);
-
-		TypedQuery<T> query = em.createQuery(criteriaQuery);
-
-		boolean all = maxResults == -1;
-		int offset = !all && firstResult == -1 ? 0 : firstResult;
-		if (!all) {
-			query.setMaxResults(maxResults);
-			query.setFirstResult(offset);
-		}
-		Collection<T> toResult = query.getResultList();
-		return toResult;
-	}
-
 	@Override
 	public final T findByQuery(String query, @SuppressWarnings("unchecked") Entry<String, Object>... parameters) {
 
@@ -313,7 +280,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T, EntityManager
 		return toResult;
 	}
 
-	protected final Long getListCount(final CriteriaBuilder cb, final CriteriaQuery<Long> cq) {
+	private final Long getListCount(final CriteriaBuilder cb, final CriteriaQuery<Long> cq) {
 
 		Root<T> root = cq.from(this.entityClass);
 		cq.select(cb.count(root));
@@ -321,6 +288,39 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T, EntityManager
 		TypedQuery<Long> query = em.createQuery(cq);
 
 		return ParserUtils.parseLong(query.getSingleResult());
+	}
+
+	private final T find(final CriteriaQuery<T> criteriaQuery) {
+
+		Root<T> root = criteriaQuery.from(this.entityClass);
+		criteriaQuery.select(root);
+
+		TypedQuery<T> query = em.createQuery(criteriaQuery);
+
+		T toResult = null;
+		List<T> resultList = query.getResultList();
+		if (!resultList.isEmpty()) {
+			toResult = resultList.get(0);
+		}
+
+		return toResult;
+	}
+
+	private final Collection<T> findList(final CriteriaQuery<T> criteriaQuery, final int firstResult, final int maxResults) {
+
+		Root<T> root = criteriaQuery.from(this.entityClass);
+		criteriaQuery.select(root);
+
+		TypedQuery<T> query = em.createQuery(criteriaQuery);
+
+		boolean all = maxResults == -1;
+		int offset = !all && firstResult == -1 ? 0 : firstResult;
+		if (!all) {
+			query.setMaxResults(maxResults);
+			query.setFirstResult(offset);
+		}
+		Collection<T> toResult = query.getResultList();
+		return toResult;
 	}
 
 	protected void addOrder(CriteriaBuilder cb, CriteriaQuery<T> cq, OrderBy orderBy) {
@@ -337,7 +337,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T, EntityManager
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void like(CriteriaBuilder cb, CriteriaQuery<?> cq, Map<String, Entry<Object, LikeCritirionEnum>> map) {
+	private void like(CriteriaBuilder cb, CriteriaQuery<?> cq, Map<String, Entry<Object, LikeCritirionEnum>> map) {
 
 		Root<T> root = cq.from(this.entityClass);
 

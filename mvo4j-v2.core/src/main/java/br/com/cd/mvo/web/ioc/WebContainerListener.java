@@ -17,6 +17,6 @@ public class WebContainerListener extends DefaultContainerListener {
 
 		super.deepRegister(container);
 
-		container.addComponentFactory(new WebControllerBeanFactory(container));
+		container.addBeanFactory(new WebControllerBeanFactory(container));
 	}
 }

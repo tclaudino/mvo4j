@@ -1,4 +1,4 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo.ioc;
 
 public class NoSuchBeanDefinitionException extends RuntimeException {
 

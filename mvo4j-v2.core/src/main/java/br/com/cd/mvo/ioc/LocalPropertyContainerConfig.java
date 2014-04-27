@@ -2,7 +2,7 @@ package br.com.cd.mvo.ioc;
 
 import java.util.Properties;
 
-import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.util.ParserUtils;
 
 public class LocalPropertyContainerConfig extends AbstractContainerConfig<Properties> {
 

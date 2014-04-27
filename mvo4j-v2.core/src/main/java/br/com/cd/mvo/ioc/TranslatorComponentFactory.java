@@ -1,11 +1,9 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
-import br.com.cd.mvo.DefaultTranslator;
-import br.com.cd.mvo.KeyValuesProvider;
+import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
-import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.core.DefaultTranslator;
+import br.com.cd.mvo.core.KeyValuesProvider;
 
 public class TranslatorComponentFactory extends AbstractComponentFactory<Translator> {
 
@@ -34,26 +32,32 @@ public class TranslatorComponentFactory extends AbstractComponentFactory<Transla
 	}
 
 	private String getDefaultLocale() throws ConfigurationException {
-		if (defaultLocale == null) defaultLocale = container.getApplicationConfig().getDefaultLocale();
+		if (defaultLocale == null)
+			defaultLocale = container.getContainerConfig().getInitParameter(ConfigParamKeys.DEFAULT_LOCALE, ConfigParamKeys.DefaultValues.DEFAULT_LOCALE);
 
 		return defaultLocale;
 	}
 
 	private String getBundleName() throws ConfigurationException {
-		if (bundleName == null) bundleName = container.getApplicationConfig().getBundleName();
+		if (bundleName == null)
+			bundleName = container.getContainerConfig()
+					.getInitParameter(ConfigParamKeys.MESSAGE_BUNDLE_NAME, ConfigParamKeys.DefaultValues.MESSAGE_BUNDLE_NAME);
 
 		return bundleName;
 	}
 
 	private String[] getSuportedLocaleLanguages() throws ConfigurationException {
-		if (suportedLocaleLanguages == null) suportedLocaleLanguages = container.getApplicationConfig().getSuportedLocales();
+		if (suportedLocaleLanguages == null)
+			suportedLocaleLanguages = container.getContainerConfig()
+					.getInitParameter(ConfigParamKeys.SUPORTED_LOCALES, ConfigParamKeys.DefaultValues.SUPORTED_LOCALES).split(",");
 
 		return suportedLocaleLanguages;
 	}
 
 	private KeyValuesProvider getKeyValuesProvider() throws NoSuchBeanDefinitionException {
 
-		if (keyValuesProvider == null) keyValuesProvider = container.getBean(KeyValuesProvider.BEAN_NAME, KeyValuesProvider.class);
+		if (keyValuesProvider == null)
+			keyValuesProvider = container.getBean(KeyValuesProvider.BEAN_NAME, KeyValuesProvider.class);
 
 		return keyValuesProvider;
 	}

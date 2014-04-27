@@ -97,9 +97,52 @@
 						<artifactId>mysql-connector-java</artifactId>
 						<version>5.1.26</version>
 					</dependency>
-					<!-- <executions> <execution> <id>package</id> <phase>package</phase>
+					<!-- <executions> <execution> <id>package</id> <phase>package</phase> 
 						<goals> <goal>deploy</goal> </goals> </execution> </executions> -->
 				</dependencies>
+			</plugin>
+
+			<!-- grunt-js| yo -->
+			<plugin>
+				<groupId>com.github.trecloux</groupId>
+				<artifactId>yeoman-maven-plugin</artifactId>
+				<version>0.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>yo/dist</directory>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>yo/dist</directory>
+						</fileset>
+						<fileset>
+							<directory>yo/.tmp</directory>
+						</fileset>
+						<fileset>
+							<directory>yo/app/components</directory>
+						</fileset>
+						<!-- <fileset> <directory>yo/node_modules</directory> </fileset> -->
+					</filesets>
+				</configuration>
 			</plugin>
 		</plugins>
 
@@ -151,10 +194,10 @@
 						-sourceclasspath ${project.build.outputDirectory}
 						-nopackagediagram
 					</additionalparam>
-					<!-- -group "Low-level data representation" ${project.groupId}.buffer*
-						-group "Central interface for all I/O operations" ${project.groupId}.channel*
-						-group "Client &amp; Server bootstrapping utilities" ${project.groupId}.bootstrap*
-						-group "Reusable I/O event interceptors" ${project.groupId}.handler* -group
+					<!-- -group "Low-level data representation" ${project.groupId}.buffer* 
+						-group "Central interface for all I/O operations" ${project.groupId}.channel* 
+						-group "Client &amp; Server bootstrapping utilities" ${project.groupId}.bootstrap* 
+						-group "Reusable I/O event interceptors" ${project.groupId}.handler* -group 
 						"Miscellaneous" ${project.groupId}.logging*:${project.groupId}.util* -->
 					<encoding>UTF-8</encoding>
 					<locale>en_US</locale>
@@ -176,17 +219,6 @@
 					<windowTitle>${project.name} Source Xref (${project.version})</windowTitle>
 				</configuration>
 			</plugin>
-
-			<!-- grunt-js| yo -->
-			<!-- <plugin> <groupId>com.github.trecloux</groupId> <artifactId>yeoman-maven-plugin</artifactId>
-				<version>0.1</version> <executions> <execution> <goals> <goal>build</goal>
-				</goals> </execution> </executions> </plugin> <plugin> <artifactId>maven-war-plugin</artifactId>
-				<version>2.3</version> <configuration> <webResources> <resource> <directory>yo/dist</directory>
-				</resource> </webResources> </configuration> </plugin> <plugin> <artifactId>maven-clean-plugin</artifactId>
-				<version>2.5</version> <configuration> <filesets> <fileset> <directory>yo/dist</directory>
-				</fileset> <fileset> <directory>yo/.tmp</directory> </fileset> <fileset>
-				<directory>yo/app/components</directory> </fileset> <fileset> <directory>yo/node_modules</directory>
-				</fileset> </filesets> </configuration> </plugin> -->
 		</plugins>
 	</reporting>
 
@@ -219,12 +251,6 @@
 			<groupId>br.com.cd</groupId>
 			<artifactId>mvo4j-v2.core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>4.2.6.Final</version>
 		</dependency>
 
 		<dependency>
@@ -352,6 +378,21 @@
 			<version>1.1</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>4.3.4.Final</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.29</version>
+			<scope>runtime</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>

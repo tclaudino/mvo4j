@@ -1,4 +1,4 @@
-package br.com.cd.mvo.web.mvc;
+package br.com.cd.mvo.web.mvc.spring;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.WebDataBinder;
@@ -9,15 +9,16 @@ import org.springframework.web.method.annotation.ModelFactory;
 import org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor;
 
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.util.ParserUtils;
-import br.com.cd.mvo.util.ThreadLocalMapUtil;
 import br.com.cd.mvo.web.WebCrudController;
+import br.com.cd.mvo.web.mvc.DynamicController;
+import br.com.cd.util.ParserUtils;
+import br.com.cd.util.ThreadLocalMapUtil;
 
-public class MvoModelAttributeMethodArgumentResolver extends ModelAttributeMethodProcessor {
+public class EntityModelAttributeMethodArgumentResolver extends ModelAttributeMethodProcessor {
 
 	private Container container;
 
-	public MvoModelAttributeMethodArgumentResolver(Container container) {
+	public EntityModelAttributeMethodArgumentResolver(Container container) {
 		super(false);
 		this.container = container;
 	}
@@ -34,13 +35,13 @@ public class MvoModelAttributeMethodArgumentResolver extends ModelAttributeMetho
 		public Object _createAttribute(String attributeName, MethodParameter parameter, WebDataBinderFactory binderFactory, NativeWebRequest request)
 				throws Exception {
 
-			String viewName = ParserUtils.parseString(ThreadLocalMapUtil.getThreadVariable(MvoViewNameMethodArgumentResolver.CURRENT_VIEW_NAME));
+			String viewName = ParserUtils.parseString(ThreadLocalMapUtil.getThreadVariable(DynamicController.CURRENT_VIEW_NAME));
 
 			if (!viewName.isEmpty() && container.containsBean(viewName)) {
 				@SuppressWarnings("rawtypes")
 				WebCrudController controller = container.getBean(viewName, WebCrudController.class);
 
-				parameter = new MvoMethodParameter(parameter, controller.getBeanMetaData().targetEntity());
+				parameter = new TypedMethodParameter(parameter, controller.getBeanMetaData().targetEntity());
 			}
 
 			return super.createAttribute(attributeName, parameter, binderFactory, request);
@@ -52,25 +53,10 @@ public class MvoModelAttributeMethodArgumentResolver extends ModelAttributeMetho
 		}
 	}
 
-	public static class MvoMethodParameter extends MethodParameter {
-
-		private Class<?> parameterType;
-
-		public MvoMethodParameter(MethodParameter original, Class<?> parameterType) {
-			super(original);
-			this.parameterType = parameterType;
-		}
-
-		@Override
-		public Class<?> getParameterType() {
-			return parameterType;
-		}
-	}
-
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 
-		return super.supportsParameter(parameter) && "entity".equals(ModelFactory.getNameForParameter(parameter));
+		return super.supportsParameter(parameter) && DynamicController.PATH_VARIABLE_ENTITY.equals(ModelFactory.getNameForParameter(parameter));
 	}
 
 	@Override

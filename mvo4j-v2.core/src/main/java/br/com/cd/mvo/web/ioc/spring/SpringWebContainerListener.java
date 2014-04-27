@@ -20,12 +20,14 @@ public class SpringWebContainerListener extends WebContainerListener {
 		super.configure(container);
 
 		WebApplicationContextUtils.registerWebApplicationScopes(parentApplicationContext.getBeanFactory());
+
 	}
 
 	@Override
 	public void deepRegister(Container container) {
 
 		// nothing?
+
 		super.deepRegister(container);
 	}
 

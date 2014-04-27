@@ -34,7 +34,7 @@ public class Client {
 
 	@Basic(optional = false)
 	@Column(name = "DATE_INS")
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	private Date dateIns;
 	@Basic(optional = false)
 	@Column(name = "NAME")
@@ -102,13 +102,18 @@ public class Client {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		Client other = (Client) obj;
 		if (id == null) {
-			if (other.id != null) return false;
-		} else if (!id.equals(other.id)) return false;
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		return true;
 	}
 

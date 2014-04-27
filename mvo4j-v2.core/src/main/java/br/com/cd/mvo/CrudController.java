@@ -1,4 +1,4 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo;
 
 import java.util.List;
 

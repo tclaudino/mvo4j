@@ -1,11 +1,11 @@
-package br.com.cd.mvo.web;
+package br.com.cd.mvo.web.core;
 
 import br.com.cd.mvo.Application;
+import br.com.cd.mvo.CrudService;
 import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.core.CrudService;
 import br.com.cd.mvo.core.DataModelFactory;
 import br.com.cd.mvo.core.DefaultController;
-import br.com.cd.mvo.web.bean.config.WebControllerMetaData;
+import br.com.cd.mvo.web.WebController;
 
 public class DefaultWebController<T> extends DefaultController<T> implements WebController<T> {
 

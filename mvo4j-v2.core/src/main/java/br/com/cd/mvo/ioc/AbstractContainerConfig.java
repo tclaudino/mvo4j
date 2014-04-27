@@ -1,8 +1,7 @@
 package br.com.cd.mvo.ioc;
 
 import br.com.cd.mvo.ConfigParamKeys;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.util.ParserUtils;
 
 public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 
@@ -21,7 +20,7 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	}
 
 	@Override
-	public ContainerListener getContainerListener() {
+	public ContainerListener getListener() {
 
 		return listener;
 	}
@@ -33,25 +32,13 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	@Override
 	public boolean getInitBooleanParameter(String key) {
 
-		return this.getInitBooleanParameter(key, false);
-	}
-
-	@Override
-	public boolean getInitBooleanParameter(String key, boolean defaultValue) {
-
-		return ParserUtils.parseBoolean(this.getInitParameter(key), defaultValue);
+		return ParserUtils.parseBoolean(this.getInitParameter(key));
 	}
 
 	@Override
 	public int getInitIntParameter(String key) {
 
-		return this.getInitIntParameter(key, 0);
-	}
-
-	@Override
-	public int getInitIntParameter(String key, int defaultValue) {
-
-		return ParserUtils.parseInt(this.getInitParameter(key), defaultValue);
+		return ParserUtils.parseInt(this.getInitParameter(key));
 	}
 
 	@Override
@@ -67,18 +54,18 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 	}
 
 	@Override
-	public <T> T getInitParameter(String key, Class<T> resultType, T defaultValue) {
+	public <T> T getInitParameter(String key, Class<T> resultType, Object defaultValue) {
 
 		return ParserUtils.parseObject(resultType, this.getInitParameter(key), defaultValue);
 	}
 
 	@Override
-	public ContainerProvider<ContainerConfig<D>> getContainerProvider() throws ConfigurationException {
+	public ContainerProvider<ContainerConfig<D>> getProvider() throws ConfigurationException {
 
-		String className = this.getInitParameter(ConfigParamKeys.PROVIDER_CLASS, ConfigParamKeys.DefaultValues.PROVIDER_CLASS);
+		String className = this.getInitParameter(ConfigParamKeys.CDI_PROVIDER_CLASS, ConfigParamKeys.DefaultValues.CDI_PROVIDER_CLASS);
 
-		Class<? extends ContainerProvider<?>> providerType = (className != null && className.isEmpty()) ? getContainerProvider(className)
-				: this.getDefaultProvider();
+		Class<? extends ContainerProvider<?>> providerType = (className != null && className.isEmpty()) ? getContainerProvider(className) : this
+				.getDefaultProvider();
 
 		ContainerProvider<ContainerConfig<D>> provider = tryInstance(providerType);
 
@@ -97,12 +84,11 @@ public abstract class AbstractContainerConfig<D> implements ContainerConfig<D> {
 
 	private Class<? extends ContainerProvider<?>> getDefaultProvider() throws ConfigurationException {
 
-		return getContainerProvider(ConfigParamKeys.DefaultValues.PROVIDER_CLASS);
+		return getContainerProvider(ConfigParamKeys.DefaultValues.CDI_PROVIDER_CLASS);
 	}
 
 	@SuppressWarnings("unchecked")
-	private ContainerProvider<ContainerConfig<D>> tryInstance(Class<? extends ContainerProvider<?>> providerType)
-			throws ConfigurationException {
+	private ContainerProvider<ContainerConfig<D>> tryInstance(Class<? extends ContainerProvider<?>> providerType) throws ConfigurationException {
 
 		try {
 			return (ContainerProvider<ContainerConfig<D>>) providerType.newInstance();

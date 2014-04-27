@@ -2,8 +2,6 @@ package br.com.cd.mvo.ioc;
 
 import java.lang.reflect.Constructor;
 
-import br.com.cd.mvo.core.ConfigurationException;
-
 public interface Proxifier {
 
 	public String BEAN_NAME = Proxifier.class.getName();

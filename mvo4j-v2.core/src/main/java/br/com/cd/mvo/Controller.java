@@ -1,11 +1,12 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
-import br.com.cd.mvo.Application;
 import br.com.cd.mvo.Application.MessageLevel;
-import br.com.cd.mvo.Translator;
+import br.com.cd.mvo.core.BeanObject;
+import br.com.cd.mvo.core.DataModel;
+import br.com.cd.mvo.core.PageableController;
 
 public interface Controller<T> extends PageableController, BeanObject<T> {
 
@@ -29,7 +30,7 @@ public interface Controller<T> extends PageableController, BeanObject<T> {
 
 	void delete(T entity);
 
-	void delete(List<T> entity);
+	void delete(Collection<T> entity);
 
 	void refreshList();
 
@@ -39,9 +40,9 @@ public interface Controller<T> extends PageableController, BeanObject<T> {
 
 	void setCurrentEntity(Serializable entityId);
 
-	List<T> getEntityList();
+	Collection<T> getEntityList();
 
-	void setEntityList(List<T> entityList);
+	void setEntityList(Collection<T> entityList);
 
 	DataModel<T> getDataModel();
 

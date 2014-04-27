@@ -3,7 +3,9 @@ package br.com.cd.mvo.orm;
 import java.lang.annotation.Annotation;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import br.com.cd.mvo.core.RepositoryMetaData;
@@ -11,7 +13,7 @@ import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.NoSuchBeanDefinitionException;
 
-public class MongoDBRepositoryFactory extends AbstractRepositoryFactory<MongoOperations, MongoOperations, MongoRepository<?>> {
+public class MongoDBRepositoryFactory extends AbstractRepositoryFactory<MongoDbFactory, MongoOperations, MongoRepository<?>> {
 
 	public static final Class<? extends Annotation> PERSISTENCE_TYPE_ANNOTATION = Document.class;
 	public static final Class<? extends Annotation> PERSISTENCE_IDENTIFIER_ANNOTATION = Id.class;
@@ -21,9 +23,9 @@ public class MongoDBRepositoryFactory extends AbstractRepositoryFactory<MongoOpe
 	}
 
 	@Override
-	protected MongoOperations createPersistenceManager(MongoOperations factory) throws NoSuchBeanDefinitionException {
+	protected MongoOperations createPersistenceManager(MongoDbFactory factory) throws NoSuchBeanDefinitionException {
 
-		return factory;
+		return new MongoTemplate(factory);
 	}
 
 	@Override

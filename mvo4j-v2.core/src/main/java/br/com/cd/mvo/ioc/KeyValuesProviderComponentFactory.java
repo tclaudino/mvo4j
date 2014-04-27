@@ -1,11 +1,9 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
 import br.com.cd.mvo.CacheManager;
-import br.com.cd.mvo.DefaultKeyValuesProvider;
-import br.com.cd.mvo.KeyValuesProvider;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
-import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.ConfigParamKeys;
+import br.com.cd.mvo.core.DefaultKeyValuesProvider;
+import br.com.cd.mvo.core.KeyValuesProvider;
 
 public class KeyValuesProviderComponentFactory extends AbstractComponentFactory<KeyValuesProvider> {
 
@@ -34,26 +32,31 @@ public class KeyValuesProviderComponentFactory extends AbstractComponentFactory<
 	}
 
 	private long getCacheTime() throws ConfigurationException {
-		if (cacheTime == -1) cacheTime = container.getApplicationConfig().getI18nCacheTime();
+		if (cacheTime == -1)
+			cacheTime = container.getContainerConfig().getInitParameter(ConfigParamKeys.I18N_CACHE_TIME, ConfigParamKeys.DefaultValues.I18N_CACHE_TIME);
 
 		return cacheTime;
 	}
 
 	private String[] getSuportedLocaleLanguages() throws ConfigurationException {
-		if (suportedLocaleLanguages == null) suportedLocaleLanguages = container.getApplicationConfig().getSuportedLocales();
+		if (suportedLocaleLanguages == null)
+			suportedLocaleLanguages = container.getContainerConfig()
+					.getInitParameter(ConfigParamKeys.SUPORTED_LOCALES, ConfigParamKeys.DefaultValues.SUPORTED_LOCALES).split(",");
 
 		return suportedLocaleLanguages;
 	}
 
 	private String getDefaultLocale() throws ConfigurationException {
-		if (defaultLocale == null) defaultLocale = container.getApplicationConfig().getDefaultLocale();
+		if (defaultLocale == null)
+			defaultLocale = container.getContainerConfig().getInitParameter(ConfigParamKeys.DEFAULT_LOCALE, ConfigParamKeys.DefaultValues.DEFAULT_LOCALE);
 
 		return defaultLocale;
 	}
 
 	private CacheManager getCacheManager() throws NoSuchBeanDefinitionException {
 
-		if (cacheManager == null) cacheManager = container.getBean(CacheManager.BEAN_NAME, CacheManager.class);
+		if (cacheManager == null)
+			cacheManager = container.getBean(CacheManager.BEAN_NAME, CacheManager.class);
 
 		return cacheManager;
 	}

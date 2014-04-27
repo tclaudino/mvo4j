@@ -1,6 +1,8 @@
-package br.com.cd.mvo.bean.config;
+package br.com.cd.mvo.core;
 
 import java.io.Serializable;
+
+import br.com.cd.util.StringUtils;
 
 public abstract class DefaultBeanMetaData<T> extends BeanMetaDataDelegate<T> {
 
@@ -17,8 +19,13 @@ public abstract class DefaultBeanMetaData<T> extends BeanMetaDataDelegate<T> {
 	}
 
 	@Override
+	public String path() {
+		return this.get(BeanMetaData.PATH, StringUtils.cammelCase(this.targetEntity().getSimpleName()));
+	}
+
+	@Override
 	public String scope() {
-		return this.get(SCOPE);
+		return this.get(SCOPE_NAME);
 	}
 
 	@Override
@@ -28,7 +35,7 @@ public abstract class DefaultBeanMetaData<T> extends BeanMetaDataDelegate<T> {
 
 	@Override
 	public String messageBundle() {
-		return this.get(BeanMetaData.MESSAGE_BUNDLE);
+		return this.get(BeanMetaData.MESSAGE_BUNDLE_NAME);
 	}
 
 	@Override
@@ -53,12 +60,12 @@ public abstract class DefaultBeanMetaData<T> extends BeanMetaDataDelegate<T> {
 
 	@Override
 	public String persistenceManagerQualifier() {
-		return this.get(PERSISTENCE_FACTORY_QUALIFIER);
+		return this.get(PERSISTENCE_MANAGER_FACTORY_BEAN_NAME);
 	}
 
 	@Override
 	public Class<?> persistenceProvider() {
-		return (Class<?>) this.get(BeanMetaData.PERSISTENCE_PROVIDER, Class.class);
+		return (Class<?>) this.get(BeanMetaData.REPOSITORY_FACTORY_CLASS, Class.class);
 	}
 
 	// public abstract Class<? extends Annotation> annotationType();

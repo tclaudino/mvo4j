@@ -1,8 +1,7 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
 import br.com.cd.mvo.Application;
-import br.com.cd.mvo.DefaultApplication;
-import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.core.DefaultApplication;
 
 public class ApplicationComponentFactory extends AbstractComponentFactory<Application> {
 

@@ -1,5 +1,7 @@
 package br.com.cd.mvo.core;
 
+import java.util.Collection;
+
 public interface DataModel<T> extends Iterable<T> {
 
 	boolean isRowAvailable();
@@ -12,7 +14,7 @@ public interface DataModel<T> extends Iterable<T> {
 
 	void setRowIndex(int rowIndex);
 
-	java.util.List<T> getEntityList();
+	Collection<T> getEntityList();
 
-	void setEntityList(java.util.List<T> entityList);
+	void setEntityList(Collection<T> entityList);
 }

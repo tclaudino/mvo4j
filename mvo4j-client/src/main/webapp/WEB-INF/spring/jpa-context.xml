@@ -17,14 +17,16 @@
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="location" value="classpath:database.properties" />
 	</bean>
-	<!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="#{jdbcProps['database.driver']}"
-		/> <property name="url" value="#{jdbcProps['database.url']}" /> <property
-		name="username" value="#{jdbcProps['database.user']}" /> <property name="password"
-		value="#{jdbcProps['database.pass']}" /> </bean> -->
 
-	<jee:jndi-lookup id="mvoDataSource" jndi-name="jdbc/mvo"
-		lookup-on-startup="false" proxy-interface="javax.sql.DataSource" />
+	<bean id="mvoDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="#{jdbcProps['database.driver']}" />
+		<property name="url" value="#{jdbcProps['database.url']}" />
+		<property name="username" value="#{jdbcProps['database.user']}" />
+		<property name="password" value="#{jdbcProps['database.pass']}" />
+	</bean>
+	<!-- <jee:jndi-lookup id="mvoDataSource" jndi-name="jdbc/mvo" lookup-on-startup="false" 
+		proxy-interface="javax.sql.DataSource" resource-ref="true" /> -->
 
 	<util:map id="jpaPropertyMap">
 		<!-- <entry key="eclipselink.weaving" value="false" /> -->
@@ -32,8 +34,8 @@
 		<entry key="hibernate.show_sql" value="true" />
 		<entry key="hibernate.format_sql" value="true" />
 		<entry key="hibernate.dialect" value="#{jdbcProps['database.dialect']}" />
-		<!-- <entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.EhCacheRegionFactory"
-			/> <entry key="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider"
+		<!-- <entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.EhCacheRegionFactory" 
+			/> <entry key="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" 
 			/> <entry key="hibernate.cache.use_second_level_cache" value="true" /> -->
 		<entry key="hibernate.cache.use_query_cache" value="false" />
 		<entry key="hibernate.generate_statistics" value="true" />
@@ -44,8 +46,32 @@
 		p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform"
 		p:showSql="true">
 	</bean>
-	<!-- <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter"
-		p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform"
+	<!-- <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter" 
+		p:databasePlatform="org.eclipse.persistence.platform.database.MySQLPlatform" 
 		p:showSql="true" /> -->
+
+	<!-- JPA EntityManagerFactory -->
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		p:dataSource-ref="mvoDataSource">
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+		<property name="jpaPropertyMap" ref="jpaPropertyMap" />
+		<!-- <property name="persistenceUnitName" value="mvoPU" /> -->
+		<!-- <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml" 
+			/> -->
+		<property name="packagesToScan">
+			<list>
+				<value>br.com.cd.mvo.client.model</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+		p:entityManagerFactory-ref="entityManagerFactory" />
+
+	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
+	<!-- <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" 
+		/> -->
+	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator" />
 
 </beans>

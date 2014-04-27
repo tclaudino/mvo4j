@@ -2,11 +2,10 @@ package br.com.cd.mvo.ioc;
 
 import java.lang.annotation.Annotation;
 
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.DefaultBeanMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanMetaData;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.core.DefaultBeanMetaData;
 import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
 
 @SuppressWarnings("rawtypes")
@@ -23,5 +22,7 @@ public interface BeanFactory<M extends DefaultBeanMetaData, A extends Annotation
 	Class<M> getBeanMetaDataType();
 
 	void postConstruct(BeanObject<?> bean, BeanMetaDataWrapper<?> metaDataWrapper);
+
+	MethodInvokeCallback proxify(BeanObject<?> bean, M metaData) throws ConfigurationException;
 
 }

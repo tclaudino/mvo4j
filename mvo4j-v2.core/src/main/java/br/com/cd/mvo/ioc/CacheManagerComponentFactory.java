@@ -1,14 +1,12 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
 import br.com.cd.mvo.CacheManager;
-import br.com.cd.mvo.DefaultCacheManager;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
-import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.ConfigParamKeys;
+import br.com.cd.mvo.core.DefaultCacheManager;
 
 public class CacheManagerComponentFactory extends AbstractComponentFactory<CacheManager> {
 
-	private long cacheTime = -1;
+	private long cacheSize = -1;
 
 	public CacheManagerComponentFactory(Container container) {
 		super(container);
@@ -18,7 +16,7 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory<Cache
 	protected CacheManager getInstanceInternal() throws NoSuchBeanDefinitionException {
 
 		try {
-			return new DefaultCacheManager(getCacheTime());
+			return new DefaultCacheManager(getCacheSize());
 		} catch (ConfigurationException e) {
 			throw new NoSuchBeanDefinitionException(e);
 		}
@@ -29,10 +27,12 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory<Cache
 		return CacheManager.BEAN_NAME;
 	}
 
-	private long getCacheTime() throws ConfigurationException {
+	private long getCacheSize() throws ConfigurationException {
 
-		if (cacheTime == -1) cacheTime = container.getApplicationConfig().getCacheManagerMaxSize();
+		if (cacheSize == -1)
+			cacheSize = container.getContainerConfig().getInitParameter(ConfigParamKeys.CACHE_MANAGER_MAX_SIZE,
+					ConfigParamKeys.DefaultValues.CACHE_MANAGER_MAX_SIZE);
 
-		return this.cacheTime;
+		return this.cacheSize;
 	}
 }

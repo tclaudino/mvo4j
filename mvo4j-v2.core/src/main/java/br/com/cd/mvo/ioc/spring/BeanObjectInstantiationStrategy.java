@@ -9,16 +9,16 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.CglibSubclassingInstantiationStrategy;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.ioc.HandleParameterAnnotationsMethodInvokeCallback;
 import br.com.cd.mvo.ioc.MethodInvokeCallback;
+import br.com.cd.mvo.ioc.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Proxifier;
-import br.com.cd.mvo.ioc.support.HandleParameterAnnotationsMethodInvokeCallback;
-import br.com.cd.mvo.util.StringUtils;
-import br.com.cd.mvo.util.ThreadLocalMapUtil;
+import br.com.cd.util.StringUtils;
+import br.com.cd.util.ThreadLocalMapUtil;
 
 public class BeanObjectInstantiationStrategy extends CglibSubclassingInstantiationStrategy {
 
@@ -92,7 +92,7 @@ public class BeanObjectInstantiationStrategy extends CglibSubclassingInstantiati
 		if (threadVariable != null && threadVariable.getClass().equals(beanDefinition.getBeanClass())) {
 			looger.debug(StringUtils.format("found cached '{0}'. returning...", threadVariable));
 			looger.debug("...............................................................................");
-			return (BeanObject) threadVariable;
+			return threadVariable;
 		}
 
 		if (!container.containsBean(beanDefinition.getBeanClassName())) {
@@ -107,7 +107,8 @@ public class BeanObjectInstantiationStrategy extends CglibSubclassingInstantiati
 		} catch (NoSuchBeanDefinitionException e) {
 			return null;
 		}
-		if (!(objBean instanceof BeanMetaDataWrapper)) return null;
+		if (!(objBean instanceof BeanMetaDataWrapper))
+			return null;
 
 		BeanMetaDataWrapper<?> metaDataWrapper = (BeanMetaDataWrapper<?>) objBean;
 
@@ -120,7 +121,8 @@ public class BeanObjectInstantiationStrategy extends CglibSubclassingInstantiati
 
 			if (threadVariable.getClass().equals(beanDefinition.getBeanClass()))
 				return threadVariable;
-			else if (threadVariable instanceof BeanObject) instance = (BeanObject) threadVariable;
+			else if (threadVariable instanceof BeanObject)
+				instance = (BeanObject) threadVariable;
 		}
 
 		br.com.cd.mvo.ioc.BeanFactory bf = container.getBean(BeanMetaDataWrapper.generateBeanFactoryName(metaDataWrapper),
@@ -135,7 +137,8 @@ public class BeanObjectInstantiationStrategy extends CglibSubclassingInstantiati
 		Proxifier proxifier = container.getBean(Proxifier.BEAN_NAME, Proxifier.class);
 
 		// TODO: use cdi
-		MethodInvokeCallback miCallback = new HandleParameterAnnotationsMethodInvokeCallback();
+		MethodInvokeCallback miCallback = bf.proxify(instance, metaDataWrapper.getBeanMetaData());
+		miCallback = new HandleParameterAnnotationsMethodInvokeCallback(miCallback);
 
 		looger.debug("creating proxy...");
 		Object proxy;
@@ -150,7 +153,8 @@ public class BeanObjectInstantiationStrategy extends CglibSubclassingInstantiati
 		ThreadLocalMapUtil.setThreadVariable(beanDefinition.getBeanClassName(), proxy);
 		ThreadLocalMapUtil.setThreadVariable(beanName, proxy);
 
-		if (proxy instanceof BeanObject) bf.postConstruct((BeanObject) proxy, metaDataWrapper);
+		if (proxy instanceof BeanObject)
+			bf.postConstruct((BeanObject) proxy, metaDataWrapper);
 
 		looger.debug("...............................................................................");
 		looger.debug(StringUtils.format("generated proxy bean '{0}' from beanName '{1}'", proxy, beanName));

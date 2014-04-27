@@ -1,4 +1,4 @@
-package br.com.cd.mvo;
+package br.com.cd.mvo.core;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import br.com.cd.mvo.ApplicationMessage.Severity;
+import br.com.cd.mvo.Application;
+import br.com.cd.mvo.core.ApplicationMessage.Severity;
 
 public class DefaultApplication implements Application {
 

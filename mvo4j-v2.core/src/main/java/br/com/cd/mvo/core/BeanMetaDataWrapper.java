@@ -1,16 +1,14 @@
-package br.com.cd.mvo.bean.config.helper;
+package br.com.cd.mvo.core;
 
 import java.lang.ref.SoftReference;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import br.com.cd.mvo.bean.config.DefaultBeanMetaData;
 import br.com.cd.mvo.ioc.BeanFactory;
 import br.com.cd.mvo.ioc.ComponentFactory;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.scan.BeanMetaDataFactory;
-import br.com.cd.mvo.util.StringUtils;
 
 @SuppressWarnings("rawtypes")
 public class BeanMetaDataWrapper<D extends DefaultBeanMetaData> {
@@ -48,8 +46,8 @@ public class BeanMetaDataWrapper<D extends DefaultBeanMetaData> {
 
 		String beanName = metaDataWrapper.getBeanMetaData().name();
 
-		return (beanName != null && !beanName.isEmpty() && preferMetaDataName) ? beanName : (StringUtils.cammelCase(metaDataWrapper
-				.getBeanMetaData().targetEntity().getSimpleName()) + metaDataWrapper.getBeanMetaData().getBeanNameSuffix());
+		return (beanName != null && !beanName.isEmpty() && preferMetaDataName) ? beanName : (metaDataWrapper.getBeanMetaData().targetEntity().getSimpleName())
+				+ metaDataWrapper.getBeanMetaData().getBeanNameSuffix();
 	}
 
 	public static String generateBeanFactoryName(BeanMetaDataWrapper<? extends DefaultBeanMetaData> metaDataWrapper) {
@@ -62,8 +60,7 @@ public class BeanMetaDataWrapper<D extends DefaultBeanMetaData> {
 		return BeanMetaDataWrapper.generateBeanMetaDataName(metaDataWrapper, true);
 	}
 
-	public static String generateBeanMetaDataName(BeanMetaDataWrapper<? extends DefaultBeanMetaData> metaDataWrapper,
-			boolean preferMetaDataName) {
+	public static String generateBeanMetaDataName(BeanMetaDataWrapper<? extends DefaultBeanMetaData> metaDataWrapper, boolean preferMetaDataName) {
 
 		return BeanMetaDataWrapper.generateBeanName(metaDataWrapper, preferMetaDataName) + BEAN_METADATA_SUFFIX;
 	}
@@ -90,9 +87,8 @@ public class BeanMetaDataWrapper<D extends DefaultBeanMetaData> {
 						&& targetEntity.isAssignableFrom(metaData.getBeanMetaData().targetEntity())
 						&&
 
-						(metaData.getTargetBean().equals(declaringClass)
-								|| dependency.isAssignableFrom(bf.getBeanMetaDataFactory().getBeanObjectType()) || dependency
-									.isAssignableFrom(metaData.getTargetBean()))) {
+						(metaData.getTargetBean().equals(declaringClass) || dependency.isAssignableFrom(bf.getBeanMetaDataFactory().getBeanObjectType()) || dependency
+								.isAssignableFrom(metaData.getTargetBean()))) {
 
 					cache.put(key, new SoftReference<BeanMetaDataWrapper>(metaData));
 					return metaData;
@@ -153,8 +149,7 @@ public class BeanMetaDataWrapper<D extends DefaultBeanMetaData> {
 					}
 
 					if ((declaringClassMetaData != null && dependecyMetaData != null)
-							&& declaringClassMetaData.getBeanMetaData().targetEntity()
-									.equals(dependecyMetaData.getBeanMetaData().targetEntity())) {
+							&& declaringClassMetaData.getBeanMetaData().targetEntity().equals(dependecyMetaData.getBeanMetaData().targetEntity())) {
 
 						cache.put(key, new SoftReference<BeanMetaDataWrapper>(dependecyMetaData));
 						return dependecyMetaData;

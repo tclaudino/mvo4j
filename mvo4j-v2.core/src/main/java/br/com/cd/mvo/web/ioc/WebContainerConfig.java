@@ -5,9 +5,9 @@ import javax.servlet.ServletContext;
 import br.com.cd.mvo.ioc.AbstractContainerConfig;
 import br.com.cd.mvo.web.util.WebUtil;
 
-public class WebApplicationConfig extends AbstractContainerConfig<ServletContext> {
+public class WebContainerConfig extends AbstractContainerConfig<ServletContext> {
 
-	public WebApplicationConfig(ServletContext servletContext) {
+	public WebContainerConfig(ServletContext servletContext) {
 		super(servletContext, new WebContainerListener());
 	}
 

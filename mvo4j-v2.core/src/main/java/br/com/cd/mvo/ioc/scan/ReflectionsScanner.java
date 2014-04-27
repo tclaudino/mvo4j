@@ -53,7 +53,8 @@ public class ReflectionsScanner implements Scanner {
 
 		if (container.getContainerConfig().getLocalContainer() instanceof ServletContext) {
 
-			if (sc.getResourcePaths("/WEB-INF/lib") != null) addAll(urls, ClasspathHelper.forWebInfLib(sc));
+			if (sc.getResourcePaths("/WEB-INF/lib") != null)
+				addAll(urls, ClasspathHelper.forWebInfLib(sc));
 
 			if (sc.getResourcePaths("/WEB-INF/classes") != null) {
 				URL tempURL = ClasspathHelper.forWebInfClasses(sc);
@@ -67,7 +68,8 @@ public class ReflectionsScanner implements Scanner {
 	}
 
 	private void addAll(Set<URL> urls, Set<URL> tempURLs) {
-		if (tempURLs != null && tempURLs.size() > 0) urls.addAll(tempURLs);
+		if (tempURLs != null && tempURLs.size() > 0)
+			urls.addAll(tempURLs);
 	}
 
 	@Override

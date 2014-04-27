@@ -43,6 +43,11 @@
 		</h4>
 	</div>
 
+<h2> TESTE</h2>	
+	<c:forEach var="contato" items="${currentBean.entityList}">
+		<h2>Contato: ${contato}</h2>
+	</c:forEach>
+
 	<div id="gridContainer">
 		<table class="table table-bordered table-striped">
 			<thead>

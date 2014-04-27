@@ -1,8 +1,5 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
-import br.com.cd.mvo.ioc.BeanFactory;
-import br.com.cd.mvo.ioc.Container;
 
 public class BeanFactoryComponentFactory<F extends BeanFactory<?, ?>> extends AbstractComponentFactory<F> {
 

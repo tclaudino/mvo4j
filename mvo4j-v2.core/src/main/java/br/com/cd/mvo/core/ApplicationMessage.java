@@ -1,4 +1,4 @@
-package br.com.cd.mvo;
+package br.com.cd.mvo.core;
 
 public class ApplicationMessage {
 

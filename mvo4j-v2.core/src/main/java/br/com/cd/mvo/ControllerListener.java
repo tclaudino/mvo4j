@@ -1,6 +1,6 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo;
 
-import br.com.cd.mvo.Application;
+import br.com.cd.mvo.core.BeanObjectListener;
 
 public interface ControllerListener<T> extends BeanObjectListener<Controller<T>> {
 

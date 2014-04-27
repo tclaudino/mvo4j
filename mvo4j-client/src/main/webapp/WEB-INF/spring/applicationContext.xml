@@ -15,33 +15,9 @@
 	<context:component-scan base-package="br.com.cd.mvo.client.service" />
 
 	<!-- <import resource="security-context.xml" /> -->
-	<import resource="classpath:jpa-context.xml" />
+	<import resource="jpa-context.xml" />
+	<import resource="tx-context.xml" />
 
 	<context:annotation-config />
-
-	<!-- JPA EntityManagerFactory -->
-	<bean id="entityManagerFactory"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-		p:dataSource-ref="mvoDataSource">
-		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
-		<property name="jpaPropertyMap" ref="jpaPropertyMap" />
-<!-- 		<property name="persistenceUnitName" value="mvoPU" /> -->
-		<property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml" />
-		<property name="packagesToScan">
-			<list>
-				<value>br.com.cd.mvo.client.model</value>
-			</list>
-		</property>
-	</bean>
-
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
-		p:entityManagerFactory-ref="entityManagerFactory" />
-
-	<tx:annotation-driven transaction-manager="transactionManager" />
-
-	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
-	<!-- <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"
-		/> -->
-	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator" />
 
 </beans>

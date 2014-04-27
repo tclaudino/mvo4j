@@ -1,4 +1,4 @@
-package br.com.cd.mvo;
+package br.com.cd.mvo.core;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -10,7 +10,9 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.mvo.CacheManager;
+import br.com.cd.mvo.ConfigParamKeys;
+import br.com.cd.util.StringUtils;
 
 public class DefaultKeyValuesProvider implements KeyValuesProvider {
 

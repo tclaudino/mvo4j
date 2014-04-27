@@ -1,10 +1,10 @@
 package br.com.cd.mvo.core;
 
-import java.util.List;
+import java.util.Collection;
 
 public class DefaultDataModelFactory implements DataModelFactory {
 
-	public <T> DataModel<T> createDataModel(List<T> entityList) {
+	public <T> DataModel<T> createDataModel(Collection<T> entityList) {
 		return new SimpleDataModel<T>(entityList);
 	}
 }

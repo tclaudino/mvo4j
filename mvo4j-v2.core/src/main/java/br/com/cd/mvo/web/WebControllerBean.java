@@ -1,4 +1,4 @@
-package br.com.cd.mvo.web.bean;
+package br.com.cd.mvo.web;
 
 import java.io.Serializable;
 import java.lang.annotation.ElementType;

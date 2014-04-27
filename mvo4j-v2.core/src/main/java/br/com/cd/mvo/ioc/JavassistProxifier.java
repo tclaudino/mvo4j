@@ -1,4 +1,4 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -7,38 +7,64 @@ import java.lang.reflect.Method;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 import javassist.util.proxy.MethodHandler;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.ioc.MethodInvokeCallback;
-import br.com.cd.mvo.util.ReflectionUtils;
-import br.com.cd.mvo.util.javassist.JavassistUtils;
+import br.com.cd.mvo.ioc.MethodInvokeCallback.InvokeCallback;
+import br.com.cd.util.javassist.JavassistUtils;
 
 public class JavassistProxifier extends AbstractProxifier {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T proxify(final String classNameSuffix, final Class<T> targetBean, final Object bean, Constructor<?> ctor,
+	public <T> T proxify(final String classNameSuffix, final Class<T> targetBeanClass, final Object targetBean, Constructor<?> ctor,
 			final MethodInvokeCallback miCallback, Object... parameters) throws ConfigurationException {
 
 		try {
 
-			Class<T> proxyClass = (Class<T>) JavassistUtils.createProxyClass(classNameSuffix, targetBean, bean.getClass());
+			Class<T> proxyClass = (Class<T>) JavassistUtils.createProxyClass(classNameSuffix, targetBeanClass, targetBean.getClass());
 
 			MethodHandler handler = new MethodHandler() {
 
 				@Override
 				public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
 
-					if ((miCallback == null || miCallback.isCandidateMethod(thisMethod))
-							&& ReflectionUtils.containsMethod(bean.getClass().getMethods(), thisMethod)) {
-						try {
-							return thisMethod.invoke(bean, args);
-						} catch (Exception e) {
+					InvokeCallback invokeCallback = new InvokeCallback() {
+
+						@Override
+						public Object invoke() throws Throwable {
+							Object result = thisMethod.invoke(targetBean, args);
+
+							if (miCallback != null)
+								miCallback
+										.afterInvoke(self,
+												targetBean.getClass().getMethod(thisMethod.getName(), thisMethod.getParameterTypes()),
+												result, args);
+
+							return result;
 						}
+
+						@Override
+						public Object invokeSuper() throws Throwable {
+							Object result = proceed.invoke(self, args);
+
+							if (miCallback != null)
+								miCallback
+										.afterInvoke(self,
+												targetBean.getClass().getMethod(thisMethod.getName(), thisMethod.getParameterTypes()),
+												result, args);
+
+							return result;
+						}
+					};
+
+					if ((miCallback == null || miCallback.isCandidateMethod(thisMethod))
+							&& containsMethod(targetBean.getClass().getMethods(), thisMethod)) {
+
+						if (miCallback != null) {
+							return miCallback.beforeInvoke(self, thisMethod, invokeCallback, args);
+						}
+						return invokeCallback.invoke();
 					}
-					if (miCallback != null) miCallback.beforeInvoke(proceed);
-					Object invoke = proceed.invoke(self, args);
-					if (miCallback != null) miCallback.afterInvoke(proceed);
-					return invoke;
+
+					return invokeCallback.invokeSuper();
 				}
 			};
 

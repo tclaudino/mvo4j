@@ -1,15 +1,14 @@
-package br.com.cd.mvo.ioc.support;
+package br.com.cd.mvo.ioc;
 
-import br.com.cd.mvo.bean.RepositoryBean;
-import br.com.cd.mvo.bean.config.RepositoryMetaData;
+import br.com.cd.mvo.RepositoryBean;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.ioc.Container;
+import br.com.cd.mvo.core.RepositoryMetaData;
 import br.com.cd.mvo.ioc.scan.RepositoryMetaDataFactory;
+import br.com.cd.mvo.orm.AbstractRepositoryFactory;
 import br.com.cd.mvo.orm.Repository;
 import br.com.cd.mvo.orm.RepositoryFactory;
-import br.com.cd.mvo.orm.support.AbstractRepositoryFactory;
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.mvo.orm.RepositoryListenerMethodInterceptor;
+import br.com.cd.util.StringUtils;
 
 public class RepositoryBeanFactory extends AbstractBeanFactory<RepositoryMetaData<?>, RepositoryBean> {
 
@@ -46,33 +45,48 @@ public class RepositoryBeanFactory extends AbstractBeanFactory<RepositoryMetaDat
 		return repository;
 	}
 
-	/*
-	 * @SuppressWarnings({ "unchecked", "rawtypes" })
-	 *
-	 * @Override public <T> BeanObject<T> wrap(BeanObject<T> bean) {
-	 *
-	 * if (!(bean instanceof ListenableRepository)) return bean;
-	 *
-	 * ListenableRepository<T> repository = (ListenableRepository<T>) bean;
-	 *
-	 * if (RepositoryListener.class.isAssignableFrom(repository.getClass())) {
-	 *
-	 * repository.setListener((RepositoryListener<T>) repository); } else {
-	 *
-	 * Collection<RepositoryListener> listeners = new ArrayList<>(); try {
-	 * listeners = container.getBeansOfType(RepositoryListener.class); } catch
-	 * (NoSuchBeanDefinitionException e) { // TODO LOG this }
-	 *
-	 * for (RepositoryListener listener : listeners) { Class<?> targetEntity =
-	 * GenericsUtils.getTypesFor(listener.getClass(),
-	 * RepositoryListener.class).get(0);
-	 *
-	 * if (repository.getBeanMetaData().targetEntity().equals(targetEntity)) {
-	 *
-	 * repository.setListener(listener); break; } } }
-	 * repository.afterPropertiesSet();
-	 *
-	 * return repository; }
-	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public AbstractMethodInvokeCallback proxify(BeanObject<?> bean, RepositoryMetaData<?> metaData) throws ConfigurationException {
 
+		/*
+		 * Class<RepositoryFactory> repositoryFactoryClass; try {
+		 * repositoryFactoryClass = (Class<RepositoryFactory>)
+		 * metaData.persistenceProvider(); } catch (ClassCastException e) {
+		 * throw new ConfigurationException(e); }
+		 * 
+		 * String providerBeanName =
+		 * AbstractRepositoryFactory.getBeanName(metaData
+		 * .persistenceManagerQualifier());
+		 * 
+		 * looger.debug(StringUtils.format(
+		 * "lookup for repository factory from beanName '{0}', type '{1}' ",
+		 * providerBeanName, repositoryFactoryClass)); RepositoryFactory pmf =
+		 * container.getPersistenceManagerFactory(providerBeanName,
+		 * repositoryFactoryClass);
+		 * 
+		 * Proxifier proxifier = container.getBean(Proxifier.BEAN_NAME,
+		 * Proxifier.class);
+		 * 
+		 * Repository<?, ?> repository = (Repository<?, ?>) bean;
+		 * 
+		 * MethodInvokeCallback miCallback = new
+		 * RepositoryListenerMethodInterceptor(repository, container);
+		 * 
+		 * String beanName =
+		 * org.apache.commons.lang3.StringUtils.capitalize(metaData.name());
+		 * 
+		 * Constructor<?> constructor; try { constructor =
+		 * repository.getClass().
+		 * getConstructor(pmf.getPersistenceManagagerType(),
+		 * RepositoryMetaData.class); } catch (NoSuchMethodException |
+		 * SecurityException e) { throw new ConfigurationException(e); }
+		 * 
+		 * Class<? extends Repository> proxyClass = proxifier.proxify(beanName,
+		 * repository.getClass(), repository, miCallback);
+		 * 
+		 * return container.getBean(proxyClass);
+		 */
+		return new RepositoryListenerMethodInterceptor((Repository<?, ?>) bean, container);
+	}
 }

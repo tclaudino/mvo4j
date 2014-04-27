@@ -68,7 +68,7 @@ public abstract class AbstractRepository<T, D> implements Repository<T, D>, List
 	@Override
 	public final Collection<T> findList(Integer firstResult, Integer maxResults) {
 
-		return this.findList(-1, -1, null);
+		return this.findList(firstResult, maxResults, null);
 	}
 
 	@Override

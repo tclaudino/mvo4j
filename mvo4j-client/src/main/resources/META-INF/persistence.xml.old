@@ -4,7 +4,7 @@
 	version="1.0">
 
 	<persistence-unit name="mvoPU" transaction-type="RESOURCE_LOCAL">
-		<non-jta-data-source>java:comp/env/jdbc/mvo</non-jta-data-source>
+		<non-jta-data-source>jdbc/mvo</non-jta-data-source>
 
 	</persistence-unit>
 
