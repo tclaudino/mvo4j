@@ -1,4 +1,4 @@
-package br.com.cd.mvo;
+package br.com.cd.mvo.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.cd.mvo.util.ParserUtils;
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.mvo.ApplicationKeys;
+import br.com.cd.mvo.Translator;
+import br.com.cd.mvo.TranslatorParam;
+import br.com.cd.util.ParserUtils;
+import br.com.cd.util.StringUtils;
 
 public class DefaultTranslator implements Translator {
 

@@ -6,8 +6,8 @@ import javax.servlet.ServletRequest;
 
 import org.apache.log4j.Logger;
 
-import br.com.cd.mvo.util.ParserUtils;
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.util.ParserUtils;
+import br.com.cd.util.StringUtils;
 
 public class WebUtil {
 

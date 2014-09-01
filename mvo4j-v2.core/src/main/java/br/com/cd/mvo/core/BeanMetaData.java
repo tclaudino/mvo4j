@@ -1,20 +1,21 @@
-package br.com.cd.mvo.bean.config;
+package br.com.cd.mvo.core;
 
 import java.io.Serializable;
 
 public interface BeanMetaData<T> extends MetaData {
 
 	public static final String NAME = "name";
-	public static final String SCOPE = "scope";
+	public static final String PATH = "path";
+	public static final String SCOPE_NAME = "scope";
 	public static final String INITIAL_PAGE_SIZE = "initialPageSize";
-	public static final String MESSAGE_BUNDLE = "messageBundle";
+	public static final String MESSAGE_BUNDLE_NAME = "messageBundle";
 	public static final String TARGET_ENTITY = "targetEntity";
 	public static final String ENTITY_ID_TYPE = "entityIdType";
 
 	public static final String MAKE_LIST = "makeList";
 	public static final String LAZY_PROPERTIES = "lazyProperties";
-	public static final String PERSISTENCE_FACTORY_QUALIFIER = "persistenceFactoryQualifier";
-	public static final String PERSISTENCE_PROVIDER = "persistenceProvider";
+	public static final String PERSISTENCE_MANAGER_FACTORY_BEAN_NAME = "persistenceFactoryQualifier";
+	public static final String REPOSITORY_FACTORY_CLASS = "persistenceProvider";
 
 	public String get(String key);
 
@@ -59,4 +60,6 @@ public interface BeanMetaData<T> extends MetaData {
 	String scope();
 
 	String name();
+
+	public String path();
 }

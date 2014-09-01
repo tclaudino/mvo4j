@@ -1,17 +1,11 @@
 package br.com.cd.mvo.core;
 
-import java.util.Collection;
-
 @SuppressWarnings("rawtypes")
-public interface Listenable<T extends BeanObjectListener> {
+public interface Listenable<L extends BeanObjectListener> {
 
-	Collection<T> getListeners();
+	Class<? extends L> getListenerType();
 
-	void addListener(T listener);
+	void postConstruct();
 
-	void afterPropertiesSet();
-
-	void destroy();
-
-	Class<? extends BeanObjectListener> getListenerType();
+	void preDestroy();
 }

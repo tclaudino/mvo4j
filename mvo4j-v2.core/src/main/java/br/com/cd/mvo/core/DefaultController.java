@@ -3,7 +3,6 @@ package br.com.cd.mvo.core;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -15,12 +14,16 @@ import org.slf4j.LoggerFactory;
 import br.com.cd.mvo.Application;
 import br.com.cd.mvo.Application.MessageLevel;
 import br.com.cd.mvo.ApplicationKeys;
+import br.com.cd.mvo.Controller;
+import br.com.cd.mvo.ControllerListener;
+import br.com.cd.mvo.CrudService;
+import br.com.cd.mvo.FilterManager;
+import br.com.cd.mvo.PersistEventType;
 import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.util.ParserUtils;
 
-public class DefaultController<T> extends AbstractPageableController implements Controller<T>, Listenable<ControllerListener<T>> {
+@SuppressWarnings("rawtypes")
+public class DefaultController<T> extends AbstractPageableController implements Controller<T>, Listenable<ControllerListener> {
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -45,28 +48,21 @@ public class DefaultController<T> extends AbstractPageableController implements 
 	private DataModel<T> dataModel;
 
 	private T currentEntity;
-	private List<T> entityList;
+	private Collection<T> entityList;
 
 	private CrudService<T> service;
 
 	protected FilterManager FilterManager = new DefaultFilterManager<T>(this);
 
-	private Collection<ControllerListener<T>> listeners = new LinkedHashSet<ControllerListener<T>>();
-
 	@PostConstruct
 	@Override
-	public void afterPropertiesSet() {
-		for (ControllerListener<T> listener : this.getListeners()) {
-			listener.postConstruct(this);
-		}
+	public void postConstruct() {
+		// only proxy listener
 	}
 
 	@PreDestroy
 	@Override
-	public final void destroy() {
-		for (ControllerListener<T> listener : this.getListeners()) {
-			listener.preDestroy(this);
-		}
+	public final void preDestroy() {
 		entityList = null;
 		currentEntity = null;
 	}
@@ -79,16 +75,6 @@ public class DefaultController<T> extends AbstractPageableController implements 
 	@Override
 	public void setService(CrudService<T> service) {
 		this.service = service;
-	}
-
-	@Override
-	public Collection<ControllerListener<T>> getListeners() {
-		return listeners;
-	}
-
-	@Override
-	public final void addListener(ControllerListener<T> listener) {
-		listeners.add(listener);
 	}
 
 	@Override
@@ -128,7 +114,7 @@ public class DefaultController<T> extends AbstractPageableController implements 
 
 				@Override
 				public Integer getPageSize() {
-					return DefaultController.this.getInitialPageSize();
+					return DefaultController.this.getPageSize();
 				}
 			};
 		}
@@ -145,7 +131,7 @@ public class DefaultController<T> extends AbstractPageableController implements 
 		}
 		entityList = null;
 
-		resetPager();
+		// resetPager();
 
 		getDataModel().setEntityList(getEntityList());
 	}
@@ -174,19 +160,9 @@ public class DefaultController<T> extends AbstractPageableController implements 
 
 	@Override
 	public final void save(T entity) {
-		boolean canSave = true;
 		try {
-			for (ControllerListener<T> listener : this.getListeners()) {
-				canSave = listener.beforePersist(PersistEventType.NEW, entity, application);
-			}
-			if (!canSave) {
-				return;
-			}
 			getService().save(entity);
 
-			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.postPersist(PersistEventType.NEW, entity, application);
-			}
 			refreshList();
 
 			addSuccessMessage(PersistEventType.NEW);
@@ -194,9 +170,6 @@ public class DefaultController<T> extends AbstractPageableController implements 
 			addErrorMessage(PersistEventType.NEW, ex);
 			// TODO: message
 			logger.error(ex.getMessage(), ex);
-			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.onPersistError(PersistEventType.NEW, entity, application, ex);
-			}
 		}
 	}
 
@@ -215,19 +188,9 @@ public class DefaultController<T> extends AbstractPageableController implements 
 
 	@Override
 	public final void update(T entity) {
-		boolean canSave = true;
 		try {
-			for (ControllerListener<T> listener : this.getListeners()) {
-				canSave = listener.beforePersist(PersistEventType.UPDATE, entity, application);
-			}
-			if (!canSave) {
-				return;
-			}
 			getService().update(entity);
 
-			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.postPersist(PersistEventType.UPDATE, entity, application);
-			}
 			refreshList();
 
 			addSuccessMessage(PersistEventType.UPDATE);
@@ -235,9 +198,6 @@ public class DefaultController<T> extends AbstractPageableController implements 
 			addErrorMessage(PersistEventType.UPDATE, ex);
 			// TODO: message
 			logger.error(ex.getMessage(), ex);
-			for (ControllerListener<T> listener : this.getListeners()) {
-				listener.onPersistError(PersistEventType.UPDATE, entity, application, ex);
-			}
 		}
 	}
 
@@ -262,33 +222,20 @@ public class DefaultController<T> extends AbstractPageableController implements 
 	}
 
 	@Override
-	public final void delete(List<T> entityList) {
-		boolean canDelete = true;
+	public final void delete(Collection<T> entityList) {
 		for (T entity : entityList) {
 			try {
-				for (ControllerListener<T> listener : this.getListeners()) {
-					canDelete = listener.beforePersist(PersistEventType.EDIT, entity, application);
-				}
-				if (!canDelete) {
-					return;
-				}
 				getService().delete(entity);
 
-				for (ControllerListener<T> listener : this.getListeners()) {
-					listener.postPersist(PersistEventType.EDIT, entity, application);
-				}
+				refreshList();
+
+				addSuccessMessage(PersistEventType.DELETE);
 			} catch (Exception ex) {
-				addErrorMessage(PersistEventType.UPDATE, ex);
+				addErrorMessage(PersistEventType.DELETE, ex);
 				// TODO: message
 				logger.error(ex.getMessage(), ex);
-				for (ControllerListener<T> listener : this.getListeners()) {
-					listener.onPersistError(PersistEventType.UPDATE, entity, application, ex);
-				}
 			}
 		}
-		refreshList();
-
-		addSuccessMessage(PersistEventType.UPDATE);
 	}
 
 	@Override
@@ -323,10 +270,10 @@ public class DefaultController<T> extends AbstractPageableController implements 
 	}
 
 	@Override
-	public final List<T> getEntityList() {
+	public final Collection<T> getEntityList() {
 		if (entityList == null) {
 
-			if (getInitialPageSize() > -1) {
+			if (getPageSize() > -1) {
 				entityList = getService().getRepository().findList(getOffset(), getPageSize());
 			} else {
 				entityList = getService().getRepository().findList();
@@ -336,7 +283,7 @@ public class DefaultController<T> extends AbstractPageableController implements 
 	}
 
 	@Override
-	public void setEntityList(List<T> entityList) {
+	public void setEntityList(Collection<T> entityList) {
 
 		if (entityList != null)
 			this.entityList = entityList;
@@ -379,7 +326,7 @@ public class DefaultController<T> extends AbstractPageableController implements 
 			addTranslatedMessage(MessageLevel.INFO, ApplicationKeys.PersistAction.UPDATE_SUCCESS_SUMARY,
 					ApplicationKeys.PersistAction.UPDATE_SUCCESS_MESSAGE, getName());
 			break;
-		case EDIT:
+		case DELETE:
 			addTranslatedMessage(MessageLevel.INFO, ApplicationKeys.PersistAction.DELETE_SUCCESS_SUMARY,
 					ApplicationKeys.PersistAction.DELETE_SUCCESS_MESSAGE, getName());
 			break;
@@ -399,7 +346,7 @@ public class DefaultController<T> extends AbstractPageableController implements 
 			addTranslatedMessage(MessageLevel.ERROR, ApplicationKeys.PersistAction.UPDATE_ERROR_SUMARY,
 					ApplicationKeys.PersistAction.UPDATE_ERROR_MESSAGE, getName(), exception.getMessage());
 			break;
-		case EDIT:
+		case DELETE:
 			addTranslatedMessage(MessageLevel.ERROR, ApplicationKeys.PersistAction.DELETE_ERROR_SUMARY,
 					ApplicationKeys.PersistAction.DELETE_ERROR_MESSAGE, getName(), exception.getMessage());
 			break;
@@ -466,9 +413,8 @@ public class DefaultController<T> extends AbstractPageableController implements 
 		return FilterManager;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Class<? extends ControllerListener> getListenerType() {
+	public Class<ControllerListener> getListenerType() {
 		return ControllerListener.class;
 	}
 }

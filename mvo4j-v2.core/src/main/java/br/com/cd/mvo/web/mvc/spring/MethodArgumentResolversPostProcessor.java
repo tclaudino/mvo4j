@@ -1,4 +1,4 @@
-package br.com.cd.mvo.web.mvc;
+package br.com.cd.mvo.web.mvc.spring;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.spring.InjectionBeanPostProcessor;
 
-public class MvoBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+public class MethodArgumentResolversPostProcessor implements BeanFactoryPostProcessor {
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -34,9 +34,9 @@ public class MvoBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
 		Container container = beanFactory.getBean(Container.class);
 
-		newResolvers.add(new MvoViewNameMethodArgumentResolver());
-		newResolvers.add(new MvoRequestBodyMethodArgumentResolver(container, handlerAdapter.getMessageConverters()));
-		newResolvers.add(new MvoModelAttributeMethodArgumentResolver(container));
+		newResolvers.add(new ViewNameMethodArgumentResolver());
+		newResolvers.add(new EntityRequestBodyMethodArgumentResolver(container, handlerAdapter.getMessageConverters()));
+		newResolvers.add(new EntityModelAttributeMethodArgumentResolver(container));
 
 		newResolvers.addAll(oldResolvers);
 

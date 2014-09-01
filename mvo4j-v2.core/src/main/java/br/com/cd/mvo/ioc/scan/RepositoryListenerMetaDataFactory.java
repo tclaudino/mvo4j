@@ -4,16 +4,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import br.com.cd.mvo.ConfigParamKeys;
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.RepositoryMetaData;
-import br.com.cd.mvo.bean.config.WriteableMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.core.BeanMetaData;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.RepositoryMetaData;
+import br.com.cd.mvo.core.WriteableMetaData;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.orm.RepositoryListener;
-import br.com.cd.mvo.util.GenericsUtils;
+import br.com.cd.util.GenericsUtils;
 
 @SuppressWarnings("rawtypes")
-public class RepositoryListenerMetaDataFactory extends AbstractBeanMetaDataFactory<RepositoryMetaData.ListenerMetaData<?>, NoScan> {
+public class RepositoryListenerMetaDataFactory extends AbstractBeanMetaDataFactory<RepositoryMetaData.ListenerMetaData<?>, SubTypeScan> {
 
 	public RepositoryListenerMetaDataFactory() {
 		super(RepositoryListener.class);
@@ -22,7 +22,7 @@ public class RepositoryListenerMetaDataFactory extends AbstractBeanMetaDataFacto
 	@Override
 	public RepositoryMetaData.ListenerMetaData doCreateBeanMetaData(WriteableMetaData propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE, ConfigParamKeys.DefaultValues.SCOPE_SINGLETON_NAME);
+		propertyMap.add(BeanMetaData.SCOPE_NAME, ConfigParamKeys.DefaultValues.SCOPE_NAME_SINGLETON);
 
 		RepositoryMetaData.ListenerMetaData beanConfig = new RepositoryMetaData.ListenerMetaData(propertyMap);
 

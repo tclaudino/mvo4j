@@ -1,25 +1,22 @@
 package br.com.cd.mvo.core;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.ServiceMetaData;
+import br.com.cd.mvo.CrudService;
+import br.com.cd.mvo.CrudServiceListener;
 import br.com.cd.mvo.orm.Repository;
 
-public class DefaultCrudService<T> implements CrudService<T>, Listenable<CrudServiceListener<T>> {
+@SuppressWarnings("rawtypes")
+public class DefaultCrudService<T> implements CrudService<T>, Listenable<CrudServiceListener> {
 
-	private final Repository<T> repository;
+	private final Repository<T, ?> repository;
 
 	protected ServiceMetaData<T> metaData;
 
-	private Collection<CrudServiceListener<T>> listeners = new LinkedHashSet<CrudServiceListener<T>>();
-
-	public DefaultCrudService(Repository<T> repository, ServiceMetaData<T> metaData) {
+	public DefaultCrudService(Repository<T, ?> repository, ServiceMetaData<T> metaData) {
 		this.repository = repository;
 		this.metaData = metaData;
 	}
@@ -49,46 +46,30 @@ public class DefaultCrudService<T> implements CrudService<T>, Listenable<CrudSer
 	}
 
 	@Override
-	public Repository<T> getRepository() {
+	public Repository<T, ?> getRepository() {
 		return this.repository;
 	}
 
 	@PostConstruct
 	@Override
-	public void afterPropertiesSet() {
-		for (CrudServiceListener<T> listener : this.getListeners()) {
-			listener.postConstruct(this);
-		}
+	public void postConstruct() {
+		// only proxy listener
+	}
+
+	@PreDestroy
+	@Override
+	public final void preDestroy() {
+		// only proxy listener
+	}
+
+	@Override
+	public Class<CrudServiceListener> getListenerType() {
+		return CrudServiceListener.class;
 	}
 
 	@Override
 	public BeanMetaData<T> getBeanMetaData() {
 		return metaData;
-	}
-
-	@PreDestroy
-	@Override
-	public final void destroy() {
-		for (CrudServiceListener<T> listener : this.getListeners()) {
-			listener.preDestroy(this);
-		}
-	}
-
-	@Override
-	public Collection<CrudServiceListener<T>> getListeners() {
-		return listeners;
-	}
-
-	@Override
-	public void addListener(CrudServiceListener<T> listener) {
-
-		this.listeners.add(listener);
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Class<? extends CrudServiceListener> getListenerType() {
-		return CrudServiceListener.class;
 	}
 
 }

@@ -1,13 +1,11 @@
-package br.com.cd.mvo.web.bean.config;
+package br.com.cd.mvo.web.core;
 
-import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.bean.config.MetaData;
+import br.com.cd.mvo.core.ControllerMetaData;
+import br.com.cd.mvo.core.MetaData;
 
 public class WebControllerMetaData<T> extends ControllerMetaData<T> {
 
 	public static final String BEAN_NAME_SUFFIX = "WebController";
-
-	public static final String PATH = "path";
 
 	public static final String LIST_VIEW_NAME = "listViewName";
 	public static final String EDIT_VIEW_NAME = "editViewName";
@@ -18,19 +16,15 @@ public class WebControllerMetaData<T> extends ControllerMetaData<T> {
 	}
 
 	public String listViewName() {
-		return this.get(LIST_VIEW_NAME);
+		return this.get(LIST_VIEW_NAME, "list");
 	}
 
 	public String editViewName() {
-		return this.get(EDIT_VIEW_NAME);
+		return this.get(EDIT_VIEW_NAME, "edit");
 	}
 
 	public String createViewName() {
-		return this.get(CREATE_VIEW_NAME);
-	}
-
-	public String path() {
-		return this.get(WebControllerMetaData.PATH);
+		return this.get(CREATE_VIEW_NAME, "create");
 	}
 
 	@Override

@@ -4,17 +4,17 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import br.com.cd.mvo.ConfigParamKeys;
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.ServiceMetaData;
-import br.com.cd.mvo.bean.config.WriteableMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.CrudServiceListener;
+import br.com.cd.mvo.core.BeanMetaData;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObjectListener;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.CrudServiceListener;
-import br.com.cd.mvo.util.GenericsUtils;
+import br.com.cd.mvo.core.ServiceMetaData;
+import br.com.cd.mvo.core.WriteableMetaData;
+import br.com.cd.mvo.ioc.ConfigurationException;
+import br.com.cd.util.GenericsUtils;
 
 @SuppressWarnings("rawtypes")
-public class ServiceListenerMetaDataFactory extends AbstractBeanMetaDataFactory<ServiceMetaData.ListenerMetaData<?>, NoScan> {
+public class ServiceListenerMetaDataFactory extends AbstractBeanMetaDataFactory<ServiceMetaData.ListenerMetaData<?>, SubTypeScan> {
 
 	public ServiceListenerMetaDataFactory() {
 		super(CrudServiceListener.class);
@@ -23,7 +23,7 @@ public class ServiceListenerMetaDataFactory extends AbstractBeanMetaDataFactory<
 	@Override
 	public ServiceMetaData.ListenerMetaData doCreateBeanMetaData(WriteableMetaData propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE, ConfigParamKeys.DefaultValues.SCOPE_SINGLETON_NAME);
+		propertyMap.add(BeanMetaData.SCOPE_NAME, ConfigParamKeys.DefaultValues.SCOPE_NAME_SINGLETON);
 
 		ServiceMetaData.ListenerMetaData beanConfig = new ServiceMetaData.ListenerMetaData(propertyMap);
 

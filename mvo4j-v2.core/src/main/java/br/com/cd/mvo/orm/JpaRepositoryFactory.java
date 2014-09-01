@@ -1,4 +1,4 @@
-package br.com.cd.mvo.orm.impl;
+package br.com.cd.mvo.orm;
 
 import java.lang.annotation.Annotation;
 
@@ -7,11 +7,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 
-import br.com.cd.mvo.bean.config.RepositoryMetaData;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
+import br.com.cd.mvo.core.RepositoryMetaData;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.orm.JpaRepository;
-import br.com.cd.mvo.orm.support.AbstractRepositoryFactory;
+import br.com.cd.mvo.ioc.NoSuchBeanDefinitionException;
 
 public class JpaRepositoryFactory extends AbstractRepositoryFactory<EntityManagerFactory, EntityManager, JpaRepository<?>> {
 
@@ -29,8 +28,12 @@ public class JpaRepositoryFactory extends AbstractRepositoryFactory<EntityManage
 	}
 
 	@Override
-	public <T> JpaRepository<T> getInstance(RepositoryMetaData<T> metaData) {
+	public <T> JpaRepository<T> getInstance(RepositoryMetaData<T> metaData) throws ConfigurationException {
 
-		return new JpaRepositoryImpl<>(this.getPersistenceManager(metaData.persistenceManagerQualifier()), metaData);
+		EntityManager em = this.getPersistenceManager(metaData.persistenceManagerQualifier());
+		JpaRepositoryImpl<T> repositoryImpl = new JpaRepositoryImpl<>(em, metaData);
+
+		return repositoryImpl;
 	}
+
 }

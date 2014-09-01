@@ -1,21 +1,23 @@
 package br.com.cd.mvo.orm;
 
-import br.com.cd.mvo.util.ParserUtils;
-import br.com.cd.mvo.util.StringUtils;
+import br.com.cd.util.ParserUtils;
+import br.com.cd.util.StringUtils;
 
 public enum LikeCritirionEnum {
 
-	START("%{0}"), iSTART("%{0}", true), END("{0}%"), iEND("{0}%", true), ALL("%{0}%"), iALL("%{0}%", true), NONE("");
+	START("%", ""), iSTART("%", "", true), END("", "%"), iEND("", "%", true), ALL("%", "%"), iALL("%", "%", true), NONE("", "");
 
-	String like;
+	String likeStart;
+	String likeEnd;
 	Boolean ignoreCase = false;
 
-	private LikeCritirionEnum(String like) {
-		this.like = like;
+	private LikeCritirionEnum(String likeStart, String likeEnd) {
+		this(likeStart, likeEnd, false);
 	}
 
-	private LikeCritirionEnum(String like, Boolean ignoreCase) {
-		this.like = like;
+	private LikeCritirionEnum(String likeStart, String likeEnd, Boolean ignoreCase) {
+		this.likeStart = likeStart;
+		this.likeEnd = likeEnd;
 		this.ignoreCase = ignoreCase;
 	}
 
@@ -23,14 +25,29 @@ public enum LikeCritirionEnum {
 	 * @return the like
 	 */
 	public String getLike() {
-		return like;
+		return likeStart + "{0}" + likeEnd;
 	}
 
 	/**
 	 * @return the like
 	 */
 	public String getLike(Object bundle) {
-		String lk = (this.like.isEmpty() ? ParserUtils.parseString(bundle) : StringUtils.format(this.like, bundle));
+
+		return this.getLike(bundle, false);
+	}
+
+	public String getLike(Object bundle, boolean useRegexLike) {
+
+		String useLikeStart = this.likeStart;
+		String useLikeEnd = this.likeEnd;
+		if (useRegexLike) {
+			useLikeStart = "^";
+			useLikeEnd = "$";
+		}
+
+		String useLike = useLikeStart + "{0}" + useLikeEnd;
+		String lk = (this.likeStart.isEmpty() ? ParserUtils.parseString(bundle) : StringUtils.format(useLike, bundle));
+
 		return ignoreCase ? lk.toLowerCase() : lk;
 	}
 
@@ -43,7 +60,7 @@ public enum LikeCritirionEnum {
 
 	@Override
 	public String toString() {
-		return "Like [like = " + like + ", ignoreCase = " + ignoreCase + " ]";
+		return "Like [like = " + this.getLike() + ", ignoreCase = " + ignoreCase + " ]";
 	}
 
 }

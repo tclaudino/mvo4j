@@ -1,24 +1,25 @@
 package br.com.cd.mvo.core;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 public class SimpleDataModel<T> implements DataModel<T> {
 
-	List<T> entityList;
+	Collection<T> entityList;
 
-	public SimpleDataModel(List<T> entityList) {
+	public SimpleDataModel(Collection<T> entityList) {
 		this.entityList = entityList;
 	}
 
 	@Override
-	public List<T> getEntityList() {
+	public Collection<T> getEntityList() {
 		return entityList;
 	}
 
 	@Override
-	public void setEntityList(List<T> entityList) {
+	public void setEntityList(Collection<T> entityList) {
 		this.entityList = entityList;
 	}
 
@@ -67,7 +68,7 @@ public class SimpleDataModel<T> implements DataModel<T> {
 
 	@Override
 	public T getRowData() {
-		return getEntityList().get(rowIndex);
+		return new ArrayList<T>(getEntityList()).get(rowIndex);
 	}
 
 	@Override

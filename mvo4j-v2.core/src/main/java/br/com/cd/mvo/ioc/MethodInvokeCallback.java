@@ -6,7 +6,15 @@ public interface MethodInvokeCallback {
 
 	boolean isCandidateMethod(Method method);
 
-	boolean beforeInvoke(Method method);
+	Object beforeInvoke(Object target, Method method, InvokeCallback invokeCallback, Object... args) throws Throwable;
 
-	void afterInvoke(Method method);
+	void afterInvoke(Object target, Method method, Object result, Object... args) throws Throwable;
+
+	public interface InvokeCallback {
+
+		Object invoke() throws Throwable;
+
+		Object invokeSuper() throws Throwable;
+
+	}
 }

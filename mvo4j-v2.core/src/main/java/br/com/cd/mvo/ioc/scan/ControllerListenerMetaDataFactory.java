@@ -4,16 +4,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import br.com.cd.mvo.ConfigParamKeys;
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.ControllerMetaData;
-import br.com.cd.mvo.bean.config.WriteableMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.ControllerListener;
-import br.com.cd.mvo.util.GenericsUtils;
+import br.com.cd.mvo.ControllerListener;
+import br.com.cd.mvo.core.BeanMetaData;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.ControllerMetaData;
+import br.com.cd.mvo.core.WriteableMetaData;
+import br.com.cd.mvo.ioc.ConfigurationException;
+import br.com.cd.util.GenericsUtils;
 
 @SuppressWarnings("rawtypes")
-public class ControllerListenerMetaDataFactory extends AbstractBeanMetaDataFactory<ControllerMetaData.ListenerMetaData<?>, NoScan> {
+public class ControllerListenerMetaDataFactory extends AbstractBeanMetaDataFactory<ControllerMetaData.ListenerMetaData<?>, SubTypeScan> {
 
 	public ControllerListenerMetaDataFactory() {
 		super(ControllerListener.class);
@@ -22,7 +22,7 @@ public class ControllerListenerMetaDataFactory extends AbstractBeanMetaDataFacto
 	@Override
 	public ControllerMetaData.ListenerMetaData doCreateBeanMetaData(WriteableMetaData propertyMap) {
 
-		propertyMap.add(BeanMetaData.SCOPE, ConfigParamKeys.DefaultValues.SCOPE_SESSION_NAME);
+		propertyMap.add(BeanMetaData.SCOPE_NAME, ConfigParamKeys.DefaultValues.SCOPE_NAME_SESSION);
 
 		ControllerMetaData.ListenerMetaData beanConfig = new ControllerMetaData.ListenerMetaData(propertyMap);
 

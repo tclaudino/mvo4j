@@ -14,13 +14,13 @@ public class ContactTypeControllerListener implements ControllerListener<Contact
 
 	private ContactTypeService service;
 	private Controller<ContactType> controler;
-	private Controller<ContactType> controlerFromCtor;
+	private Controller<ContactType> controllerFromCtor;
 
 	public ContactTypeControllerListener(WebCrudController<ContactType> controler, ContactTypeService service) {
 
 		System.out.println(this.getClass().getName() + ".<init>");
 		this.service = service;
-		this.controlerFromCtor = controler;
+		this.controllerFromCtor = controler;
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ContactTypeControllerListener implements ControllerListener<Contact
 	public void postConstruct(Controller<ContactType> controler) {
 
 		System.out.println(this.getClass().getName() + ".postConstruct -> controler.equals(controller from constructor)? '"
-				+ controler.equals(controlerFromCtor) + "'");
+				+ controler.equals(controllerFromCtor) + "'");
 		this.controler = controler;
 	}
 

@@ -3,12 +3,12 @@ package br.com.cd.mvo.ioc.scan;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
-import br.com.cd.mvo.bean.config.BeanMetaData;
-import br.com.cd.mvo.bean.config.DefaultBeanMetaData;
-import br.com.cd.mvo.bean.config.WriteableMetaData;
-import br.com.cd.mvo.bean.config.helper.BeanMetaDataWrapper;
+import br.com.cd.mvo.core.BeanMetaData;
+import br.com.cd.mvo.core.BeanMetaDataWrapper;
 import br.com.cd.mvo.core.BeanObject;
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.core.DefaultBeanMetaData;
+import br.com.cd.mvo.core.WriteableMetaData;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.NoProxy;
 import br.com.cd.mvo.ioc.Proxifier;
@@ -46,18 +46,19 @@ public class EntityComponentScanner extends AbstractComponentScanner {
 
 			for (BeanMetaDataFactory<?, ?> bmf : this.metaDataFactories) {
 
-				if (bmf.getBeanAnnotationType().equals(NoScan.class)) continue;
+				if (bmf.getBeanAnnotationType().equals(SubTypeScan.class))
+					continue;
 
 				BeanMetaDataWrapper<?> existentMetaData = BeanMetaDataWrapper.getBeanMetaData(container, bmf, targetEntity);
-				if (existentMetaData != null) continue;
+				if (existentMetaData != null)
+					continue;
 
-				WriteableMetaData propertyMap = bmf.newDefaultPropertyMap(container.getApplicationConfig());
+				WriteableMetaData propertyMap = bmf.newDefaultPropertyMap(container.getContainerConfig());
 
 				propertyMap.add(BeanMetaData.TARGET_ENTITY, targetEntity);
 				propertyMap.add(BeanMetaData.ENTITY_ID_TYPE, entityId);
 
-				String className = targetEntity.getSimpleName() + targetEntity.getPackage().getName().hashCode()
-						+ bmf.getBeanObjectType().getSimpleName();
+				String className = targetEntity.getSimpleName() + targetEntity.getPackage().getName().hashCode() + bmf.getBeanObjectType().getSimpleName();
 
 				Class<? extends ScannedEntityBeanObject> proxyClass = proxifier.proxify(className, ScannedEntityBeanObject.class);
 

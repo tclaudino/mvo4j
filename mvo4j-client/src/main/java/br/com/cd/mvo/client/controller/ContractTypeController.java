@@ -7,12 +7,12 @@ import br.com.cd.mvo.web.WebControllerBean;
 @WebControllerBean(name = "contractTypeBean", path = "contractType", targetEntity = ContractType.class, entityIdType = Integer.class)
 public class ContractTypeController {
 
-	private WebController<ContractType> controller;
+	private WebController<ContractType> controllerFromCtor;
 
 	public ContractTypeController(WebController<ContractType> controller) {
 
 		System.out.println(this.getClass().getName() + ".<init> --> is ContractTypeController(this) ? '"
 				+ ContractTypeController.class.isAssignableFrom(controller.getClass()) + "'");
-		this.controller = controller;
+		this.controllerFromCtor = controller;
 	}
 }

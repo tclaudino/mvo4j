@@ -1,6 +1,5 @@
-package br.com.cd.mvo.bean.config;
+package br.com.cd.mvo.core;
 
-import br.com.cd.mvo.core.BeanObjectListener;
 
 public class ControllerMetaData<T> extends DefaultBeanMetaData<T> {
 

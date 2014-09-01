@@ -2,16 +2,16 @@ package br.com.cd.mvo.ioc.scan;
 
 import java.util.Collection;
 
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
 
-public class ListenerComponentScanner extends AbstractComponentScanner {
+public class SubTypesComponentScanner extends AbstractComponentScanner {
 
-	public ListenerComponentScanner(String packageToScan, String... packagesToScan) {
+	public SubTypesComponentScanner(String packageToScan, String... packagesToScan) {
 		super(packageToScan, packagesToScan);
 	}
 
-	public ListenerComponentScanner(String[] packagesToScan) {
+	public SubTypesComponentScanner(String[] packagesToScan) {
 		super(packagesToScan);
 	}
 
@@ -20,13 +20,15 @@ public class ListenerComponentScanner extends AbstractComponentScanner {
 
 		for (BeanMetaDataFactory<?, ?> bmf : this.metaDataFactories) {
 
-			if (!bmf.getBeanAnnotationType().equals(NoScan.class)) continue;
+			if (!bmf.getBeanAnnotationType().equals(SubTypeScan.class))
+				continue;
 
 			Collection<Class<?>> beanTypes = bmf.scan(scanner, packagesToScan);
 
 			for (Class<?> beanType : beanTypes) {
 
-				if (!container.containsBean(beanType.getName())) container.registerBean(beanType.getName(), beanType);
+				if (!container.containsBean(beanType.getName()))
+					container.registerBean(beanType.getName(), beanType);
 			}
 
 			container.registerSingleton(bmf.getBeanObjectType().getName(), beanTypes);

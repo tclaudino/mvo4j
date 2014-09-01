@@ -2,20 +2,13 @@ package br.com.cd.mvo.ioc;
 
 import java.util.Collection;
 
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.ConfigParamKeys;
 import br.com.cd.mvo.ioc.scan.ComponentScanner;
 import br.com.cd.mvo.ioc.scan.ComponentScannerFactory;
 import br.com.cd.mvo.ioc.scan.ReflectionsScanner;
+import br.com.cd.mvo.ioc.scan.RepositoryListenerMetaDataFactory;
 import br.com.cd.mvo.ioc.scan.Scanner;
-import br.com.cd.mvo.ioc.support.ApplicationComponentFactory;
-import br.com.cd.mvo.ioc.support.CacheManagerComponentFactory;
-import br.com.cd.mvo.ioc.support.DataModelComponentFactory;
-import br.com.cd.mvo.ioc.support.KeyValuesProviderComponentFactory;
-import br.com.cd.mvo.ioc.support.RepositoryBeanFactory;
-import br.com.cd.mvo.ioc.support.RepositoryListenerBeanFactory;
-import br.com.cd.mvo.ioc.support.ServiceBeanFactory;
-import br.com.cd.mvo.ioc.support.ServiceListenerBeanFactory;
-import br.com.cd.mvo.ioc.support.TranslatorComponentFactory;
+import br.com.cd.mvo.ioc.scan.ServiceListenerMetaDataFactory;
 
 public abstract class AbstractContainerRegistry<C extends Container> implements ContainerRegistry<C> {
 
@@ -44,7 +37,8 @@ public abstract class AbstractContainerRegistry<C extends Container> implements 
 		this.deepRegister();
 	}
 
-	private void registerLocalComponentes() {
+	@SuppressWarnings("unchecked")
+	private void registerLocalComponentes() throws ConfigurationException {
 
 		container.registerBean(new CacheManagerComponentFactory(this.container));
 		container.registerBean(new KeyValuesProviderComponentFactory(this.container));
@@ -52,12 +46,19 @@ public abstract class AbstractContainerRegistry<C extends Container> implements 
 		container.registerBean(new ApplicationComponentFactory(this.container));
 		container.registerBean(new DataModelComponentFactory(this.container));
 
-		container.addComponentFactory(new RepositoryBeanFactory(this.container));
-		container.addComponentFactory(new RepositoryListenerBeanFactory(this.container));
-		container.addComponentFactory(new ServiceBeanFactory(this.container));
-		container.addComponentFactory(new ServiceListenerBeanFactory(this.container));
+		container.addBeanFactory(new RepositoryBeanFactory(this.container));
+		container.addBeanFactory(new NullInstanceBeanFactory<>(container, new RepositoryListenerMetaDataFactory()));
+		container.addBeanFactory(new ServiceBeanFactory(this.container));
+		container.addBeanFactory(new NullInstanceBeanFactory<>(container, new ServiceListenerMetaDataFactory()));
 
-		container.registerBean(Proxifier.BEAN_NAME, container.getApplicationConfig().getProxifierClass());
+		Class<? extends Proxifier> proxifierType;
+		try {
+			proxifierType = (Class<? extends Proxifier>) Class.forName(container.getContainerConfig().getInitParameter(
+					ConfigParamKeys.PROXIFIER_STRATEGY_CLASS, ConfigParamKeys.DefaultValues.PROXIFIER_STRATEGY_CLASS));
+		} catch (ClassNotFoundException | ClassCastException e) {
+			throw new ConfigurationException(e);
+		}
+		container.registerBean(Proxifier.BEAN_NAME, proxifierType);
 	}
 
 	private void deepRegister() throws ConfigurationException {

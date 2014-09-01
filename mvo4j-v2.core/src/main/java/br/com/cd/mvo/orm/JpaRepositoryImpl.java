@@ -1,7 +1,7 @@
-package br.com.cd.mvo.orm.impl;
+package br.com.cd.mvo.orm;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +16,10 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
-import br.com.cd.mvo.bean.config.RepositoryMetaData;
-import br.com.cd.mvo.orm.JpaRepository;
-import br.com.cd.mvo.orm.LikeCritirionEnum;
-import br.com.cd.mvo.orm.OrderBy;
-import br.com.cd.mvo.orm.support.AbstractSQLRepository;
-import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.mvo.core.RepositoryMetaData;
+import br.com.cd.util.ParserUtils;
 
-public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements JpaRepository<T> {
+public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T, EntityManager> implements JpaRepository<T> {
 
 	private final EntityManager em;
 
@@ -33,31 +29,31 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 	}
 
 	@Override
-	public final EntityManager getEntityManager() {
+	public final EntityManager getDelegate() {
 		return em;
 	}
 
 	@Override
-	public T doSave(final T entity) {
+	public T save(final T entity) {
 
 		em.persist(entity);
 		return entity;
 	}
 
 	@Override
-	public T doUpdate(T entity) {
+	public T update(T entity) {
 
 		return em.merge(entity);
 	}
 
 	@Override
-	public void doDelete(final T entity) {
+	public void delete(final T entity) {
 
 		em.remove(entity);
 	}
 
 	@Override
-	public T doFind(final Serializable id) {
+	public T find(final Serializable id) {
 
 		return em.find(entityClass, id);
 	}
@@ -74,18 +70,19 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 	}
 
 	@Override
-	public List<T> findList(Integer firstResult, Integer maxResults, OrderBy orderBy) {
+	public Collection<T> findList(Integer firstResult, Integer maxResults, OrderBy orderBy) {
 
 		CriteriaQuery<T> cq = orderBy != null ? createCriteriaQuery(orderBy) : createCriteriaQuery();
 		return findList(cq, firstResult, maxResults);
 	}
 
 	@Override
-	public List<T> findList(Map<String, Object> map, LikeCritirionEnum likeCritiria, Integer firstResult, Integer maxResults,
+	public Collection<T> findList(Map<String, Object> map, LikeCritirionEnum likeCritiria, Integer firstResult, Integer maxResults,
 			OrderBy orderBy) {
 
 		CriteriaQuery<T> cq = createCriteriaQuery();
-		if (orderBy != null) addOrder(em.getCriteriaBuilder(), cq, orderBy);
+		if (orderBy != null)
+			addOrder(em.getCriteriaBuilder(), cq, orderBy);
 
 		Map<String, Entry<Object, LikeCritirionEnum>> newMap = this.applyLikeMap(map, likeCritiria);
 
@@ -123,34 +120,36 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 	public T find(CriteriaBuilder cb, OrderBy orderBy) {
 
 		CriteriaQuery<T> cq = createCriteriaQuery();
-		if (orderBy != null) addOrder(em.getCriteriaBuilder(), cq, orderBy);
+		if (orderBy != null)
+			addOrder(em.getCriteriaBuilder(), cq, orderBy);
 
 		return this.find(cq);
 	}
 
 	@Override
-	public List<T> findList(CriteriaBuilder cb) {
+	public Collection<T> findList(CriteriaBuilder cb) {
 
 		return this.findList(cb, null);
 	}
 
 	@Override
-	public List<T> findList(CriteriaBuilder cb, Integer firstResult, Integer maxResults) {
+	public Collection<T> findList(CriteriaBuilder cb, Integer firstResult, Integer maxResults) {
 
 		return this.findList(cb, null, firstResult, maxResults);
 	}
 
 	@Override
-	public List<T> findList(CriteriaBuilder cb, OrderBy orderBy) {
+	public Collection<T> findList(CriteriaBuilder cb, OrderBy orderBy) {
 
 		return this.findList(cb, orderBy, -1, -1);
 	}
 
 	@Override
-	public List<T> findList(CriteriaBuilder cb, OrderBy orderBy, Integer firstResult, Integer maxResults) {
+	public Collection<T> findList(CriteriaBuilder cb, OrderBy orderBy, Integer firstResult, Integer maxResults) {
 
 		CriteriaQuery<T> cq = createCriteriaQuery();
-		if (orderBy != null) addOrder(em.getCriteriaBuilder(), cq, orderBy);
+		if (orderBy != null)
+			addOrder(em.getCriteriaBuilder(), cq, orderBy);
 
 		return this.findList(cq, firstResult, maxResults);
 	}
@@ -187,53 +186,26 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 		return cq;
 	}
 
-	protected final T find(final CriteriaQuery<T> criteriaQuery) {
+	@Override
+	public final T findByQuery(String query, @SuppressWarnings("unchecked") Entry<String, Object>... parameters) {
 
-		Root<T> root = criteriaQuery.from(this.entityClass);
-		criteriaQuery.select(root);
-
-		TypedQuery<T> query = em.createQuery(criteriaQuery);
-
-		List<T> resultList = query.getResultList();
-		if (!resultList.isEmpty()) {
-			T toResult = resultList.get(0);
-			ArrayList<T> list = new ArrayList<>();
-			list.add(toResult);
-			getListener().onRead(list);
-			return toResult;
-		}
-		return null;
-	}
-
-	protected final List<T> findList(final CriteriaQuery<T> criteriaQuery, final int firstResult, final int maxResults) {
-
-		Root<T> root = criteriaQuery.from(this.entityClass);
-		criteriaQuery.select(root);
-
-		TypedQuery<T> query = em.createQuery(criteriaQuery);
-
-		boolean all = maxResults == -1;
-		int offset = !all && firstResult == -1 ? 0 : firstResult;
-		if (!all) {
-			query.setMaxResults(maxResults);
-			query.setFirstResult(offset);
-		}
-		List<T> toResult = query.getResultList();
-		if (!toResult.isEmpty()) {
-			getListener().onRead(toResult);
-		}
-		return toResult;
+		return this.findByQuery0(query, false, parameters);
 	}
 
 	@Override
-	protected final T findByQuery(final String queryString, final boolean isNativeQuery,
+	public final T findByNamedQuery(final String queryString, @SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+
+		return this.findByQuery0(queryString, true, parameters);
+	}
+
+	private T findByQuery0(final String queryString, final boolean isNamedQuery,
 			@SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
 
 		Query query;
-		if (isNativeQuery) {
-			query = em.createNativeQuery(queryString, this.entityClass);
-		} else {
+		if (isNamedQuery) {
 			query = em.createQuery(queryString, this.entityClass);
+		} else {
+			query = em.createNativeQuery(queryString, this.entityClass);
 		}
 
 		for (Entry<String, Object> parameter : parameters) {
@@ -248,23 +220,45 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 		List<T> resultList = query.getResultList();
 		if (!resultList.isEmpty()) {
 			T toResult = resultList.get(0);
-			ArrayList<T> list = new ArrayList<>();
-			list.add(toResult);
-			getListener().onRead(list);
 			return toResult;
 		}
 		return null;
 	}
 
 	@Override
-	protected final List<T> findListByQuery(final String queryString, final Integer firstResult, final Integer maxResults,
-			final boolean isNativeQuery, @SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+	public final Collection<T> findListByQuery(final String queryString, final Integer firstResult, final Integer maxResults,
+			@SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+
+		return this.findListByQuery0(queryString, firstResult, maxResults, false, parameters);
+	}
+
+	@Override
+	public final Collection<T> findListByNamedQuery(final String queryString, final Integer firstResult, final Integer maxResults,
+			@SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+
+		return this.findListByQuery0(queryString, firstResult, maxResults, true, parameters);
+	}
+
+	@Override
+	public Collection<T> findListByQuery(String queryString, @SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+
+		return this.findListByQuery0(queryString, -1, -1, false, parameters);
+	}
+
+	@Override
+	public Collection<T> findListByNamedQuery(String queryString, @SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
+
+		return this.findListByQuery0(queryString, -1, -1, true, parameters);
+	}
+
+	private final Collection<T> findListByQuery0(final String queryString, final Integer firstResult, final Integer maxResults,
+			final boolean isNamedQuery, @SuppressWarnings("unchecked") final Entry<String, Object>... parameters) {
 
 		Query query;
-		if (isNativeQuery) {
-			query = em.createNativeQuery(queryString, this.entityClass);
-		} else {
+		if (isNamedQuery) {
 			query = em.createQuery(queryString, this.entityClass);
+		} else {
+			query = em.createNativeQuery(queryString, this.entityClass);
 		}
 
 		for (Entry<String, Object> parameter : parameters) {
@@ -282,14 +276,11 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 			query.setFirstResult(offset);
 		}
 		@SuppressWarnings("unchecked")
-		List<T> toResult = (List<T>) query.getResultList();
-		if (!toResult.isEmpty()) {
-			getListener().onRead(toResult);
-		}
+		Collection<T> toResult = (Collection<T>) query.getResultList();
 		return toResult;
 	}
 
-	protected final Long getListCount(final CriteriaBuilder cb, final CriteriaQuery<Long> cq) {
+	private final Long getListCount(final CriteriaBuilder cb, final CriteriaQuery<Long> cq) {
 
 		Root<T> root = cq.from(this.entityClass);
 		cq.select(cb.count(root));
@@ -297,6 +288,39 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 		TypedQuery<Long> query = em.createQuery(cq);
 
 		return ParserUtils.parseLong(query.getSingleResult());
+	}
+
+	private final T find(final CriteriaQuery<T> criteriaQuery) {
+
+		Root<T> root = criteriaQuery.from(this.entityClass);
+		criteriaQuery.select(root);
+
+		TypedQuery<T> query = em.createQuery(criteriaQuery);
+
+		T toResult = null;
+		List<T> resultList = query.getResultList();
+		if (!resultList.isEmpty()) {
+			toResult = resultList.get(0);
+		}
+
+		return toResult;
+	}
+
+	private final Collection<T> findList(final CriteriaQuery<T> criteriaQuery, final int firstResult, final int maxResults) {
+
+		Root<T> root = criteriaQuery.from(this.entityClass);
+		criteriaQuery.select(root);
+
+		TypedQuery<T> query = em.createQuery(criteriaQuery);
+
+		boolean all = maxResults == -1;
+		int offset = !all && firstResult == -1 ? 0 : firstResult;
+		if (!all) {
+			query.setMaxResults(maxResults);
+			query.setFirstResult(offset);
+		}
+		Collection<T> toResult = query.getResultList();
+		return toResult;
 	}
 
 	protected void addOrder(CriteriaBuilder cb, CriteriaQuery<T> cq, OrderBy orderBy) {
@@ -313,7 +337,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void like(CriteriaBuilder cb, CriteriaQuery<?> cq, Map<String, Entry<Object, LikeCritirionEnum>> map) {
+	private void like(CriteriaBuilder cb, CriteriaQuery<?> cq, Map<String, Entry<Object, LikeCritirionEnum>> map) {
 
 		Root<T> root = cq.from(this.entityClass);
 
@@ -342,6 +366,7 @@ public class JpaRepositoryImpl<T> extends AbstractSQLRepository<T> implements Jp
 			else
 				expression = subClause;
 		}
-		if (expression != null) cq.where(expression);
+		if (expression != null)
+			cq.where(expression);
 	}
 }

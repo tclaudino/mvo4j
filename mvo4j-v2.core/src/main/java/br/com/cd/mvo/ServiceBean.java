@@ -1,4 +1,4 @@
-package br.com.cd.mvo.bean;
+package br.com.cd.mvo;
 
 import java.io.Serializable;
 import java.lang.annotation.Documented;

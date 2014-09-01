@@ -6,10 +6,9 @@ import java.util.Collections;
 import java.util.List;
 
 import br.com.cd.mvo.Application;
-import br.com.cd.mvo.Application.MessageLevel;
-import br.com.cd.mvo.ApplicationKeys;
+import br.com.cd.mvo.CrudController;
+import br.com.cd.mvo.CrudService;
 import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.bean.config.ControllerMetaData;
 
 public class DefaultCrudController<T> extends DefaultController<T> implements CrudController<T> {
 
@@ -58,21 +57,11 @@ public class DefaultCrudController<T> extends DefaultController<T> implements Cr
 				entity = entList.getRowData();
 			}
 		}
-		boolean canUpdate = true;
-		for (ControllerListener<T> listener : this.getListeners()) {
-			canUpdate = listener.beforePersist(PersistEventType.UPDATE, entity, getApplication());
-			if (!canUpdate) break;
-		}
-		if (canUpdate) {
-			logger.info("toEditMode");
+		logger.info("toEditMode");
 
-			this.setCurrentEntity(entity);
+		this.setCurrentEntity(entity);
 
-			viewMode = ViewMode.EDIT;
-		} else {
-			this.addTranslatedMessage(MessageLevel.WARNING, getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.SUMARY),
-					getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.UPDATE));
-		}
+		viewMode = ViewMode.EDIT;
 	}
 
 	@Override
@@ -85,21 +74,11 @@ public class DefaultCrudController<T> extends DefaultController<T> implements Cr
 			throw new RuntimeException(e);
 		}
 
-		boolean canInsert = true;
-		for (ControllerListener<T> listener : this.getListeners()) {
-			canInsert = listener.beforePersist(PersistEventType.NEW, entity, getApplication());
-			if (!canInsert) break;
-		}
-		if (canInsert) {
-			logger.info("toNewMode");
+		logger.info("toNewMode");
 
-			this.setCurrentEntity(entity);
+		this.setCurrentEntity(entity);
 
-			viewMode = ViewMode.NEW;
-		} else {
-			this.addTranslatedMessage(MessageLevel.WARNING, getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.SUMARY),
-					getTranslator().getMessage(ApplicationKeys.Publisher.AcccessDenied.INSERT));
-		}
+		viewMode = ViewMode.NEW;
 	}
 
 	@Override

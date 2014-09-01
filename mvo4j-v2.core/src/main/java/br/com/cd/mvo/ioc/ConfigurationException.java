@@ -1,13 +1,13 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo.ioc;
 
 public class ConfigurationException extends Exception {
 
 	public ConfigurationException(Exception e) {
-		// TODO Auto-generated constructor stub
+		super(e);
 	}
 
-	public ConfigurationException(String string) {
-		// TODO Auto-generated constructor stub
+	public ConfigurationException(String message) {
+		super(message);
 	}
 
 }

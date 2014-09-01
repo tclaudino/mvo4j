@@ -1,4 +1,4 @@
-package br.com.cd.mvo.bean.config;
+package br.com.cd.mvo.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.util.ParserUtils;
 
 public class WriteableMetaData implements MetaData {
 

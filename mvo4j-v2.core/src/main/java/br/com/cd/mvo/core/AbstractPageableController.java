@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import br.com.cd.mvo.ApplicationKeys;
 import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.util.ParserUtils;
+import br.com.cd.util.ParserUtils;
 
 public abstract class AbstractPageableController implements PageableController {
 
@@ -46,9 +46,6 @@ public abstract class AbstractPageableController implements PageableController {
 
 	@Override
 	public final Integer getPageSize() {
-		if (this.pageSize == -1) {
-			this.pageSize = getPagerCallback().getPageSize();
-		}
 
 		return pageSize;
 	}

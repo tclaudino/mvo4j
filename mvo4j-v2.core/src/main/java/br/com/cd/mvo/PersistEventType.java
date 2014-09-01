@@ -1,6 +1,6 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo;
 
 public enum PersistEventType {
 
-	VIEW, NEW, EDIT, UPDATE;
+	VIEW, NEW, DELETE, UPDATE;
 }

@@ -1,6 +1,6 @@
 package br.com.cd.mvo.ioc.scan;
 
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
 
 public interface ComponentScanner extends Comparable<ComponentScanner> {

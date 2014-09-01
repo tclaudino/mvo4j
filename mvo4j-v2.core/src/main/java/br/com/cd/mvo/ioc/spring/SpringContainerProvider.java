@@ -5,8 +5,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
-import br.com.caelum.vraptor.ioc.spring.DefaultSpringLocator;
-import br.com.cd.mvo.core.ConfigurationException;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.Container;
 import br.com.cd.mvo.ioc.ContainerProvider;
 import br.com.cd.mvo.ioc.LocalPropertyContainerConfig;
@@ -29,9 +28,10 @@ public class SpringContainerProvider implements ContainerProvider<LocalPropertyC
 
 		ConfigurableApplicationContext applicationContext = ApplicationContextHolder.getApplicationContext();
 
-		if (applicationContext != null) return new GenericApplicationContext(applicationContext);
+		if (applicationContext != null)
+			return new GenericApplicationContext(applicationContext);
 
-		if (DefaultSpringLocator.class.getResource("/applicationContext.xml") != null) {
+		if (SpringContainerProvider.class.getResource("/applicationContext.xml") != null) {
 			// logger.info("Using an XmlWebApplicationContext, searching for applicationContext.xml");
 			GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("classpath:applicationContext.xml");
 			return ctx;

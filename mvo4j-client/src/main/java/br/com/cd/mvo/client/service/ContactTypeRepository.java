@@ -1,7 +1,7 @@
 package br.com.cd.mvo.client.service;
 
 import java.util.AbstractMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map.Entry;
 
 import br.com.cd.mvo.RepositoryBean;
@@ -14,11 +14,13 @@ import br.com.cd.mvo.orm.RepositoryListener;
 @RepositoryBean(targetEntity = ContactType.class, name = "contactTypeRepository", entityIdType = Integer.class)
 public class ContactTypeRepository implements RepositoryListener<ContactType> {
 
-	public Repository<ContactType> repository;
+	public Repository<ContactType, ?> repositoryFromCtor;
+	public Repository<ContactType, ?> repository;
 
-	public ContactTypeRepository() {
+	public ContactTypeRepository(Repository<ContactType, ?> repository) {
 
 		System.out.println(this.getClass().getName() + ".<init>");
+		this.repositoryFromCtor = repository;
 	}
 
 	public ContactType testLocalRepository(@LikeCritirion(LikeCritirionEnum.iSTART) String v1) {
@@ -31,7 +33,7 @@ public class ContactTypeRepository implements RepositoryListener<ContactType> {
 	}
 
 	@Override
-	public void onRead(List<ContactType> entity) {
+	public void onRead(Collection<ContactType> entity) {
 
 		System.out.println(this.getClass().getName() + ".onRead");
 	}
@@ -58,14 +60,15 @@ public class ContactTypeRepository implements RepositoryListener<ContactType> {
 	}
 
 	@Override
-	public void postConstruct(Repository<ContactType> repository) {
+	public void postConstruct(Repository<ContactType, ?> repository) {
 
-		System.out.println(this.getClass().getName() + ".postConstruct");
+		System.out.println(this.getClass().getName() + ".postConstruct -> repository.equals(repository from constructor)? \n'"
+				+ repository.equals(repositoryFromCtor) + "'");
 		this.repository = repository;
 	}
 
 	@Override
-	public void preDestroy(Repository<ContactType> repository) {
+	public void preDestroy(Repository<ContactType, ?> repository) {
 
 		System.out.println(this.getClass().getName() + ".preDestroy");
 	}

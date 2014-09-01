@@ -10,25 +10,30 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ScopeMetadata;
 import org.springframework.context.annotation.ScopedProxyMode;
 
-import br.com.cd.mvo.core.ConfigurationException;
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.AbstractContainer;
 import br.com.cd.mvo.ioc.ComponentFactory;
+import br.com.cd.mvo.ioc.ConfigurationException;
 import br.com.cd.mvo.ioc.ContainerConfig;
+import br.com.cd.mvo.ioc.ContainerRegistry;
+import br.com.cd.mvo.ioc.NoSuchBeanDefinitionException;
 
 public class SpringContainer extends AbstractContainer {
 
 	ConfigurableApplicationContext applicationContext;
 
-	private Map<String, Object> singletonObjects = new TreeMap<>();
+	private Map<String, Object> singletonList = new TreeMap<>();
+	private Map<String, String> aliasList = new TreeMap<>();
 	private Collection<BeanDefinitionHolder> beanDefinitionHolderList = new TreeSet<>();
 	private Map<String, BeanDefinition> beanDefinitionList = new TreeMap<>();
 	private SpringContainerRegistry registry = new SpringContainerRegistry(this);
@@ -38,19 +43,37 @@ public class SpringContainer extends AbstractContainer {
 		this.applicationContext = parentApplicationContext;
 	}
 
+	private static final class BeanRegistrationProcessor implements BeanFactoryPostProcessor {
+		private final ContainerRegistry<SpringContainer> registry;
+
+		public BeanRegistrationProcessor(ContainerRegistry<SpringContainer> registry) {
+			this.registry = registry;
+		}
+
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) throws BeansException {
+
+			try {
+				registry.register();
+			} catch (ConfigurationException e) {
+				throw new ApplicationContextException(e.getMessage(), e);
+			}
+		}
+
+	}
+
 	@Override
 	public void start() throws ConfigurationException {
 
-		registry.register();
+		applicationContext.addBeanFactoryPostProcessor(new BeanRegistrationProcessor(this.registry));
+		applicationContext.refresh();
+		applicationContext.start();
 
-		// ((DefaultListableBeanFactory)parentApplicationContext.getBeanFactory()).setInstantiationStrategy(instantiationStrategy);
-		// applicationContext.refresh();
-		// applicationContext.start();
+		// registry.register();
 	}
 
 	@Override
 	public void stop() {
-		// applicationContext.stop();
+		applicationContext.stop();
 	}
 
 	@Override
@@ -110,7 +133,17 @@ public class SpringContainer extends AbstractContainer {
 		if (applicationContext.isActive()) {
 			applicationContext.getBeanFactory().registerSingleton(beanName, singletonObject);
 		} else {
-			this.singletonObjects.put(beanName, singletonObject);
+			this.singletonList.put(beanName, singletonObject);
+		}
+	}
+
+	@Override
+	public void registerAlias(String beanName, String alias) {
+
+		if (applicationContext.isActive()) {
+			applicationContext.getBeanFactory().registerAlias(beanName, alias);
+		} else {
+			this.aliasList.put(beanName, alias);
 		}
 	}
 
@@ -137,36 +170,21 @@ public class SpringContainer extends AbstractContainer {
 	private void doRegisterBean(BeanDefinitionHolder definitionHolder) {
 
 		if (applicationContext.isActive()) {
-			BeanDefinitionReaderUtils
-					.registerBeanDefinition(definitionHolder, (BeanDefinitionRegistry) applicationContext.getBeanFactory());
+			BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, (BeanDefinitionRegistry) applicationContext.getBeanFactory());
 		} else {
 			beanDefinitionHolderList.add(definitionHolder);
 		}
-
-		/*
-		 * ConstructorArgumentValues constructorArgumentValues = new
-		 * ConstructorArgumentValues();
-		 *
-		 * ConstructorArgumentValues.ValueHolder holder = new
-		 * DymanicValueHolder();
-		 *
-		 * constructorArgumentValues.addGenericArgumentValue(holder);
-		 *
-		 * definition.setConstructorArgumentValues(constructorArgumentValues);
-		 */
 	}
 
 	private BeanDefinitionHolder applyScopeOn(BeanDefinitionHolder definition, ScopeMetadata scopeMetadata) {
 		String scope = scopeMetadata.getScopeName();
 		ScopedProxyMode proxyMode = scopeMetadata.getScopedProxyMode();
 		definition.getBeanDefinition().setScope(scope);
-		if (BeanDefinition.SCOPE_SINGLETON.equals(scope) || BeanDefinition.SCOPE_PROTOTYPE.equals(scope)
-				|| proxyMode.equals(ScopedProxyMode.NO)) {
+		if (BeanDefinition.SCOPE_SINGLETON.equals(scope) || BeanDefinition.SCOPE_PROTOTYPE.equals(scope) || proxyMode.equals(ScopedProxyMode.NO)) {
 			return definition;
 		} else {
 			boolean proxyTargetClass = proxyMode.equals(ScopedProxyMode.TARGET_CLASS);
-			return ScopedProxyUtils.createScopedProxy(definition, (BeanDefinitionRegistry) applicationContext.getBeanFactory(),
-					proxyTargetClass);
+			return ScopedProxyUtils.createScopedProxy(definition, (BeanDefinitionRegistry) applicationContext.getBeanFactory(), proxyTargetClass);
 		}
 	}
 
@@ -196,12 +214,14 @@ public class SpringContainer extends AbstractContainer {
 		for (Map.Entry<String, BeanDefinition> entry : this.beanDefinitionList.entrySet()) {
 			((BeanDefinitionRegistry) applicationContext.getBeanFactory()).registerBeanDefinition(entry.getKey(), entry.getValue());
 		}
-		for (Map.Entry<String, Object> entry : this.singletonObjects.entrySet()) {
+		for (Map.Entry<String, Object> entry : this.singletonList.entrySet()) {
 			applicationContext.getBeanFactory().registerSingleton(entry.getKey(), entry.getValue());
 		}
 		for (BeanDefinitionHolder beanDefinitionHolder : this.beanDefinitionHolderList) {
-			BeanDefinitionReaderUtils.registerBeanDefinition(beanDefinitionHolder,
-					(BeanDefinitionRegistry) applicationContext.getBeanFactory());
+			BeanDefinitionReaderUtils.registerBeanDefinition(beanDefinitionHolder, (BeanDefinitionRegistry) applicationContext.getBeanFactory());
+		}
+		for (Map.Entry<String, String> entry : this.aliasList.entrySet()) {
+			applicationContext.getBeanFactory().registerAlias(entry.getKey(), entry.getValue());
 		}
 	}
 }

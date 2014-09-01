@@ -1,129 +1,375 @@
-package br.com.cd.mvo.client.vraptor;
+package br.com.cd.mvo.web.mvc.spring;
 
+import java.io.IOException;
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
-
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import br.com.caelum.vraptor.Get;
-import br.com.caelum.vraptor.Resource;
-import br.com.caelum.vraptor.Result;
-import br.com.cd.mvo.Application;
-import br.com.cd.mvo.Translator;
-import br.com.cd.mvo.core.Controller;
-import br.com.cd.mvo.core.CrudController;
+import br.com.cd.mvo.Controller;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.util.StringUtils;
-import br.com.cd.mvo.web.util.WebUtil;
+import br.com.cd.mvo.web.WebCrudController;
+import br.com.cd.mvo.web.mvc.DynamicController;
+import br.com.cd.util.ParserUtils;
 
-@Resource
-public class DynamicController {
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-	public static final String CURRENT_BEAN_SINGLETON_NAME = "currentBean";
+@org.springframework.stereotype.Controller
+public class SpringController extends DynamicController {
 
-	public static final String VIEW_PREFIX_PARAM_NAME = "viewPrefix";
-	public static final String VIEW_PREFIX_DEFAULT_VALUE = "/";
-
-	public static final String VIEW_SUFIX_PARAM_NAME = "viewSufix";
-	public static final String VIEW_SUFIX_DEFAULT_VALUE = ".jsp";
-
-	private String prefix;
-	private String sufix;
-
-	private Container beanFactory;
-	private Application application;
-	private Translator translator;
-
-	private Result result;
-
-	public DynamicController(Container beanFactory, Application application, Translator translator, Result result) {
-		this.beanFactory = beanFactory;
-		this.application = application;
-		this.translator = translator;
-		this.result = result;
+	public SpringController(Container container) {
+		super(container);
 	}
 
-	private Boolean attributesSetted = false;
+	private void setAttributes(Controller<?> controller, ModelMap map) {
 
-	@PostConstruct
-	public void setServletConfig() {
+		map.addAttribute(controller.getBeanMetaData().name(), controller);
+		map.addAttribute(VIEW_CURRENT_BEAN_VARIABLE_NAME, controller);
 
-		ServletContext servletContext = (ServletContext) beanFactory.getContainerConfig().getLocalContainer();
-		prefix = WebUtil.getInitParameter(servletContext, VIEW_PREFIX_PARAM_NAME, VIEW_PREFIX_DEFAULT_VALUE);
-		prefix = StringUtils.addBeginSlash(StringUtils.addEndSlash(prefix));
+		map.addAttribute(VIEW_TRANSLATOR_VARIABLE_NAME, controller.getTranslator());
+		map.addAttribute(VIEW_APPLICATION_VARIABLE_NAME, controller.getApplication());
+	}
 
-		sufix = WebUtil.getInitParameter(servletContext, VIEW_SUFIX_PARAM_NAME, VIEW_SUFIX_DEFAULT_VALUE);
+	@ResponseStatus(value = HttpStatus.NOT_FOUND)
+	public class ResourceNotFoundException extends RuntimeException {
+	}
 
-		System.out.println("CrudController.initializing...\nprefix: " + prefix + ", sufix: " + sufix + ", contextPath: "
-				+ servletContext.getContextPath());
+	@RequestMapping("/{viewName}/list")
+	public String list(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, ModelMap map) {
 
-		synchronized (attributesSetted) {
-			if (attributesSetted) return;
-
-			this.attributesSetted = true;
-
-			result.include("translator", translator);
-			result.include("i18n", translator);
-			result.include("application", application);
-			result.include("msg", application);
-		}
-
+		return this.list(viewName, -1, -1, map);
 	}
 
 	@SuppressWarnings("rawtypes")
-	@Get("/{viewName}/list/{pageNumber}/{pageSize}")
-	public void list(@PathVariable("viewName") String viewName, @PathVariable("pageNumber") Integer pageNumber,
-			@PathVariable("pageSize") Integer pageSize) {
+	@RequestMapping("/{viewName}/list/{pageNumber}/{pageSize}")
+	public String list(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @PathVariable("pageNumber") Integer pageNumber,
+			@PathVariable("pageSize") Integer pageSize, ModelMap map) {
 
-		System.out.println("CrudController.list, viewName : " + viewName);
+		System.out.println("SpringController.list, viewName : " + viewName);
 
-		if (beanFactory.containsBean(viewName)) {
-			Controller bean = beanFactory.getBean(viewName, Controller.class);
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
 
-			bean.setPageNumber(pageNumber);
-			bean.setPageSize(pageSize);
-			bean.refreshPage();
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
 
-			System.out.println("bean: " + bean);
+		System.out.println("found controller: " + controller);
 
-			result.include(bean.getName() + "Bean", bean);
-			result.include(CURRENT_BEAN_SINGLETON_NAME, bean);
+		pageNumber = pageNumber != null && pageNumber > 0 ? pageNumber : 1;
+		pageSize = pageSize != null && pageSize > 0 ? pageSize : controller.getInitialPageSize();
+		controller.setPageNumber(pageNumber);
+		controller.setPageSize(pageSize);
+		controller.refreshPage();
+		controller.toViewMode();
 
-			result.forwardTo(prefix + viewName + "/list" + sufix);
-		}
+		setAttributes(controller, map);
 
-		result.notFound();
+		return VIEW_PREFIX + controller.getListView() + VIEW_SUFFIX;
+	}
+
+	@RequestMapping("/{viewName}/list.json")
+	public ResponseEntity<?> listJson(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName) {
+
+		return this.listJson(viewName, -1, -1);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Get("/{viewName}/edit/{id}")
-	public void edit(@PathVariable("viewName") String viewName, @PathVariable("id") Serializable entityId) {
+	@RequestMapping("/{viewName}/list.json/{pageNumber}/{pageSize}")
+	public ResponseEntity<?> listJson(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName,
+			@PathVariable("pageNumber") Integer pageNumber, @PathVariable("pageSize") Integer pageSize) {
+
+		System.out.println("SpringController.listJson, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		System.out.println("found controller: " + controller);
+
+		pageNumber = pageNumber != null && pageNumber > 0 ? pageNumber : 1;
+		pageSize = pageSize != null && pageSize > 0 ? pageSize : controller.getInitialPageSize();
+		controller.setPageNumber(pageNumber);
+		controller.setPageSize(pageSize);
+		controller.refreshPage();
+		controller.toViewMode();
+
+		return new ResponseEntity(controller.getEntityList(), HttpStatus.OK);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping("/{viewName}/edit/{id}")
+	public String edit(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @PathVariable("id") Serializable entityId, ModelMap map) {
 
 		System.out.println("CrudController.edit, viewName : " + viewName);
 
-		if (beanFactory.containsBean(viewName)) {
-			CrudController bean = (CrudController) beanFactory.getBean(viewName);
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
 
-			bean.toEditMode();
-			if (entityId.getClass().isAssignableFrom(bean.getBeanMetaData().entityIdType())) {
-				bean.setCurrentEntity(entityId);
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
 
-				System.out.println("bean: " + bean);
+		Class<Serializable> entityIdType = controller.getBeanMetaData().entityIdType();
+		Serializable parsedId = ParserUtils.parseObject(entityIdType, entityId);
+		if (parsedId == null || !parsedId.getClass().isAssignableFrom(entityIdType)) {
 
-				result.include(bean.getName() + "Bean", bean);
-				result.include(CURRENT_BEAN_SINGLETON_NAME, bean);
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
 
-				result.forwardTo(prefix + viewName + "/edit" + sufix);
+		} else {
 
-				return;
-			} else {
-				LoggerFactory.getLogger(DynamicController.class).error("@TODO: insert message here");
-			}
+			System.out.println("found controller: " + controller);
+
+			controller.setCurrentEntity(parsedId);
+			controller.toEditMode();
+
+			setAttributes(controller, map);
+
+			return VIEW_PREFIX + controller.getEditView() + VIEW_SUFFIX;
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping("/{viewName}/{id}")
+	public String view(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @PathVariable("id") Serializable entityId, ModelMap map) {
+
+		System.out.println("CrudController.edit, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		Class<Serializable> entityIdType = controller.getBeanMetaData().entityIdType();
+		Serializable parsedId = ParserUtils.parseObject(entityIdType, entityId);
+		if (parsedId == null || !parsedId.getClass().isAssignableFrom(controller.getBeanMetaData().entityIdType())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
+
+		} else {
+
+			System.out.println("found controller: " + controller);
+
+			controller.setCurrentEntity(parsedId);
+			controller.toViewMode();
+
+			setAttributes(controller, map);
+
+			return VIEW_PREFIX + controller.getEditView() + VIEW_SUFFIX;
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping("/{viewName}.json/{id}")
+	public ResponseEntity<?> viewJson(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @PathVariable("id") Serializable entityId) {
+
+		System.out.println("CrudController.editJson, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		Class<Serializable> entityIdType = controller.getBeanMetaData().entityIdType();
+		Serializable parsedId = ParserUtils.parseObject(entityIdType, entityId);
+		if (parsedId == null || !parsedId.getClass().isAssignableFrom(controller.getBeanMetaData().entityIdType())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
+
+		} else {
+
+			System.out.println("found controller: " + controller);
+
+			controller.setCurrentEntity(parsedId);
+			controller.toViewMode();
+
+			return new ResponseEntity(controller.getCurrentEntity(), HttpStatus.OK);
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/{viewName}", method = RequestMethod.POST)
+	public String post(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @ModelAttribute(PATH_VARIABLE_ENTITY) Object entity,
+			ModelMap map) {
+
+		System.out.println("CrudController.post, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		if (!entity.getClass().equals(controller.getBeanMetaData().targetEntity())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
 		}
 
-		result.notFound();
+		System.out.println("found controller: " + controller);
+
+		controller.save(entity);
+		controller.setCurrentEntity(entity);
+		controller.toViewMode();
+
+		setAttributes(controller, map);
+
+		return VIEW_PREFIX + controller.getEditView() + VIEW_SUFFIX;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/{viewName}.json", method = RequestMethod.POST)
+	public ResponseEntity<?> postJson(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @RequestBody String entityAsString) {
+
+		System.out.println("CrudController.postJson, viewName : " + viewName);
+
+		Object entity;
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		// if
+		// (!entity.getClass().equals(controller.getBeanMetaData().targetEntity()))
+		// {
+
+		try {
+			entity = new ObjectMapper().readValue(entityAsString, controller.getBeanMetaData().targetEntity());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ResourceNotFoundException();
+		}
+
+		// LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+		// throw new ResourceNotFoundException();
+		// }
+
+		System.out.println("found controller: " + controller);
+
+		controller.save(entity);
+		controller.setCurrentEntity(entity);
+		controller.toViewMode();
+
+		return new ResponseEntity(controller.getCurrentEntity(), HttpStatus.OK);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/{viewName}", method = RequestMethod.PUT)
+	public String update(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @ModelAttribute(PATH_VARIABLE_ENTITY) Object entity,
+			ModelMap map) {
+
+		System.out.println("CrudController.post, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		if (!entity.getClass().equals(controller.getBeanMetaData().targetEntity())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
+		}
+
+		System.out.println("found controller: " + controller);
+
+		controller.update(entity);
+		controller.toViewMode();
+
+		setAttributes(controller, map);
+
+		return VIEW_PREFIX + controller.getEditView() + VIEW_SUFFIX;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/{viewName}.json", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateJson(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName,
+			@ModelAttribute(PATH_VARIABLE_ENTITY) @RequestBody Object entity) {
+
+		System.out.println("CrudController.postJson, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		if (!entity.getClass().equals(controller.getBeanMetaData().targetEntity())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
+		}
+
+		System.out.println("found controller: " + controller);
+
+		controller.update(entity);
+
+		return new ResponseEntity(controller.getCurrentEntity(), HttpStatus.OK);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/{viewName}/{id}", method = RequestMethod.DELETE)
+	public String delete(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @PathVariable("id") Serializable entityId, ModelMap map) {
+
+		System.out.println("CrudController.post, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		Class<Serializable> entityIdType = controller.getBeanMetaData().entityIdType();
+		Serializable parsedId = ParserUtils.parseObject(entityIdType, entityId);
+		if (parsedId == null || !parsedId.getClass().isAssignableFrom(controller.getBeanMetaData().entityIdType())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
+
+		} else {
+
+			System.out.println("found controller: " + controller);
+
+			controller.delete(controller.getService().find(entityId));
+
+			controller.toViewMode();
+
+			setAttributes(controller, map);
+
+			return VIEW_PREFIX + controller.getListView() + VIEW_SUFFIX;
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/{viewName}.json/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteJson(@PathVariable(PATH_VARIABLE_VIEW_NAME) String viewName, @PathVariable("id") Serializable entityId) {
+
+		System.out.println("CrudController.postJson, viewName : " + viewName);
+
+		if (!container.containsBean(viewName))
+			throw new ResourceNotFoundException();
+
+		WebCrudController controller = container.getBean(viewName, WebCrudController.class);
+
+		Class<Serializable> entityIdType = controller.getBeanMetaData().entityIdType();
+		Serializable parsedId = ParserUtils.parseObject(entityIdType, entityId);
+		if (parsedId == null || !parsedId.getClass().isAssignableFrom(controller.getBeanMetaData().entityIdType())) {
+
+			LoggerFactory.getLogger(SpringController.class).error("@TODO: insert message here");
+			throw new ResourceNotFoundException();
+
+		} else {
+
+			System.out.println("found controller: " + controller);
+
+			controller.delete(controller.getService().find(entityId));
+
+			return new ResponseEntity(controller.getEntityList(), HttpStatus.OK);
+		}
 	}
 }

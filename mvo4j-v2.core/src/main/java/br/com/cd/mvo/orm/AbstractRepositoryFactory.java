@@ -1,16 +1,14 @@
-package br.com.cd.mvo.orm.support;
+package br.com.cd.mvo.orm;
 
 import java.lang.annotation.Annotation;
 
 import org.apache.commons.collections.map.ReferenceMap;
 
-import br.com.cd.mvo.core.NoSuchBeanDefinitionException;
 import br.com.cd.mvo.ioc.Container;
-import br.com.cd.mvo.orm.Repository;
-import br.com.cd.mvo.orm.RepositoryFactory;
-import br.com.cd.mvo.util.GenericsUtils;
+import br.com.cd.mvo.ioc.NoSuchBeanDefinitionException;
+import br.com.cd.util.GenericsUtils;
 
-public abstract class AbstractRepositoryFactory<F, B, R extends Repository<?>> implements RepositoryFactory<F, B, R> {
+public abstract class AbstractRepositoryFactory<F, B, R extends Repository<?, ?>> implements RepositoryFactory<F, B, R> {
 
 	private final Class<? extends Annotation> entityIdentifierAnnotation;
 	private final Class<? extends Annotation> entityAnnotation;

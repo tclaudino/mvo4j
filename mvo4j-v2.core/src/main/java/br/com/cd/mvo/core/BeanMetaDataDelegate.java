@@ -1,4 +1,4 @@
-package br.com.cd.mvo.bean.config;
+package br.com.cd.mvo.core;
 
 public abstract class BeanMetaDataDelegate<T> implements BeanMetaData<T> {
 
@@ -34,7 +34,8 @@ public abstract class BeanMetaDataDelegate<T> implements BeanMetaData<T> {
 	}
 
 	@Override
-	public <R> Class<R> getAsType(String key, Class<R> returnType, Class<R> defaultValue) {
+	public <R> Class<R> getAsType(String key, Class<R> returnType,
+			Class<R> defaultValue) {
 		return this.delegate.getAsType(key, returnType, defaultValue);
 	}
 

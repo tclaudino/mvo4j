@@ -1,7 +1,8 @@
-package br.com.cd.mvo.core;
+package br.com.cd.mvo;
 
 import java.io.Serializable;
 
+import br.com.cd.mvo.core.BeanObject;
 import br.com.cd.mvo.orm.Repository;
 
 public interface CrudService<T> extends BeanObject<T> {
@@ -14,6 +15,6 @@ public interface CrudService<T> extends BeanObject<T> {
 
 	T find(final Serializable id);
 
-	Repository<T> getRepository();
+	Repository<T, ?> getRepository();
 
 }

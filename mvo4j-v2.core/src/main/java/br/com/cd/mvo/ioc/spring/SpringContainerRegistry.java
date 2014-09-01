@@ -17,22 +17,11 @@ public class SpringContainerRegistry extends AbstractContainerRegistry<SpringCon
 		super(container);
 	}
 
-	/*
-	 * @Override public void
-	 * postProcessBeanFactory(ConfigurableListableBeanFactory factory) throws
-	 * BeansException {
-	 * 
-	 * try { this.register(); this.deepRegister(); } catch
-	 * (ConfigurationException e) { throw new BeansException(e.getMessage(), e)
-	 * { }; } }
-	 */
-
 	@Override
 	protected void configure() {
 
 		AnnotationConfigUtils.registerAnnotationConfigProcessors((BeanDefinitionRegistry) container.applicationContext.getBeanFactory());
-		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary((BeanDefinitionRegistry) container.applicationContext
-				.getBeanFactory());
+		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary((BeanDefinitionRegistry) container.applicationContext.getBeanFactory());
 
 		// container.applicationContext.addBeanFactoryPostProcessor(this);
 		this.registerCustomComponents();
@@ -43,8 +32,7 @@ public class SpringContainerRegistry extends AbstractContainerRegistry<SpringCon
 	private void registerCustomComponents() {
 
 		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) container.applicationContext.getBeanFactory();
-		beanFactory
-				.setAutowireCandidateResolver(new GenericAutowireCandidateResolver(container, beanFactory.getAutowireCandidateResolver()));
+		beanFactory.setAutowireCandidateResolver(new GenericAutowireCandidateResolver(container, beanFactory.getAutowireCandidateResolver()));
 		beanFactory.setInstantiationStrategy(new BeanObjectInstantiationStrategy(container));
 	}
 
